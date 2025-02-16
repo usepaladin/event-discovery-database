@@ -1,4 +1,4 @@
-package eda.eventdiscovery
+package veridius.discover
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

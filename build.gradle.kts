@@ -9,7 +9,7 @@ plugins {
 	id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
-group = "EDA"
+group = "Veredius"
 version = "0.0.1-SNAPSHOT"
 
 java {

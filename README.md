@@ -8,7 +8,7 @@
 
 **Service Overview**
 
-The **Event Discovery Service (EDS)** is a core microservice of the [Bro im still working on a name why is this so hard] platform. Its primary responsibility is to automatically discover and capture data changes from user-configured data sources (initially databases and REST APIs) and transform these changes into structured events published to the main Kafka Event Bus service.
+The **Event Discovery Service (EDS)** is a core tool within the Veridius platform. Its primary responsibility is to automatically discover and capture data changes from user-configured data sources (initially databases and REST APIs) and transform these changes into structured events published to the main Kafka Event Bus service.
 
 EDS acts as the crucial bridge connecting user's existing data infrastructure to the event-driven architecture, enabling "zero-config" automated event generation and streaming for building reactive applications.
 
@@ -44,8 +44,8 @@ EDS acts as the crucial bridge connecting user's existing data infrastructure to
 2.  **Clone the Repository:**
 
     ```bash
-    git clone [repository-url]
-    cd edaas-event-discovery-service
+    git clone git@github.com:VeridiusApp/event-discovery.git event-discovery
+    cd event-discovery
     ```
 
 3.  **Build the Service:**
@@ -68,14 +68,14 @@ EDS acts as the crucial bridge connecting user's existing data infrastructure to
 
 **Configuration**
 
-The EDS service is configured via [Typesafe Config](https://github.com/lightbend/config) (or your chosen configuration library). Configuration settings are typically loaded from:
+The EDS service is configured via [Typesafe Config](https://github.com/lightbend/config). Configuration settings are typically loaded from:
 
 -   `application.conf` (in `src/main/resources/`) - Default configurations.
 -   Environment variables - For overriding configurations in different environments.
 
 **Key Configuration Parameters:**
 
--   **`eds.instance.id`:** (String, required) Unique identifier for this EDS instance (e.g., tenant ID). Used to fetch configuration from the Metadata Database.
+-   **`veridius.client.id`:** (String, required) Unique identifier for this EDS instance (e.g., tenant ID). Used to fetch configuration from the Metadata Database.
 -   **`metadata.database`:** (Database connection details) Configuration for connecting to the central Metadata Database (e.g., JDBC URL, username, password).
 -   **`eventbus.kafka`:** (Kafka producer configuration) Settings for connecting to the Kafka broker of the Event Bus Core Service (e.g., bootstrap servers, serializers).
 -   **`schema.registry`:** (Schema Registry client configuration) Settings for connecting to the Schema Registry (e.g., URL).
@@ -112,7 +112,7 @@ See the `application.conf` file in `src/main/resources/` for a full list of conf
 
 **Contributing**
 
-We welcome contributions to the Event Discovery Service! Please see the [`CONTRIBUTING.md`](CONTRIBUTING.md) file for guidelines on how to contribute.
+We welcome contributions to the Event Discovery Service or any other Veridius related service! Please see the [`CONTRIBUTING.md`](CONTRIBUTING.md) file for guidelines on how to contribute.
 
 **License**
 
