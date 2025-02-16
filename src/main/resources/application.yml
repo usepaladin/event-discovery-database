@@ -1,0 +1,54 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: event-discovery
+      auto-offset-reset: earliest
+  application:
+    name: event-discovery
+server:
+  port: 8069
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"  # Custom console log pattern
+    file: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"    # Custom file log pattern
+  file:
+    name: ./logs/event-discovery.log
+  level:
+    root: debug
+    org:
+      springframework:
+        web: INFO
+        data: INFO
+        security: INFO
+        boot: INFO
+        cloud: INFO
+        kafka: INFO
+        jpa: INFO
+        hibernate: INFO
+        ehcache: INFO
+        quartz: INFO
+discover:
+  databases:
+    - id: POSTGRES_DB_1
+      type: POSTGRES
+      host: ${POSTGRES_1_HOST}
+      port: ${POSTGRES_1_PORT}
+      user: ${POSTGRES_1_USER}
+      password: ${POSTGRES_1_PASSWORD}
+
+    - id: MONGO_DB_1
+      type: MONGODB
+      host: ${MONGODB_1_HOST}
+      port: ${MONGODB_1_PORT}
+      user: ${MONGODB_1_USER}
+      password: ${MONGODB_1_PASSWORD}
+
+    - id: CASSANDRA_DB_1
+      type: CASSANDRA
+      host: ${CASSANDRA_1_HOST}
+      port: ${CASSANDRA_1_PORT}
+debezium:
+  offset-storage:
+    file-name: "/data/offset.dat"
+    type: file

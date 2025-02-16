@@ -32,8 +32,9 @@ extra["snippetsDir"] = file("build/generated-snippets")
 extra["springGrpcVersion"] = "0.3.0"
 
 dependencies {
+
+	// Spring boot + Core
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -44,11 +45,28 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	// Debezium
+	implementation("io.debezium:debezium-core:3.0.7.Final")
+	implementation("io.debezium:debezium-api:3.0.7.Final")
+	implementation("io.debezium:debezium-connector-mongodb:3.0.7.Final")
+	implementation("io.debezium:debezium-connector-mysql:3.0.7.Final")
+	implementation("io.debezium:debezium-connector-postgres:3.0.7.Final")
+
+	// Database Connections
+	implementation("org.mongodb:mongo-driver-sync:4.11.1")
+	implementation("org.postgresql:postgresql:42.7.4")
+	implementation("com.datastax.oss:java-driver-core:4.17.0")
+	implementation("mysql:mysql-connector-java:8.0.33")
+
+	// Testing
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.grpc:spring-grpc-test")
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+	testImplementation("io.debezium:debezium-testing-testcontainers:3.0.7.Final")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
