@@ -14,10 +14,11 @@ data class DatabaseConfigurationProperties(
         val host: String,
         val port: Number,
         val user: String?,
-        val password: String?
+        val password: String?,
+        val database: String?
     ){
-        fun toConnectionURL(){
-            when(type){
+        fun toConnectionURL(): String {
+            return when(type){
                 DatabaseType.POSTGRES -> "jdbc:postgresql://$host:$port"
                 DatabaseType.CASSANDRA -> "jdbc:cassandra://$host:$port"
                 DatabaseType.MYSQL -> "jdbc:mysql://$host:$port"

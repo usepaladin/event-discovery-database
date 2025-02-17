@@ -38,6 +38,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	implementation("io.grpc:grpc-services")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
@@ -59,8 +60,11 @@ dependencies {
 	implementation("com.datastax.oss:java-driver-core:4.17.0")
 	implementation("mysql:mysql-connector-java:8.0.33")
 
-	// Testing
+	// Logging
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+	implementation("ch.qos.logback:logback-classic:1.4.11") // Logback for SLF4J
 
+	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.grpc:spring-grpc-test")
