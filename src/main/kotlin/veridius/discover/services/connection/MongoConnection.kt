@@ -6,6 +6,7 @@ import com.mongodb.client.MongoClients
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import veridius.discover.configuration.properties.DatabaseConfigurationProperties
 import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
 
 data class MongoConnection(
@@ -16,7 +17,7 @@ data class MongoConnection(
 
     override suspend fun connect(): MongoClient = withContext(Dispatchers.IO) {
         try{
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ConnectionState.Connecting
             if(client != null){
                 _connectionState.value = ConnectionState.Connected
                 client!!
@@ -27,11 +28,10 @@ data class MongoConnection(
             }
 
             if (client == null) {
-                val connectionString = "${config.toConnectionURL()}/${config.database}"
-                val credentials = "?authSource=admin&username=${config.user}&password=${config.password}"
-                client = MongoClients.create("$connectionString$credentials")
+                client = MongoClients.create(config.toConnectionURL())
             }
 
+            _connectionState.value = ConnectionState.Connected
             client!!
         }
         catch (e: Exception){

@@ -32,6 +32,7 @@ discover:
   databases:
     - id: POSTGRES_DB_1
       type: POSTGRES
+      public: false
       host: ${POSTGRES_1_HOST}
       port: ${POSTGRES_1_PORT}
       user: ${POSTGRES_1_USER}
@@ -39,6 +40,7 @@ discover:
 
     - id: MONGO_DB_1
       type: MONGODB
+      public: false
       host: ${MONGODB_1_HOST}
       port: ${MONGODB_1_PORT}
       user: ${MONGODB_1_USER}
@@ -46,6 +48,7 @@ discover:
 
     - id: CASSANDRA_DB_1
       type: CASSANDRA
+      public: true
       host: ${CASSANDRA_1_HOST}
       port: ${CASSANDRA_1_PORT}
 debezium:
