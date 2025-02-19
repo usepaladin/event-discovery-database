@@ -7,17 +7,17 @@ sealed interface DatabaseConnector {
     /**
      * Connect to the database
      */
-    suspend fun connect(): Any
+    fun connect(): Any
 
     /**
      * Disconnect from the database
      */
-    suspend fun disconnect()
+    fun disconnect()
 
     /**
      * Get the connection status
      */
-    suspend fun isConnected(): Boolean
+    fun isConnected(): Boolean
 
     fun validateConfig()
     fun configure()

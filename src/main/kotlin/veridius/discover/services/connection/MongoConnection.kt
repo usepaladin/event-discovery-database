@@ -1,12 +1,10 @@
 package veridius.discover.services.connection
 
-import com.mongodb.MongoCredential
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties
 import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
 
 data class MongoConnection(
@@ -15,7 +13,7 @@ data class MongoConnection(
     private var client: MongoClient? = null
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun connect(): MongoClient = withContext(Dispatchers.IO) {
+    override fun connect(): MongoClient {
         try{
             _connectionState.value = ConnectionState.Connecting
             if(client != null){
@@ -32,7 +30,7 @@ data class MongoConnection(
             }
 
             _connectionState.value = ConnectionState.Connected
-            client!!
+            return client!!
         }
         catch (e: Exception){
             _connectionState.value = ConnectionState.Error(e)
@@ -42,7 +40,7 @@ data class MongoConnection(
         }
     }
 
-    override suspend fun disconnect() = withContext(Dispatchers.IO) {
+    override fun disconnect() {
         try {
             client?.close()
             client = null
@@ -56,16 +54,16 @@ data class MongoConnection(
 
     }
 
-    override suspend fun isConnected(): Boolean {
-        return withContext(Dispatchers.IO) {
+    override fun isConnected(): Boolean {
+
             try{
-                client?.listDatabaseNames()?.first() != null
+                return client?.listDatabaseNames()?.first() != null
             } catch (e: Exception){
                 logger.error(e) { "Error checking connection to Mongo \n" +
                         "Stack trace: ${e.message}" }
-                false
+                return false
             }
-        }
+
     }
 
     override fun validateConfig() {

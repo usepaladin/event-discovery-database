@@ -12,15 +12,15 @@ import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 
 @Service
-class DatabaseConnectionManager(private val scope: CoroutineScope) {
-    private val connections = ConcurrentHashMap<String, DatabaseConnection>()
-    private val connectionJobs = ConcurrentHashMap<String, Job>()
+class DatabaseConnectionManager(private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)) {
+    private val connections = HashMap<String, DatabaseConnection>()
+    private val connectionJobs = HashMap<String, Job>()
     private val logger = KotlinLogging.logger {}
 
-    suspend fun createConnection(
+    fun createConnection(
         config: DatabaseConnectionConfiguration,
         autoConnect: Boolean = true
-    ): DatabaseConnection = withContext(scope.coroutineContext) {
+    ): DatabaseConnection {
 
         val connection = when (config.type) {
             DatabaseType.POSTGRES -> PostgresConnection(config.id, config)
@@ -31,18 +31,8 @@ class DatabaseConnectionManager(private val scope: CoroutineScope) {
 
         connections[connection.id] = connection
 
-        if (autoConnect) {
-            connectionJobs
-        }
-        connectionJobs[connection.id] = scope.launch {
-            try {
-                connection.connect()
-            } catch (e: Exception) {
-                connection.disconnect()
-            }
-        }
-
-        connection
+        connection.connect()
+        return connection
     }
 
     fun getConnection(id: String): DatabaseConnection? {

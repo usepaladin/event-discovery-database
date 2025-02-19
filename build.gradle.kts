@@ -34,17 +34,18 @@ extra["springGrpcVersion"] = "0.3.0"
 dependencies {
 
 	// Spring boot + Core
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.springframework.boot:spring-boot-starter-websocket")
+//	implementation("org.springframework.boot:spring-boot-starter-actuator")
+//	implementation("org.springframework.boot:spring-boot-starter-validation")
+//	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-	implementation("io.grpc:grpc-services")
+//	implementation("io.grpc:grpc-services")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
 	implementation("org.springframework.kafka:spring-kafka")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+//	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	// Debezium
@@ -55,14 +56,14 @@ dependencies {
 	implementation("io.debezium:debezium-connector-postgres:3.0.7.Final")
 
 	// Database Connections
-	implementation("org.mongodb:mongo-driver-sync:4.11.1")
+	implementation("com.zaxxer:HikariCP:6.2.1")
+	implementation("org.mongodb:mongodb-driver-sync:4.11.1")
 	implementation("org.postgresql:postgresql:42.7.4")
 	implementation("com.datastax.oss:java-driver-core:4.17.0")
 	implementation("mysql:mysql-connector-java:8.0.33")
 
 	// Logging
 	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-	implementation("ch.qos.logback:logback-classic:1.4.11") // Logback for SLF4J
 
 	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

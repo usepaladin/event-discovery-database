@@ -13,7 +13,7 @@ data class MySQLConnection(
     private var datasource: DataSource? = null
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun connect(): DataSource = withContext(Dispatchers.IO) {
+    override fun connect(): DataSource {
         try{
             _connectionState.value = ConnectionState.Connecting
             if(datasource == null){
@@ -25,7 +25,7 @@ data class MySQLConnection(
                     .build()
             }
             _connectionState.value = ConnectionState.Connected
-            datasource!!
+            return datasource!!
         } catch (e: Exception){
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) { "Error connecting to Postgres \n" +
@@ -33,7 +33,7 @@ data class MySQLConnection(
             throw e
         }
     }
-    override suspend fun disconnect() {
+    override fun disconnect() {
         try{
             datasource?.connection?.close()
             datasource = null
@@ -45,16 +45,16 @@ data class MySQLConnection(
         }
     }
 
-    override suspend fun isConnected(): Boolean {
-        return withContext(Dispatchers.IO) {
+    override fun isConnected(): Boolean {
+
             try{
-                datasource?.connection?.isValid(1000) ?: false
+                return datasource?.connection?.isValid(1000) ?: false
             } catch (e: Exception){
                 logger.error(e) { "Error checking connection to Postgres \n" +
                         "Stack trace: ${e.message}" }
-                false
+                return false
             }
-        }
+
     }
 
     override fun validateConfig() {

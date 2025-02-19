@@ -16,7 +16,7 @@ data class CassandraConnection(
 
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun connect(): CqlSession = withContext(Dispatchers.IO) {
+    override fun connect(): CqlSession {
         try {
             _connectionState.value = ConnectionState.Connecting
             if (session == null) {
@@ -35,7 +35,7 @@ data class CassandraConnection(
 
             }
             _connectionState.value = ConnectionState.Connected
-            session!!
+            return session!!
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) { "Error connecting to Cassandra \n" +
@@ -44,7 +44,7 @@ data class CassandraConnection(
         }
     }
 
-    override suspend fun disconnect() = withContext(Dispatchers.IO){
+    override fun disconnect() {
         try{
             session?.close()
             session = null
@@ -56,16 +56,16 @@ data class CassandraConnection(
         }
     }
 
-    override suspend fun isConnected(): Boolean {
-        return withContext(Dispatchers.IO) {
+    override fun isConnected(): Boolean {
+
             try {
-                session?.let { !it.isClosed} ?: false
+                return session?.let { !it.isClosed} ?: false
             } catch (e: Exception) {
                 logger.error(e) { "Error checking connection to Cassandra \n" +
                         "Stack trace: ${e.message}" }
-                false
+                return false
             }
-        }
+
     }
 
     override fun validateConfig() {

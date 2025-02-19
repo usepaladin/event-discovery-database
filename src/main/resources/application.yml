@@ -1,4 +1,17 @@
 spring:
+  autoconfigure:
+    exclude:
+    - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+    - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+    - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.cassandra.CassandraReactiveDataAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.cassandra.CassandraReactiveRepositoriesAutoConfiguration
+    - org.springframework.boot.autoconfigure.data.cassandra.CassandraRepositoriesAutoConfiguration
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -8,6 +21,7 @@ spring:
     name: event-discovery
 server:
   port: 8069
+
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"  # Custom console log pattern
@@ -33,24 +47,25 @@ discover:
     - id: POSTGRES_DB_1
       type: POSTGRES
       public: false
+      database: mydb
       host: ${POSTGRES_1_HOST}
       port: ${POSTGRES_1_PORT}
       user: ${POSTGRES_1_USER}
       password: ${POSTGRES_1_PASSWORD}
 
-    - id: MONGO_DB_1
-      type: MONGODB
-      public: false
-      host: ${MONGODB_1_HOST}
-      port: ${MONGODB_1_PORT}
-      user: ${MONGODB_1_USER}
-      password: ${MONGODB_1_PASSWORD}
-
-    - id: CASSANDRA_DB_1
-      type: CASSANDRA
-      public: true
-      host: ${CASSANDRA_1_HOST}
-      port: ${CASSANDRA_1_PORT}
+#    - id: MONGO_DB_1
+#      type: MONGODB
+#      public: false
+#      host: ${MONGODB_1_HOST}
+#      port: ${MONGODB_1_PORT}
+#      user: ${MONGODB_1_USER}
+#      password: ${MONGODB_1_PASSWORD}
+#
+#    - id: CASSANDRA_DB_1
+#      type: CASSANDRA
+#      public: true
+#      host: ${CASSANDRA_1_HOST}
+#      port: ${CASSANDRA_1_PORT}
 debezium:
   offset-storage:
     file-name: "/data/offset.dat"

@@ -13,7 +13,7 @@ data class DatabaseConfigurationProperties(
         val type: DatabaseType,
         val public: Boolean,
         val host: String,
-        val port: Number,
+        val port: String,
         val user: String?,
         val password: String?,
         val database: String?,

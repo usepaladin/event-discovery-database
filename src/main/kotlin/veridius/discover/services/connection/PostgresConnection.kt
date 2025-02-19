@@ -1,5 +1,7 @@
 package veridius.discover.services.connection
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -14,28 +16,35 @@ data class PostgresConnection(
 
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun connect(): DataSource = withContext(Dispatchers.IO) {
+    private val hikariConfig = HikariConfig().apply {
+        driverClassName = "org.postgresql.Driver"
+        jdbcUrl = config.toConnectionURL()
+        username = config.user
+        password = config.password
+        minimumIdle = 2
+        maximumPoolSize = 10
+        connectionTimeout = 3000
+    }
+
+    override fun connect(): DataSource {
+        if(_connectionState.value == ConnectionState.Connected && datasource != null){
+            return datasource!!
+        }
+
         try{
             _connectionState.value = ConnectionState.Connecting
-            if(datasource == null){
-                datasource = DataSourceBuilder.create()
-                    .driverClassName("org.postgresql.Driver")
-                    .url(config.toConnectionURL())
-                    .username(config.user)
-                    .password(config.password)
-                    .build()
-            }
+            datasource = HikariDataSource(hikariConfig)
             _connectionState.value = ConnectionState.Connected
-            datasource!!
+            return datasource!!
         } catch (e: Exception){
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) { "Error connecting to Postgres \n" +
-                    "Stack trace: ${e.message}" }
+                    "Stack trace: ${e.localizedMessage}" }
             throw e
         }
     }
 
-    override suspend fun disconnect() = withContext(Dispatchers.IO) {
+    override fun disconnect() {
         try{
             datasource?.connection?.close()
             datasource = null
@@ -47,13 +56,13 @@ data class PostgresConnection(
         }
     }
 
-    override suspend fun isConnected(): Boolean = withContext(Dispatchers.IO) {
+    override fun isConnected(): Boolean {
         try{
-            datasource?.connection?.isValid(1000) ?: false
+            return datasource?.connection?.isValid(1000) ?: false
         } catch (e: Exception){
             logger.error(e) { "Error checking connection to Postgres \n" +
                     "Stack trace: ${e.message}" }
-            false
+            return false
         }
     }
 
