@@ -1,4 +1,4 @@
-package veridius.discover.services.connection
+package veridius.discover.services.connection.internal
 
 /**
  * Interface for database connectors

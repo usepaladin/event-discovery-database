@@ -1,4 +1,4 @@
-package veridius.discover.services.connection;
+package veridius.discover.services.connection.internal;
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

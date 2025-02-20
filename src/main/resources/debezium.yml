@@ -1,0 +1,4 @@
+debezium:
+  offset-storage:
+    file-name: "/data/offset.dat"
+    type: file

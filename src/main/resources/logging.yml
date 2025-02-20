@@ -1,0 +1,20 @@
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"  # Custom console log pattern
+    file: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"    # Custom file log pattern
+  file:
+    name: ./logs/event-discovery.log
+  level:
+    root: debug
+    org:
+      springframework:
+        web: INFO
+        data: INFO
+        security: INFO
+        boot: INFO
+        cloud: INFO
+        kafka: INFO
+        jpa: INFO
+        hibernate: INFO
+        ehcache: INFO
+        quartz: INFO

@@ -1,12 +1,12 @@
 package veridius.discover.services.configuration
 
 import jakarta.annotation.PostConstruct
-import org.springframework.stereotype.Component
-import veridius.discover.entities.DatabaseMonitoringConfig
+import org.springframework.stereotype.Service
+import veridius.discover.entities.configuration.DatabaseMonitoringConfig
 import java.util.concurrent.ConcurrentHashMap
 
-@Component
-class DatabaseConfigurationManager {
+@Service
+class ConfigurationService {
     // In-memory storage for active configurations
     private val activeConfigurations = ConcurrentHashMap<String, DatabaseMonitoringConfig>()
 

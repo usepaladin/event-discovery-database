@@ -1,22 +1,17 @@
 package veridius.discover.services
 
-import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-
 import mu.KotlinLogging
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.DatabaseConfigurationProperties
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.*
-import veridius.discover.services.connection.DatabaseConnectionManager
+import veridius.discover.services.connection.ConnectionService
 
 
 
 @Service
 class DatabaseManagementService(
-    private val connectionManager: DatabaseConnectionManager,
+    private val connectionManager: ConnectionService,
     private val configuration: DatabaseConfigurationProperties
 ) {
 

@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.DatabaseConfigurationProperties.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
+import veridius.discover.services.connection.internal.*
 
 @Service
-class DatabaseConnectionManager(private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)) {
+class ConnectionService(private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)) {
     private val connections = HashMap<String, DatabaseConnection>()
     private val connectionJobs = HashMap<String, Job>()
     private val logger = KotlinLogging.logger {}

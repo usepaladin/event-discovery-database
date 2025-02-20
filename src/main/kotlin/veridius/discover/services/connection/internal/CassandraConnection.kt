@@ -1,11 +1,8 @@
-package veridius.discover.services.connection
+package veridius.discover.services.connection.internal
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties
 import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
 import java.net.InetSocketAddress
 

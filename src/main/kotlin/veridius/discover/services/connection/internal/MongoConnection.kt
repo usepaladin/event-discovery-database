@@ -1,9 +1,7 @@
-package veridius.discover.services.connection
+package veridius.discover.services.connection.internal
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
 
