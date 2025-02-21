@@ -13,7 +13,8 @@ import java.util.UUID
         UniqueConstraint(columnNames = ["connection_name"])
     ],
     indexes = [
-        Index(name = "idx_database_connection_name", columnList = "connection_name")
+        Index(name = "idx_database_connection_name", columnList = "connection_name"),
+        Index(name = "idx_database_connection_instance_id", columnList = "instance_id")
     ]
 )
 data class DatabaseConnectionEntity(
@@ -22,17 +23,20 @@ data class DatabaseConnectionEntity(
     @Column(name = "database_connection_id", columnDefinition = "UUID DEFAULT uuid_generate_v4()", nullable = false)
     val id: UUID? = null,
 
-    @Column(name = "connection_name")
+    @Column(name = "instance_id", nullable = false)
+    val instanceId: UUID,
+
+    @Column(name = "connection_name", nullable = false, unique = true)
     var connectionName: String,
 
-    @Column(name = "database_type")
+    @Column(name = "database_type", nullable = false)
     @Enumerated(EnumType.STRING)
     val databaseType: DatabaseType,
 
-    @Column(name = "enc_host")
+    @Column(name = "enc_host", nullable = false)
     var encryptedHostname: String,
 
-    @Column(name = "enc_port")
+    @Column(name = "enc_port", nullable = false)
     var encryptedPort: String,
 
     @Column(name = "enc_database_name")

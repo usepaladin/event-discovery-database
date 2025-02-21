@@ -34,8 +34,8 @@ data class TableMonitoringConfigurationEntity(
     var includeAllColumns: Boolean = true,
 
     @Column(name = "table_columns", columnDefinition = "JSONB")
-    @Convert(converter = veridius.discover.entities.configuration.TableMonitoringConfigurationEntity.TableColumnConfigurationConvertor::class)
-    var columns: List<TableColumnConfigurationEntity> = emptyList(),
+    @Convert(converter = veridius.discover.entities.configuration.TableColumnConfiguration::class)
+    var columns: List<TableColumnConfiguration> = emptyList(),
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     var createdAt: ZonedDateTime = ZonedDateTime.now(),
@@ -44,26 +44,7 @@ data class TableMonitoringConfigurationEntity(
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
 ){
 
-    data class TableColumnConfigurationEntity(
-        var name: String? = null,
-        var isEnabled: Boolean = true,
-        // Include both the old and updated value in the Debezium event message
-        var includeOldValue: Boolean? = null
-        //todo: Research Column specific transformation within Debezium
-    )
 
-    @Converter
-    class TableColumnConfigurationConvertor : AttributeConverter<TableColumnConfigurationEntity, String> {
-        private val objectMapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
-
-        override fun convertToDatabaseColumn(attribute: TableColumnConfigurationEntity?): String {
-            return objectMapper.writeValueAsString(attribute ?: TableColumnConfigurationEntity())
-        }
-
-        override fun convertToEntityAttribute(dbData: String?): TableColumnConfigurationEntity {
-            return dbData?.let { objectMapper.readValue(it, TableColumnConfigurationEntity::class.java) } ?: TableColumnConfigurationEntity()
-        }
-    }
 
 }
 

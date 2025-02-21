@@ -20,8 +20,6 @@ class DatabaseSettingsEntity(
     @Column(name = "database_connection_id", nullable = false)
     val databaseConnectionId: UUID,
 
-
-
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     var createdAt: java.time.ZonedDateTime = java.time.ZonedDateTime.now(),
 
