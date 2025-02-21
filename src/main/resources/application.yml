@@ -1,3 +1,5 @@
+discover:
+  require-data-encryption: true
 server:
   port: 8069
 spring:
@@ -10,14 +12,4 @@ spring:
       - classpath:/kafka.yml
       - classpath:/logging.yml
       - classpath:/debezium.yml
-#Will be deprecating soon
-discover:
-  databases:
-    - id: POSTGRES_DB_1
-      type: POSTGRES
-      public: false
-      database: mydb
-      host: ${POSTGRES_1_HOST}
-      port: ${POSTGRES_1_PORT}
-      user: ${POSTGRES_1_USER}
-      password: ${POSTGRES_1_PASSWORD}
+

@@ -3,7 +3,7 @@ package veridius.discover.services.connection.internal;
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
 
 sealed class DatabaseConnection : DatabaseConnector {
     abstract val id: String

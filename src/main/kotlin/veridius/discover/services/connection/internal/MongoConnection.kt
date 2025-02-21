@@ -3,7 +3,7 @@ package veridius.discover.services.connection.internal
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
 
 data class MongoConnection(
     override val id: String, override val config: DatabaseConnectionConfiguration

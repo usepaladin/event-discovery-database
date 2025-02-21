@@ -3,7 +3,7 @@ package veridius.discover.services.connection.internal
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
 import java.net.InetSocketAddress
 
 data class CassandraConnection(

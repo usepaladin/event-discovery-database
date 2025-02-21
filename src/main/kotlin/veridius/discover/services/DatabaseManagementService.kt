@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties
+import veridius.discover.configuration.properties.CoreConfigurationProperties
 import veridius.discover.services.connection.ConnectionService
 
 
@@ -12,7 +12,7 @@ import veridius.discover.services.connection.ConnectionService
 @Service
 class DatabaseManagementService(
     private val connectionManager: ConnectionService,
-    private val configuration: DatabaseConfigurationProperties
+    private val configuration: CoreConfigurationProperties
 ) {
 
     private val logger = KotlinLogging.logger {}

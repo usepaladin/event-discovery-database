@@ -7,6 +7,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 	id("com.google.protobuf") version "0.9.4"
 	id("org.asciidoctor.jvm.convert") version "3.3.2"
+	kotlin("plugin.jpa") version "1.9.25"
 }
 
 group = "Veredius"
@@ -34,18 +35,15 @@ extra["springGrpcVersion"] = "0.3.0"
 dependencies {
 
 	// Spring boot + Core
-//	implementation("org.springframework.boot:spring-boot-starter-actuator")
-//	implementation("org.springframework.boot:spring-boot-starter-validation")
-//	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-//	implementation("io.grpc:grpc-services")
+	implementation("io.grpc:grpc-services")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
 	implementation("org.springframework.kafka:spring-kafka")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-//	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	// Debezium
@@ -57,7 +55,7 @@ dependencies {
 
 	// Database Connections
 	implementation("com.zaxxer:HikariCP:6.2.1")
-	implementation("org.mongodb:mongodb-driver-sync:4.11.1")
+	implementation("org.mongodb:mongodb-driver-sync:5.1.1")
 	implementation("org.postgresql:postgresql:42.7.4")
 	implementation("com.datastax.oss:java-driver-core:4.17.0")
 	implementation("mysql:mysql-connector-java:8.0.33")

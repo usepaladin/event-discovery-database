@@ -2,7 +2,7 @@ package veridius.discover.services.connection.internal
 
 import mu.KotlinLogging
 import org.springframework.boot.jdbc.DataSourceBuilder
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
 import javax.sql.DataSource
 
 data class MySQLConnection(

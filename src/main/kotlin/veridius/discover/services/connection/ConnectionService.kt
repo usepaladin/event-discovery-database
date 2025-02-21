@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import org.springframework.stereotype.Service
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.*
+import veridius.discover.configuration.properties.CoreConfigurationProperties.*
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 import veridius.discover.services.connection.internal.*

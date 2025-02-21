@@ -3,7 +3,7 @@ package veridius.discover.services.connection.internal
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.DatabaseConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
 import javax.sql.DataSource
 
 data class PostgresConnection(
