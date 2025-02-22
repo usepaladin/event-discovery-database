@@ -2,7 +2,6 @@ package veridius.discover.services
 
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
-import veridius.discover.services.configuration.ConfigurationService
 import veridius.discover.services.connection.ConnectionService
 import veridius.discover.services.monitoring.MonitoringService
 

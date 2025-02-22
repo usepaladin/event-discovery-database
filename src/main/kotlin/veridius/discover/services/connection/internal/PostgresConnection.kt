@@ -1,27 +1,17 @@
 package veridius.discover.services.connection.internal
 
-import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import veridius.discover.entities.connection.DatabaseConnectionEntity
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import javax.sql.DataSource
 
 data class PostgresConnection(
-    override val id: String, override val config: DatabaseConnectionEntity
-) : DatabaseConnection() {
+    override val id: String, override val config: DatabaseConnectionConfiguration
+) : DatabaseConnection(), HikariConfigBuilder {
     private var datasource: DataSource? = null
 
     private val logger = KotlinLogging.logger {}
-
-    private val hikariConfig = HikariConfig().apply {
-        driverClassName = "org.postgresql.Driver"
-        jdbcUrl = config.toConnectionURL()
-        username = config.user
-        password = config.password
-        minimumIdle = 2
-        maximumPoolSize = 10
-        connectionTimeout = 3000
-    }
+    override val hikariConfig = generateHikariConfig(config, HikariConfigBuilder.HikariDatabaseType.POSTGRES)
 
     override fun connect(): DataSource {
         if (_connectionState.value == ConnectionState.Connected && datasource != null) {
@@ -36,7 +26,7 @@ data class PostgresConnection(
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) {
-                "Error connecting to Postgres \n" +
+                "Error connecting to Postgres Database with provided configuration \n" +
                         "Stack trace: ${e.localizedMessage}"
             }
             throw e
@@ -51,7 +41,7 @@ data class PostgresConnection(
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) {
-                "Error disconnecting from Postgres \n" +
+                "Error disconnecting from Postgres Database \n" +
                         "Stack trace: ${e.message}"
             }
         }
@@ -76,4 +66,6 @@ data class PostgresConnection(
     override fun configure() {
         TODO("Not yet implemented")
     }
+
+
 }

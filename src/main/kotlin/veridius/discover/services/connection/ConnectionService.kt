@@ -3,18 +3,22 @@ package veridius.discover.services.connection
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
+import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
-import veridius.discover.configuration.properties.CoreConfigurationProperties.*
 import veridius.discover.entities.connection.ConnectionBuilder
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.exceptions.ConnectionJobNotFound
 import veridius.discover.exceptions.DatabaseConnectionNotFound
-import veridius.discover.services.connection.internal.*
+import veridius.discover.services.connection.internal.ConnectionState
+import veridius.discover.services.connection.internal.DatabaseConnection
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
 
 @Service
-class ConnectionService {
+class ConnectionService : CoroutineScope, DisposableBean {
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
+
     private val connections = ConcurrentHashMap<UUID, DatabaseConnection>()
     private val connectionJobs = ConcurrentHashMap<UUID, Job>()
     private val logger = KotlinLogging.logger {}
@@ -89,7 +93,7 @@ class ConnectionService {
     }
 
     // Connection health monitoring
-    fun monitorConnections() = scope.launch {
+    fun monitorConnections() = launch {
         while (isActive) {
             connections.values.forEach { connection ->
                 launch {
@@ -122,5 +126,11 @@ class ConnectionService {
                 acc + (id to state)
             }
             .collect { emit(it) }
+    }
+
+    override fun destroy() {
+        logger.info { "ConnectionService is destroying, cancelling coroutine scope..." }
+        cancel() // Cancel the CoroutineScope when the bean is destroyed
+        logger.info { "Coroutine scope cancelled." }
     }
 }

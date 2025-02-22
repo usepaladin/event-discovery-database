@@ -3,11 +3,11 @@ package veridius.discover.services.connection.internal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import veridius.discover.entities.connection.DatabaseConnectionEntity
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 
 sealed class DatabaseConnection : DatabaseConnector {
     abstract val id: String
-    abstract val config: DatabaseConnectionEntity
+    abstract val config: DatabaseConnectionConfiguration
 
     protected val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()

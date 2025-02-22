@@ -1,57 +1,59 @@
 package veridius.discover.services.connection.internal
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import org.springframework.boot.jdbc.DataSourceBuilder
-import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import javax.sql.DataSource
 
 data class MySQLConnection(
     override val id: String, override val config: DatabaseConnectionConfiguration
-) : DatabaseConnection() {
+) : DatabaseConnection(), HikariConfigBuilder {
     private var datasource: DataSource? = null
     private val logger = KotlinLogging.logger {}
+    override val hikariConfig: HikariConfig = generateHikariConfig(config, HikariConfigBuilder.HikariDatabaseType.MYSQL)
 
     override fun connect(): DataSource {
-        try{
+        try {
             _connectionState.value = ConnectionState.Connecting
-            if(datasource == null){
-                datasource = DataSourceBuilder.create()
-                    .driverClassName("com.mysql.cj.jdbc.Driver")
-                    .url(config.toConnectionURL())
-                    .username(config.user)
-                    .password(config.password)
-                    .build()
-            }
+            datasource = HikariDataSource(hikariConfig)
             _connectionState.value = ConnectionState.Connected
             return datasource!!
-        } catch (e: Exception){
+        } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) { "Error connecting to Postgres \n" +
-                    "Stack trace: ${e.message}" }
+            logger.error(e) {
+                "Error connecting to MySQL Database with provided configuration \n" +
+                        "Stack trace: ${e.message}"
+            }
             throw e
         }
     }
+
     override fun disconnect() {
-        try{
+        try {
             datasource?.connection?.close()
             datasource = null
             _connectionState.value = ConnectionState.Disconnected
-        } catch (e: Exception){
+        } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) { "Error disconnecting from Postgres \n" +
-                    "Stack trace: ${e.message}" }
+            logger.error(e) {
+                "Error disconnecting from MySQL Database \n" +
+                        "Stack trace: ${e.message}"
+            }
         }
     }
 
     override fun isConnected(): Boolean {
 
-            try{
-                return datasource?.connection?.isValid(1000) ?: false
-            } catch (e: Exception){
-                logger.error(e) { "Error checking connection to Postgres \n" +
-                        "Stack trace: ${e.message}" }
-                return false
+        try {
+            return datasource?.connection?.isValid(1000) ?: false
+        } catch (e: Exception) {
+            logger.error(e) {
+                "Error checking connection to Postgres \n" +
+                        "Stack trace: ${e.message}"
             }
+            return false
+        }
 
     }
 

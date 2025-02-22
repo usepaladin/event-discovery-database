@@ -3,7 +3,8 @@ package veridius.discover.services.connection.internal
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.entities.connection.ConnectionBuilder
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 
 data class MongoConnection(
     override val id: String, override val config: DatabaseConnectionConfiguration
@@ -12,28 +13,25 @@ data class MongoConnection(
     private val logger = KotlinLogging.logger {}
 
     override fun connect(): MongoClient {
-        try{
+        try {
             _connectionState.value = ConnectionState.Connecting
-            if(client != null){
+            if (client != null) {
                 _connectionState.value = ConnectionState.Connected
                 client!!
             }
 
-            if(config.user.isNullOrEmpty() || config.password.isNullOrEmpty()){
-                client = MongoClients.create(config.toConnectionURL())
-            }
-
-            if (client == null) {
-                client = MongoClients.create(config.toConnectionURL())
-            }
+            val connectionBuilder = ConnectionBuilder(config)
+            val connectionURL = connectionBuilder.buildConnectionURL()
+            client = MongoClients.create(connectionURL)
 
             _connectionState.value = ConnectionState.Connected
             return client!!
-        }
-        catch (e: Exception){
+        } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) { "Error connecting to Mongo \n" +
-                    "Stack trace: ${e.message}" }
+            logger.error(e) {
+                "Error connecting to Mongo Database with provided credentials \n" +
+                        "Stack trace: ${e.message}"
+            }
             throw e
         }
     }
@@ -45,8 +43,10 @@ data class MongoConnection(
             _connectionState.value = ConnectionState.Disconnected
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) { "Error disconnecting from Mongo \n" +
-                    "Stack trace: ${e.message}" }
+            logger.error(e) {
+                "Error disconnecting from Mongo \n" +
+                        "Stack trace: ${e.message}"
+            }
             throw e
         }
 
@@ -54,13 +54,15 @@ data class MongoConnection(
 
     override fun isConnected(): Boolean {
 
-            try{
-                return client?.listDatabaseNames()?.first() != null
-            } catch (e: Exception){
-                logger.error(e) { "Error checking connection to Mongo \n" +
-                        "Stack trace: ${e.message}" }
-                return false
+        try {
+            return client?.listDatabaseNames()?.first() != null
+        } catch (e: Exception) {
+            logger.error(e) {
+                "Error checking connection to Mongo \n" +
+                        "Stack trace: ${e.message}"
             }
+            return false
+        }
 
     }
 

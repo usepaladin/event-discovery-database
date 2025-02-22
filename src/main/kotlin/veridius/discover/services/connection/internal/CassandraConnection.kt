@@ -3,7 +3,7 @@ package veridius.discover.services.connection.internal
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import mu.KotlinLogging
-import veridius.discover.configuration.properties.CoreConfigurationProperties.DatabaseConnectionConfiguration
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import java.net.InetSocketAddress
 
 data class CassandraConnection(
@@ -18,16 +18,12 @@ data class CassandraConnection(
             _connectionState.value = ConnectionState.Connecting
             if (session == null) {
 
-                if(!config.public && (config.user == null || config.password == null)){
-                    throw Exception("User and password are required for private connections")
-                }
-
                 val builder: CqlSessionBuilder = CqlSession.builder()
-                    .addContactPoint(InetSocketAddress(config.host, config.port.toInt()))
+                    .addContactPoint(InetSocketAddress(config.hostName, config.port.toInt()))
                     .withKeyspace(config.database)
 
-                if(config.dataCenter != null){
-                    builder.withLocalDatacenter(config.dataCenter)
+                config.additionalProperties?.dataCenter?.let {
+                    builder.withLocalDatacenter(it)
                 }
 
             }
@@ -35,33 +31,39 @@ data class CassandraConnection(
             return session!!
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) { "Error connecting to Cassandra \n" +
-                    "Stack trace: ${e.message}" }
+            logger.error(e) {
+                "Error connecting to Cassandra \n" +
+                        "Stack trace: ${e.message}"
+            }
             throw e
         }
     }
 
     override fun disconnect() {
-        try{
+        try {
             session?.close()
             session = null
             _connectionState.value = ConnectionState.Disconnected
-        } catch (e: Exception){
+        } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) { "Error disconnecting from Cassandra \n" +
-                    "Stack trace: ${e.message}" }
+            logger.error(e) {
+                "Error disconnecting from Cassandra \n" +
+                        "Stack trace: ${e.message}"
+            }
         }
     }
 
     override fun isConnected(): Boolean {
 
-            try {
-                return session?.let { !it.isClosed} ?: false
-            } catch (e: Exception) {
-                logger.error(e) { "Error checking connection to Cassandra \n" +
-                        "Stack trace: ${e.message}" }
-                return false
+        try {
+            return session?.let { !it.isClosed } ?: false
+        } catch (e: Exception) {
+            logger.error(e) {
+                "Error checking connection to Cassandra \n" +
+                        "Stack trace: ${e.message}"
             }
+            return false
+        }
 
     }
 

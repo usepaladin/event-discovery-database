@@ -7,7 +7,7 @@ sealed interface DatabaseConnector {
     /**
      * Connect to the database
      */
-    fun connect()
+    fun connect(): Any
 
     /**
      * Disconnect from the database
