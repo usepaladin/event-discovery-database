@@ -1,51 +1,60 @@
-package veridius.discover.services.connection;
+package veridius.discover.services.connection
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.*
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.CoreConfigurationProperties.*
-import kotlinx.coroutines.flow.Flow
-import mu.KotlinLogging
+import veridius.discover.entities.connection.ConnectionBuilder
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.exceptions.ConnectionJobNotFound
+import veridius.discover.exceptions.DatabaseConnectionNotFound
 import veridius.discover.services.connection.internal.*
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class ConnectionService(private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)) {
-    private val connections = HashMap<String, DatabaseConnection>()
-    private val connectionJobs = HashMap<String, Job>()
+class ConnectionService {
+    private val connections = ConcurrentHashMap<UUID, DatabaseConnection>()
+    private val connectionJobs = ConcurrentHashMap<UUID, Job>()
     private val logger = KotlinLogging.logger {}
 
     fun createConnection(
-        config: DatabaseConnectionConfiguration,
+        connection: DatabaseConnectionConfiguration,
         autoConnect: Boolean = true
-    ): DatabaseConnection {
-
-        val connection = when (config.type) {
-            DatabaseType.POSTGRES -> PostgresConnection(config.id, config)
-            DatabaseType.CASSANDRA -> CassandraConnection(config.id, config)
-            DatabaseType.MYSQL -> MySQLConnection(config.id, config)
-            DatabaseType.MONGODB -> MongoConnection(config.id, config)
-        }
-
-        connections[connection.id] = connection
-
-        connection.connect()
-        return connection
+    ): DatabaseConnection? {
+        val connectionBuilder = ConnectionBuilder(connection)
+        val connectionURL = connectionBuilder.buildConnectionURL()
+        return null
     }
 
-    fun getConnection(id: String): DatabaseConnection? {
-        return connections[id]
+    fun getConnection(id: UUID): DatabaseConnection? {
+        val connection: DatabaseConnection = connections[id] ?: throw DatabaseConnectionNotFound(
+            "Active database connection not found \n" +
+                    "Database ID: $id"
+        )
+
+        return connection
     }
 
     fun getAllConnections(): List<DatabaseConnection> {
         return connections.values.toList()
     }
 
-    suspend fun removeConnection(id: String) {
-        connectionJobs[id]?.cancelAndJoin()
-        connections[id]?.disconnect()
+    suspend fun removeConnection(id: UUID) {
+        val connectionJob: Job = connectionJobs[id] ?: throw ConnectionJobNotFound(
+            "Connection job not found \n" +
+                    "Connection ID: $id"
+        )
+
+        val connection: DatabaseConnection = connections[id] ?: throw DatabaseConnectionNotFound(
+            "Active database connection not found \n" +
+                    "Database ID: $id"
+        )
+
+        // Disconnect and remove database from active connections
+        connectionJob.cancelAndJoin()
+        connection.disconnect()
         connections.remove(id)
         connectionJobs.remove(id)
     }

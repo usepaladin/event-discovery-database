@@ -1,4 +1,6 @@
 package veridius.discover.services.configuration
 
-class TableConfigurationService {
-}
+import org.springframework.stereotype.Service
+
+@Service
+class TableConfigurationService

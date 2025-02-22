@@ -1,42 +1,77 @@
 package veridius.discover.services.configuration
 
-import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
-import veridius.discover.entities.configuration.DatabaseMonitoringConfig
-import java.util.concurrent.ConcurrentHashMap
+import veridius.discover.configuration.properties.CoreConfigurationProperties
+import veridius.discover.entities.connection.ConnectionAdditionalProperties
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.entities.connection.DatabaseConnectionEntity
+import veridius.discover.exceptions.DatabaseConnectionNotFound
+import veridius.discover.repositories.configuration.TableConfigurationRepository
+import veridius.discover.repositories.connection.DatabaseConnectionConfigurationRepository
+import veridius.discover.services.encryption.EncryptionService
+import java.util.*
 
 @Service
-class ConfigurationService {
-    // In-memory storage for active configurations
-    private val activeConfigurations = ConcurrentHashMap<String, DatabaseMonitoringConfig>()
+class ConfigurationService(
+    private val serverConfig: CoreConfigurationProperties,
+    private val databaseConnectionConfigurationRepository: DatabaseConnectionConfigurationRepository,
+    private val tableMonitoringRepository: TableConfigurationRepository,
+    private val encryptionService: EncryptionService
+) {
+    fun getDatabaseConnectionConfiguration(id: UUID): DatabaseConnectionConfiguration? {
+        val databaseConnection: DatabaseConnectionEntity =
+            databaseConnectionConfigurationRepository.findById(id)
+                .orElseThrow {
+                    DatabaseConnectionNotFound(
+                        "Database connection not found \n" +
+                                "Database ID: $id"
+                    )
+                }
 
-    @PostConstruct
-    fun initialize() {
-        //todo: load configurations from database on startup
+        return decryptDatabaseConfiguration(databaseConnection)
     }
 
-    private fun loadConfiguration(): Unit{
-        //todo: load configurations from database
+    fun getAllDatabaseConnectionConfigurations(): List<DatabaseConnectionConfiguration> {
+        val databaseConnections: List<DatabaseConnectionEntity> =
+            databaseConnectionConfigurationRepository.findAllByInstanceId(serverConfig.serverInstanceId)
+
+        if (databaseConnections.isEmpty()) {
+            throw Exception("No database connections found")
+        }
+
+        return databaseConnections.map { configuration ->
+            decryptDatabaseConfiguration(configuration)
+        }
     }
 
-    private fun saveConfiguration(): Unit{
-        //todo: Update configuration in database
+    private fun decryptDatabaseConfiguration(configuration: DatabaseConnectionEntity): DatabaseConnectionConfiguration {
+        val databaseConfiguration =
+            DatabaseConnectionConfiguration.fromEntity(configuration, serverConfig.requireDataEncryption)
+
+        if (!serverConfig.requireDataEncryption) return databaseConfiguration
+
+        // Decrypt Encrypted Fields
+        return databaseConfiguration.apply {
+            hostName = encryptionService.decrypt(configuration.hostName, String::class.java)
+            port = encryptionService.decrypt(configuration.port, String::class.java)
+
+            configuration.databaseName?.let { encDatabase ->
+                database = encryptionService.decrypt(encDatabase, String::class.java)
+            }
+
+            configuration.user?.let { encUser ->
+                user = encryptionService.decrypt(encUser, String::class.java)
+            }
+
+            configuration.password?.let { encPassword ->
+                password = encryptionService.decrypt(encPassword, String::class.java)
+            }
+
+            configuration.additionalPropertiesText?.let { encProperties ->
+                additionalProperties =
+                    encryptionService.decrypt(encProperties, ConnectionAdditionalProperties::class.java)
+            }
+        }
     }
 
-    fun getConfiguration(databaseConnectionId: String): DatabaseMonitoringConfig? {
-        return activeConfigurations[databaseConnectionId]
-    }
-
-    /**
-     * Periodically poll the database to determine if any internal changes have occurred, such as:
-     *  - New tables added
-     *  - New columns added
-     *  - Tables removed
-     *  - Columns removed
-     *  - etc.
-     *
-     *  If changes are detected, either update existing configurations and actively monitor,
-     *  or just updated Web UI to reflect changes, depends on user preferences with auto configuration
-     */
-    fun pollSchemaConfiguration(){}
 }
