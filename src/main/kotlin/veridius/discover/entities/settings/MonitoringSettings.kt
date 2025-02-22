@@ -8,7 +8,7 @@ data class MonitoringSettings(
     // How often the status of the databases should be monitored and sent to the Web UI
     var statusUpdateIntervalSeconds: Int = 60,
 
-){
+    ) {
     enum class DatabaseStatusMonitoringType {
         CONNECTION_STATUS,
         CONNECTOR_STATUS,

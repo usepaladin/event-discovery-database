@@ -20,6 +20,7 @@ class TableColumnConfigurationConvertor : AttributeConverter<TableColumnConfigur
     }
 
     override fun convertToEntityAttribute(dbData: String?): TableColumnConfiguration {
-        return dbData?.let { objectMapper.readValue(it, TableColumnConfiguration::class.java) } ?: TableColumnConfiguration()
+        return dbData?.let { objectMapper.readValue(it, TableColumnConfiguration::class.java) }
+            ?: TableColumnConfiguration()
     }
 }

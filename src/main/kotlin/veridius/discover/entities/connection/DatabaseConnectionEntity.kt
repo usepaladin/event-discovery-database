@@ -1,9 +1,10 @@
 package veridius.discover.entities.connection
 
 import jakarta.persistence.*
+import veridius.discover.entities.common.DatabaseType
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(
@@ -17,6 +18,13 @@ import java.util.UUID
         Index(name = "idx_database_connection_instance_id", columnList = "instance_id")
     ]
 )
+/**
+ * Represents the configuration details to procure a connection to a given database.
+ *
+ * All configuration details associated with the connection of a database, will be default, be encrypted when stored
+ * in the database, and decrypted upon retrieval,
+ * If the server instance does not require encryption, the object will be stored as a JSON object in string form
+ */
 data class DatabaseConnectionEntity(
     @Id
     @GeneratedValue
@@ -33,24 +41,28 @@ data class DatabaseConnectionEntity(
     @Enumerated(EnumType.STRING)
     val databaseType: DatabaseType,
 
-    @Column(name = "enc_host", nullable = false)
-    var encryptedHostname: String,
+    @Column(name = "host", nullable = false)
+    var hostName: String,
 
-    @Column(name = "enc_port", nullable = false)
-    var encryptedPort: String,
+    @Column(name = "port", nullable = false)
+    var port: String,
 
-    @Column(name = "enc_database_name")
-    var encryptedDatabaseName: String,
+    @Column(name = "database_name")
+    var databaseName: String? = null,
 
-    @Column(name = "enc_user")
-    var encryptedUser: String,
+    @Column(name = "user")
+    var user: String? = null,
 
-    @Column(name = "enc_password")
-    var encryptedPassword: String,
+    @Column(name = "password")
+    var password: String? = null,
 
-    @Column(name = "enc_additional_properties", columnDefinition = "JSONB")
-    @Convert(converter = AdditionalPropertiesConverter::class)
-    var additionalProperties: AdditionalProperties,
+    /**
+     * Additional properties will be stored as a String, this is because the object will be encrypted into a string
+     * for most server instances as Encryption will be enabled, in the event that the server does not require
+     * encryption (ie. Local Development/Hosting) the JSON object will just be stored in string form
+     */
+    @Column(name = "additional_properties", columnDefinition = "TEXT")
+    var additionalPropertiesText: String? = null,
 
     @Column(name = "is_enabled", nullable = false)
     var isEnabled: Boolean = true,
@@ -60,35 +72,10 @@ data class DatabaseConnectionEntity(
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-){
+) {
 
-    @OneToMany(mappedBy = "databaseConnection", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "databaseConnection", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     val tableMonitoringConfigurations: List<TableMonitoringConfigurationEntity> = mutableListOf()
 
-    enum class DatabaseType{
-        CASSANDRA,
-        MYSQL,
-        POSTGRES,
-        MONGO
-    }
-
-    data class AdditionalProperties(
-        val dataCenter: String? = null,
-        val public: Boolean = false,
-        val keySpace: String? = null
-    )
-
-    @Converter
-    class AdditionalPropertiesConverter : AttributeConverter<AdditionalProperties, String> {
-        private val objectMapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
-
-        override fun convertToDatabaseColumn(attribute: AdditionalProperties?): String {
-            return objectMapper.writeValueAsString(attribute ?: AdditionalProperties())
-        }
-
-        override fun convertToEntityAttribute(dbData: String?): AdditionalProperties {
-            return dbData?.let { objectMapper.readValue(it, AdditionalProperties::class.java) } ?: AdditionalProperties()
-        }
-    }
 
 }

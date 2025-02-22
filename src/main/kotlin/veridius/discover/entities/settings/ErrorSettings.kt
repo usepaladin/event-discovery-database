@@ -9,7 +9,7 @@ data class ErrorSettings(
     var databaseRetryDelay: Int = 1000,
     // How long to wait for a database operation to complete before failing
     var databaseTimeout: Int = 10000,
-){
+) {
 
     enum class ErrorLoggingLevel {
         NONE,

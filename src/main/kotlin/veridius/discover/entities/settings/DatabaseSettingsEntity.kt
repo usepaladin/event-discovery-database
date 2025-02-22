@@ -1,7 +1,7 @@
 package veridius.discover.entities.settings
 
 import jakarta.persistence.*
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(
@@ -25,7 +25,4 @@ class DatabaseSettingsEntity(
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     var updatedAt: java.time.ZonedDateTime = java.time.ZonedDateTime.now()
-) {
-
-
-}
+)

@@ -1,4 +1,8 @@
-package veridius.discover.entities.connection
+package veridius.discover.entities.common
 
-class DatabaseType {
+enum class DatabaseType {
+    CASSANDRA,
+    MYSQL,
+    POSTGRES,
+    MONGO
 }

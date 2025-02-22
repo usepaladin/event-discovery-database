@@ -18,7 +18,11 @@ import java.util.*
 data class TableMonitoringConfigurationEntity(
     @Id
     @GeneratedValue
-    @Column(name = "table_monitoring_configuration_id", columnDefinition = "UUID DEFAULT uuid_generate_v4()", nullable = false)
+    @Column(
+        name = "table_monitoring_configuration_id",
+        columnDefinition = "UUID DEFAULT uuid_generate_v4()",
+        nullable = false
+    )
     val id: UUID? = null,
 
     @Column(name = "database_connection_id", nullable = false)
@@ -34,7 +38,7 @@ data class TableMonitoringConfigurationEntity(
     var includeAllColumns: Boolean = true,
 
     @Column(name = "table_columns", columnDefinition = "JSONB")
-    @Convert(converter = veridius.discover.entities.configuration.TableColumnConfiguration::class)
+    @Convert(converter = TableColumnConfiguration::class)
     var columns: List<TableColumnConfiguration> = emptyList(),
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
@@ -42,10 +46,6 @@ data class TableMonitoringConfigurationEntity(
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-){
-
-
-
-}
+)
 
 

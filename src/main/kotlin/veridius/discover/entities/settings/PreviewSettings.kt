@@ -11,6 +11,4 @@ data class PreviewSettings(
     var eventPreviewMaxTableEvents: Int = 100,
     // Which operations to send to Web UI
     var eventPreviewOperationTypes: List<OperationType> = listOf(OperationType.CREATE, OperationType.UPDATE),
-) {
-
-}
+)
