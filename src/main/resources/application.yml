@@ -1,5 +1,6 @@
 discover:
-  require-data-encryption: true
+  require-data-encryption: false
+  server-instance-id: 48a5cc47-7bb5-4044-a922-a3424d9f774f
 server:
   port: 8069
 spring:

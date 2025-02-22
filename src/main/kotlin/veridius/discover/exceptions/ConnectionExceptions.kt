@@ -1,4 +1,4 @@
-package veridius.discover.exceptions.handler
+package veridius.discover.exceptions
 
-class ConnectionExceptions {
-}
+class DatabaseConnectionNotFound(message: String) : RuntimeException(message)
+class ConnectionJobNotFound(message: String) : RuntimeException(message)

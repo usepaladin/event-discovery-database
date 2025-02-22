@@ -9,5 +9,5 @@ import org.springframework.boot.runApplication
 class EventDiscoveryApplication
 
 fun main(args: Array<String>) {
-	runApplication<EventDiscoveryApplication>(*args)
+    runApplication<EventDiscoveryApplication>(*args)
 }
