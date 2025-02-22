@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.9 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="26.0.9">
   <diagram name="Page-1" id="FosyNxAPTqiQIwhxfqPS">
-    <mxGraphModel dx="2188" dy="899" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2040" dy="1619" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -8,7 +8,7 @@
           <mxGeometry x="440" y="136.66000000000005" width="160" height="106.67" as="geometry" />
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-9" value="API Gateway" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="482" y="178.33" width="80" height="30" as="geometry" />
+          <mxGeometry x="482" y="178.33" width="80" height="31.67" as="geometry" />
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-11" value="" style="group" vertex="1" connectable="0" parent="1">
           <mxGeometry x="130" y="710" width="75" height="100" as="geometry" />
@@ -43,14 +43,6 @@
         <mxCell id="wMBATnTAcRVz2XR3FJaL-22" value="" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="450" y="490" width="150" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="wMBATnTAcRVz2XR3FJaL-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-23" target="wMBATnTAcRVz2XR3FJaL-25">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="wMBATnTAcRVz2XR3FJaL-36" value="Connections to Databases&lt;div&gt;With fetched connection details&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-35">
-          <mxGeometry x="-0.0273" y="-3" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-23">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="505" y="1250" as="targetPoint" />
@@ -64,9 +56,23 @@
         <mxCell id="wMBATnTAcRVz2XR3FJaL-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-23" target="wMBATnTAcRVz2XR3FJaL-58">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="wMBATnTAcRVz2XR3FJaL-62" value="Controls monitoring based on&amp;nbsp;&lt;div&gt;database configurations.&lt;/div&gt;&lt;div&gt;Will restart monitoring with updated&amp;nbsp;&lt;/div&gt;&lt;div&gt;configurations sent from GRPC&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-60">
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-62" value="3. Controls monitoring based on&amp;nbsp;&lt;div&gt;database configurations.&lt;/div&gt;&lt;div&gt;Will restart monitoring with updated&amp;nbsp;&lt;/div&gt;&lt;div&gt;configurations sent from GRPC&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-60">
           <mxGeometry x="0.1167" relative="1" as="geometry">
             <mxPoint y="7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-88" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-23" target="wMBATnTAcRVz2XR3FJaL-25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="580" y="1010" />
+              <mxPoint x="690" y="1010" />
+              <mxPoint x="690" y="940" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-89" value="2. From configuration&lt;div&gt;will set up initial connection&lt;/div&gt;&lt;div&gt;with databases&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-88">
+          <mxGeometry x="0.0973" relative="1" as="geometry">
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-23" value="" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -76,15 +82,16 @@
           <mxGeometry x="800" y="800" width="150" height="80" as="geometry" />
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-25" value="" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="800" y="1000" width="150" height="80" as="geometry" />
+          <mxGeometry x="800" y="900" width="150" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="wMBATnTAcRVz2XR3FJaL-29" value="Configuration Service" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-29" value="Management&lt;div&gt;Service&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="472.5" y="1025" width="65" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="wMBATnTAcRVz2XR3FJaL-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-23" target="wMBATnTAcRVz2XR3FJaL-6">
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.467;exitY=1.008;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-84" target="wMBATnTAcRVz2XR3FJaL-6">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="280" y="1040" />
+              <mxPoint x="868" y="1180" />
+              <mxPoint x="280" y="1180" />
               <mxPoint x="280" y="760" />
             </Array>
           </mxGeometry>
@@ -93,7 +100,7 @@
           <mxGeometry x="170" y="910" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-34" value="Connection Service" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="842.5" y="1025" width="65" height="30" as="geometry" />
+          <mxGeometry x="840" y="925" width="65" height="30" as="geometry" />
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-37" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="460" y="1270" width="90" height="90" as="geometry" />
@@ -204,13 +211,57 @@
             <Array as="points">
               <mxPoint x="824" y="650" />
               <mxPoint x="380" y="650" />
-              <mxPoint x="380" y="1028" />
+              <mxPoint x="380" y="1020" />
+              <mxPoint x="430" y="1020" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="wMBATnTAcRVz2XR3FJaL-80" value="Monitors timestamps&lt;div&gt;from configuration update request,&lt;/div&gt;&lt;div&gt;to the restart of the Debezium&lt;/div&gt;&lt;div&gt;monitoring&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-79">
           <mxGeometry x="0.1387" relative="1" as="geometry">
             <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-82" value="" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-60" y="320.00000000000006" width="160" height="106.67" as="geometry" />
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-83" value="Serverless Function" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-20" y="357.5" width="80" height="31.67" as="geometry" />
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-84" value="" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="797.5" y="1010" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-85" value="Configuration&lt;div&gt;Service&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1035" width="65" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-86" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.007;entryY=0.387;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-23" target="wMBATnTAcRVz2XR3FJaL-84">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-87" value="1. Fetches Database/Connection&lt;div&gt;and Setting configurations&lt;/div&gt;&lt;div&gt;from the database&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-86">
+          <mxGeometry x="-0.0586" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-92" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.55;exitY=0.95;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="27" y="421.3364999999999" as="sourcePoint" />
+            <mxPoint x="129" y="760" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="30" y="421" />
+              <mxPoint x="30" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-94" value="Populates the database with an&lt;div&gt;initial database configuration&lt;/div&gt;&lt;div&gt;provided by the user&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-92">
+          <mxGeometry x="-0.2327" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-93" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.875;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.094;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=12 12;" edge="1" parent="1" source="wMBATnTAcRVz2XR3FJaL-82" target="wMBATnTAcRVz2XR3FJaL-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wMBATnTAcRVz2XR3FJaL-95" value="Once a database is present&lt;div&gt;in the database, spin up an instance of&lt;/div&gt;&lt;div&gt;the server to begin monitoring&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="wMBATnTAcRVz2XR3FJaL-93">
+          <mxGeometry x="-0.0384" y="3" relative="1" as="geometry">
+            <mxPoint x="7" y="17" as="offset" />
           </mxGeometry>
         </mxCell>
       </root>
