@@ -1,4 +1,4 @@
-package veridius.discover.entities.common
+package veridius.discover.models.common
 
 enum class OperationType {
     CREATE,

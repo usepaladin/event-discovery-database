@@ -1,6 +1,6 @@
 package veridius.discover.entities.settings
 
-import veridius.discover.entities.common.OperationType
+import veridius.discover.models.common.OperationType
 
 data class PreviewSettings(
     // Provide a real time preview of events observed and handled

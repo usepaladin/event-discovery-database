@@ -1,10 +1,10 @@
-package veridius.discover.services.connection.internal
+package veridius.discover.models.connection
 
 import com.zaxxer.hikari.HikariConfig
 import veridius.discover.entities.connection.ConnectionBuilder
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 
-interface HikariConfigBuilder {
+interface HikariConnectionConfigBuilder {
 
     val hikariConfig: HikariConfig
 

@@ -1,16 +1,19 @@
-package veridius.discover.services.connection.internal
+package veridius.discover.models.client
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import mu.KotlinLogging
 import veridius.discover.entities.connection.ConnectionBuilder
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import java.util.*
 
-data class MongoConnection(
-    override val id: String, override val config: DatabaseConnectionConfiguration
-) : DatabaseConnection() {
+data class MongoClient(
+    override val id: UUID, override val config: DatabaseConnectionConfiguration
+) : DatabaseClient() {
     private var client: MongoClient? = null
     private val logger = KotlinLogging.logger {}
+
+    constructor(config: DatabaseConnectionConfiguration) : this(config.id, config)
 
     override fun connect(): MongoClient {
         try {
@@ -63,7 +66,10 @@ data class MongoConnection(
             }
             return false
         }
+    }
 
+    override fun getDatabaseProperties() {
+        TODO("Not yet implemented")
     }
 
     override fun validateConfig() {

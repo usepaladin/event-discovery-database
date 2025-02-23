@@ -1,7 +1,7 @@
 package veridius.discover.entities.connection
 
-import veridius.discover.entities.common.DatabaseType
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
+import veridius.discover.models.common.DatabaseType
 import java.time.ZonedDateTime
 import java.util.*
 

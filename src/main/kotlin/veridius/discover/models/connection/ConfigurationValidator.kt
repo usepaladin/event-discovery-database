@@ -1,4 +1,4 @@
-package veridius.discover.services.connection.internal
+package veridius.discover.models.connection
 
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 
@@ -9,6 +9,7 @@ interface ConfigurationValidator {
         if (configuration.additionalProperties?.public == false && (configuration.user.isNullOrEmpty() || configuration.password.isNullOrEmpty())) {
             throw IllegalArgumentException("Private connections must have associated authentication credentials")
         }
+
 
     }
 

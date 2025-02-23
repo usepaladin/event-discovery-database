@@ -2,8 +2,10 @@ package veridius.discover.services
 
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
+import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.services.configuration.DatabaseConfigurationService
+import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionService
-import veridius.discover.services.monitoring.MonitoringService
 
 /**
  * Core database management service, Responsible for:
@@ -13,9 +15,9 @@ import veridius.discover.services.monitoring.MonitoringService
  */
 @Service
 class DatabaseManagementService(
-    private val configurationService: ConfigurationService,
+    private val databaseConfigurationService: DatabaseConfigurationService,
     private val connectionService: ConnectionService,
-    private val monitoringService: MonitoringService
+    private val tableConfigurationService: TableConfigurationService
 ) {
 
     /**
@@ -32,6 +34,13 @@ class DatabaseManagementService(
      */
     @PostConstruct
     fun init() {
+        // Retrieve the connection configuration of all databases we aim to connect to
+        val databaseConfig: List<DatabaseConnectionConfiguration> =
+            databaseConfigurationService.fetchAllDatabaseConnectionConfigurations()
 
+        // Attempt to connect to each database
+        databaseConfig.forEach { connectionService.createConnection(it) }
+
+        // Fetch current database table configurations and update database if any changes have occurred
     }
 }

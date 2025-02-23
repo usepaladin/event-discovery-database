@@ -9,10 +9,13 @@ import java.util.*
     name = "table_monitoring_configuration",
     schema = "database_discovery",
     uniqueConstraints = [
-        UniqueConstraint(columnNames = ["database_connection_id", "table_name"])
+        UniqueConstraint(columnNames = ["database_connection_id", "table_name"]),
+        UniqueConstraint(columnNames = ["database_connection_id", "namespace", "table_name"])
+
     ],
     indexes = [
         Index(name = "idx_table_monitoring_database_id", columnList = "database_connection_id"),
+        Index(name = "idx_table_monitoring_namespace", columnList = "namespace"),
     ]
 )
 data class TableMonitoringConfigurationEntity(
@@ -27,6 +30,9 @@ data class TableMonitoringConfigurationEntity(
 
     @Column(name = "database_connection_id", nullable = false)
     val databaseConnectionId: UUID,
+
+    @Column(name = "namespace")
+    val namespace: String? = null,
 
     @Column(name = "table_name", nullable = false)
     val tableName: String,

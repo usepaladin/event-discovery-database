@@ -5,12 +5,11 @@ import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
-import veridius.discover.entities.connection.ConnectionBuilder
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.exceptions.ConnectionJobNotFound
 import veridius.discover.exceptions.DatabaseConnectionNotFound
-import veridius.discover.services.connection.internal.ConnectionState
-import veridius.discover.services.connection.internal.DatabaseConnection
+import veridius.discover.models.client.*
+import veridius.discover.models.common.DatabaseType
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -19,21 +18,43 @@ import kotlin.coroutines.CoroutineContext
 class ConnectionService : CoroutineScope, DisposableBean {
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
 
-    private val connections = ConcurrentHashMap<UUID, DatabaseConnection>()
-    private val connectionJobs = ConcurrentHashMap<UUID, Job>()
+    private val activeClients = ConcurrentHashMap<UUID, DatabaseClient>()
+    private val clientConnectionJobs = ConcurrentHashMap<UUID, Job>()
     private val logger = KotlinLogging.logger {}
 
     fun createConnection(
         connection: DatabaseConnectionConfiguration,
         autoConnect: Boolean = true
-    ): DatabaseConnection? {
-        val connectionBuilder = ConnectionBuilder(connection)
-        val connectionURL = connectionBuilder.buildConnectionURL()
-        return null
+    ): DatabaseClient? {
+        // Instantiate database client with provided connection configuration
+        val client: DatabaseClient =
+            when (connection.databaseType) {
+                DatabaseType.POSTGRES -> PostgresClient(connection)
+                DatabaseType.MYSQL -> MySQLClient(connection)
+                DatabaseType.MONGO -> MongoClient(connection)
+                DatabaseType.CASSANDRA -> CassandraClient(connection)
+            }
+
+        // Store details of active database client
+        activeClients[connection.id] = client
+
+        // Attempt client connection if autoConnect is true
+        if (autoConnect) {
+            clientConnectionJobs[connection.id] = launch {
+                try {
+                    client.connect()
+                    logger.info { "Connected to ${client.id}" }
+                } catch (e: Exception) {
+                    logger.error(e) { "Error connecting to ${client.id}" }
+                }
+            }
+        }
+
+        return client
     }
 
-    fun getConnection(id: UUID): DatabaseConnection? {
-        val connection: DatabaseConnection = connections[id] ?: throw DatabaseConnectionNotFound(
+    fun getClient(id: UUID): DatabaseClient? {
+        val connection: DatabaseClient = activeClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"
         )
@@ -41,17 +62,26 @@ class ConnectionService : CoroutineScope, DisposableBean {
         return connection
     }
 
-    fun getAllConnections(): List<DatabaseConnection> {
-        return connections.values.toList()
+    fun getAllClients(): List<DatabaseClient> {
+        return activeClients.values.toList()
     }
 
-    suspend fun removeConnection(id: UUID) {
-        val connectionJob: Job = connectionJobs[id] ?: throw ConnectionJobNotFound(
+    suspend fun disconnectClient(id: UUID) {
+        val connection: DatabaseClient = activeClients[id] ?: throw DatabaseConnectionNotFound(
+            "Active database connection not found \n" +
+                    "Database ID: $id"
+        )
+
+        connection.disconnect()
+    }
+
+    suspend fun removeDatabaseClient(id: UUID) {
+        val connectionJob: Job = clientConnectionJobs[id] ?: throw ConnectionJobNotFound(
             "Connection job not found \n" +
                     "Connection ID: $id"
         )
 
-        val connection: DatabaseConnection = connections[id] ?: throw DatabaseConnectionNotFound(
+        val connection: DatabaseClient = activeClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"
         )
@@ -59,12 +89,12 @@ class ConnectionService : CoroutineScope, DisposableBean {
         // Disconnect and remove database from active connections
         connectionJob.cancelAndJoin()
         connection.disconnect()
-        connections.remove(id)
-        connectionJobs.remove(id)
+        activeClients.remove(id)
+        clientConnectionJobs.remove(id)
     }
 
     suspend fun connectAll() = coroutineScope {
-        connections.values.map { connection ->
+        activeClients.values.map { connection ->
             async {
                 try {
                     connection.connect()
@@ -77,8 +107,8 @@ class ConnectionService : CoroutineScope, DisposableBean {
     }
 
     suspend fun disconnectAll() = coroutineScope {
-        connectionJobs.values.forEach { it.cancelAndJoin() }
-        connections.values.map { connection ->
+        clientConnectionJobs.values.forEach { it.cancelAndJoin() }
+        activeClients.values.map { connection ->
             async {
                 try {
                     connection.disconnect()
@@ -88,14 +118,14 @@ class ConnectionService : CoroutineScope, DisposableBean {
                 }
             }
         }.awaitAll()
-        connections.clear()
-        connectionJobs.clear()
+        activeClients.clear()
+        clientConnectionJobs.clear()
     }
 
     // Connection health monitoring
     fun monitorConnections() = launch {
         while (isActive) {
-            connections.values.forEach { connection ->
+            activeClients.values.forEach { connection ->
                 launch {
                     try {
                         if (!connection.isConnected()) {
@@ -116,13 +146,13 @@ class ConnectionService : CoroutineScope, DisposableBean {
     }
 
     // Reactive connection states
-    fun observeConnectionStates(): Flow<Map<String, ConnectionState>> = flow {
-        val stateFlows = connections.values.map { connection ->
+    fun observeConnectionStates(): Flow<Map<UUID, ConnectionState>> = flow {
+        val stateFlows = activeClients.values.map { connection ->
             connection.connectionState.map { state -> connection.id to state }
         }
 
         merge(*stateFlows.toTypedArray())
-            .scan(emptyMap<String, ConnectionState>()) { acc, (id, state) ->
+            .scan(emptyMap<UUID, ConnectionState>()) { acc, (id, state) ->
                 acc + (id to state)
             }
             .collect { emit(it) }

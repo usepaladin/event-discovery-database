@@ -1,9 +1,9 @@
-package veridius.discover.services.connection.internal
+package veridius.discover.models.connection
 
 /**
  * Interface for database connectors
  */
-sealed interface DatabaseConnector {
+interface DatabaseConnector {
     /**
      * Connect to the database
      */

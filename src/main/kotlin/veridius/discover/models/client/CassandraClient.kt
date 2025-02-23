@@ -1,16 +1,18 @@
-package veridius.discover.services.connection.internal
+package veridius.discover.models.client
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import mu.KotlinLogging
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import java.net.InetSocketAddress
+import java.util.*
 
-data class CassandraConnection(
-    override val id: String, override val config: DatabaseConnectionConfiguration
-) : DatabaseConnection() {
+data class CassandraClient(
+    override val id: UUID, override val config: DatabaseConnectionConfiguration
+) : DatabaseClient() {
+    constructor(config: DatabaseConnectionConfiguration) : this(config.id, config)
+
     private var session: CqlSession? = null
-
     private val logger = KotlinLogging.logger {}
 
     override fun connect(): CqlSession {
@@ -65,6 +67,10 @@ data class CassandraConnection(
             return false
         }
 
+    }
+
+    override fun getDatabaseProperties() {
+        TODO("Not yet implemented")
     }
 
     override fun validateConfig() {

@@ -9,6 +9,7 @@ import veridius.discover.exceptions.DatabaseConnectionNotFound
 import veridius.discover.repositories.connection.DatabaseConnectionConfigurationRepository
 import veridius.discover.services.encryption.EncryptionService
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class DatabaseConfigurationService(
@@ -16,7 +17,14 @@ class DatabaseConfigurationService(
     private val databaseConnectionConfigurationRepository: DatabaseConnectionConfigurationRepository,
     private val encryptionService: EncryptionService
 ) {
-    fun getDatabaseConnectionConfiguration(id: UUID): DatabaseConnectionConfiguration? {
+
+    val databaseConfigurationConnections: ConcurrentHashMap<UUID, DatabaseConnectionConfiguration> = ConcurrentHashMap()
+
+    fun getDatabaseConnectionConfiguration(id: UUID): DatabaseConnectionConfiguration {
+        return databaseConfigurationConnections[id] ?: fetchDatabaseConnectionConfiguration(id)!!
+    }
+
+    fun fetchDatabaseConnectionConfiguration(id: UUID): DatabaseConnectionConfiguration? {
         val databaseConnection: DatabaseConnectionEntity =
             databaseConnectionConfigurationRepository.findById(id)
                 .orElseThrow {
@@ -26,10 +34,12 @@ class DatabaseConfigurationService(
                     )
                 }
 
-        return decryptDatabaseConfiguration(databaseConnection)
+        val connectionConfig: DatabaseConnectionConfiguration = decryptDatabaseConfiguration(databaseConnection)
+        databaseConfigurationConnections[id] = connectionConfig
+        return connectionConfig
     }
 
-    fun getAllDatabaseConnectionConfigurations(): List<DatabaseConnectionConfiguration> {
+    fun fetchAllDatabaseConnectionConfigurations(): List<DatabaseConnectionConfiguration> {
         val databaseConnections: List<DatabaseConnectionEntity> =
             databaseConnectionConfigurationRepository.findAllByInstanceId(serverConfig.serverInstanceId)
 
@@ -38,7 +48,9 @@ class DatabaseConfigurationService(
         }
 
         return databaseConnections.map { configuration ->
-            decryptDatabaseConfiguration(configuration)
+            val connectionConfig: DatabaseConnectionConfiguration = decryptDatabaseConfiguration(configuration)
+            databaseConfigurationConnections[configuration.id!!] = connectionConfig
+            connectionConfig
         }
     }
 

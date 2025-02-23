@@ -1,6 +1,6 @@
 package veridius.discover.entities.connection
 
-import veridius.discover.entities.common.DatabaseType
+import veridius.discover.models.common.DatabaseType
 
 data class ConnectionBuilder(val connection: DatabaseConnectionConfiguration) {
 
