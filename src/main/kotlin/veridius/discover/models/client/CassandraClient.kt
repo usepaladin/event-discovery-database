@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import mu.KotlinLogging
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.models.configuration.DatabaseTable
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -69,7 +70,7 @@ data class CassandraClient(
 
     }
 
-    override fun getDatabaseProperties() {
+    override fun getDatabaseProperties(): List<DatabaseTable> {
         TODO("Not yet implemented")
     }
 

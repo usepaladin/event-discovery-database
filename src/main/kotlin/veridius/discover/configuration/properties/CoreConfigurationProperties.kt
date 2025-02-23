@@ -6,5 +6,6 @@ import java.util.*
 @ConfigurationProperties(prefix = "discover")
 data class CoreConfigurationProperties(
     val requireDataEncryption: Boolean,
-    val serverInstanceId: UUID
+    val serverInstanceId: UUID,
+    val tenantId: String
 )

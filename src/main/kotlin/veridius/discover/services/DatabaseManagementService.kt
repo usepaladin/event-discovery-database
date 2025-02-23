@@ -39,7 +39,10 @@ class DatabaseManagementService(
             databaseConfigurationService.fetchAllDatabaseConnectionConfigurations()
 
         // Attempt to connect to each database
-        databaseConfig.forEach { connectionService.createConnection(it) }
+        databaseConfig.forEach {
+            connectionService.createConnection(it)
+            tableConfigurationService.getDatabaseConfigurationProperties(it.id)
+        }
 
         // Fetch current database table configurations and update database if any changes have occurred
     }

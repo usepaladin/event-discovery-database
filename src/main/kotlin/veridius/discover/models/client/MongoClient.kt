@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClients
 import mu.KotlinLogging
 import veridius.discover.entities.connection.ConnectionBuilder
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.models.configuration.DatabaseTable
 import java.util.*
 
 data class MongoClient(
@@ -68,7 +69,7 @@ data class MongoClient(
         }
     }
 
-    override fun getDatabaseProperties() {
+    override fun getDatabaseProperties(): List<DatabaseTable> {
         TODO("Not yet implemented")
     }
 

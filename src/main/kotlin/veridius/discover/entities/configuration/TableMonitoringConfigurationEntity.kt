@@ -1,6 +1,7 @@
 package veridius.discover.entities.configuration
 
 import jakarta.persistence.*
+import veridius.discover.entities.connection.DatabaseConnectionEntity
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -31,6 +32,15 @@ data class TableMonitoringConfigurationEntity(
     @Column(name = "database_connection_id", nullable = false)
     val databaseConnectionId: UUID,
 
+    @ManyToOne
+    @JoinColumn(
+        name = "database_connection_id",
+        referencedColumnName = "database_connection_id",
+        insertable = false,
+        updatable = false
+    )
+    val databaseConnection: DatabaseConnectionEntity? = null,
+
     @Column(name = "namespace")
     val namespace: String? = null,
 
@@ -44,7 +54,7 @@ data class TableMonitoringConfigurationEntity(
     var includeAllColumns: Boolean = true,
 
     @Column(name = "table_columns", columnDefinition = "JSONB")
-    @Convert(converter = TableColumnConfiguration::class)
+    @Convert(converter = TableColumnConfigurationConvertor::class)
     var columns: List<TableColumnConfiguration> = emptyList(),
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)

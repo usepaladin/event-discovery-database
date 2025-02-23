@@ -82,24 +82,26 @@ class DatabaseConfigurationService(
 
         // Decrypt Encrypted Fields
         return databaseConfiguration.apply {
-            hostName = encryptionService.decrypt(configuration.hostName, String::class.java)
-            port = encryptionService.decrypt(configuration.port, String::class.java)
+            hostName =
+                encryptionService.decrypt(configuration.hostName) ?: throw Exception("Failed to decrypt hostname")
+            port = encryptionService.decrypt(configuration.port) ?: throw Exception("Failed to decrypt port")
 
             configuration.databaseName?.let { encDatabase ->
-                database = encryptionService.decrypt(encDatabase, String::class.java)
+                database = encryptionService.decrypt(encDatabase) ?: throw Exception("Failed to decrypt database")
             }
 
             configuration.user?.let { encUser ->
-                user = encryptionService.decrypt(encUser, String::class.java)
+                user = encryptionService.decrypt(encUser) ?: throw Exception("Failed to decrypt user")
             }
 
             configuration.password?.let { encPassword ->
-                password = encryptionService.decrypt(encPassword, String::class.java)
+                password = encryptionService.decrypt(encPassword) ?: throw Exception("Failed to decrypt password")
             }
 
             configuration.additionalPropertiesText?.let { encProperties ->
                 additionalProperties =
-                    encryptionService.decrypt(encProperties, ConnectionAdditionalProperties::class.java)
+                    encryptionService.decryptObject(encProperties, ConnectionAdditionalProperties::class.java)
+                        ?: throw Exception("Failed to decrypt additional properties")
             }
         }
     }

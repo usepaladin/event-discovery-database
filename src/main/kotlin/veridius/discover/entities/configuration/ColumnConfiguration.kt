@@ -1,8 +1,12 @@
 package veridius.discover.entities.configuration
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+import jakarta.persistence.Embeddable
 
+@Embeddable
 data class TableColumnConfiguration(
     var name: String? = null,
     var isEnabled: Boolean = true,
@@ -11,16 +15,15 @@ data class TableColumnConfiguration(
     //todo: Research Column specific transformation within Debezium
 )
 
-@Converter
-class TableColumnConfigurationConvertor : AttributeConverter<TableColumnConfiguration, String> {
-    private val objectMapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+@Converter(autoApply = false) // Explicitly apply it where needed
+class TableColumnConfigurationConvertor : AttributeConverter<List<TableColumnConfiguration>, String> {
+    private val objectMapper = jacksonObjectMapper()
 
-    override fun convertToDatabaseColumn(attribute: TableColumnConfiguration?): String {
-        return objectMapper.writeValueAsString(attribute ?: TableColumnConfiguration())
+    override fun convertToDatabaseColumn(attribute: List<TableColumnConfiguration>?): String {
+        return objectMapper.writeValueAsString(attribute ?: emptyList<TableColumnConfiguration>())
     }
 
-    override fun convertToEntityAttribute(dbData: String?): TableColumnConfiguration {
-        return dbData?.let { objectMapper.readValue(it, TableColumnConfiguration::class.java) }
-            ?: TableColumnConfiguration()
+    override fun convertToEntityAttribute(dbData: String?): List<TableColumnConfiguration> {
+        return dbData?.let { objectMapper.readValue(it) } ?: emptyList()
     }
 }
