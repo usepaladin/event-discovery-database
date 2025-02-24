@@ -26,9 +26,11 @@ data class PostgresClient(
         }
 
         try {
+            logger.info { "Connecting to Postgres Database with provided configuration" }
             _connectionState.value = ConnectionState.Connecting
             datasource = HikariDataSource(hikariConfig)
             _connectionState.value = ConnectionState.Connected
+            logger.info { "Connected to Postgres Database with provided configuration" }
             return datasource!!
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)

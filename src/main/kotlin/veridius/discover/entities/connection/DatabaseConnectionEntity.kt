@@ -50,7 +50,7 @@ data class DatabaseConnectionEntity(
     @Column(name = "database_name")
     var databaseName: String? = null,
 
-    @Column(name = "user")
+    @Column(name = "username")
     var user: String? = null,
 
     @Column(name = "password")

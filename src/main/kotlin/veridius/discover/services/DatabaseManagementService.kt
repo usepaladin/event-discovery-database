@@ -1,6 +1,9 @@
 package veridius.discover.services
 
 import jakarta.annotation.PostConstruct
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.services.configuration.DatabaseConfigurationService
@@ -39,9 +42,16 @@ class DatabaseManagementService(
             databaseConfigurationService.fetchAllDatabaseConnectionConfigurations()
 
         // Attempt to connect to each database
-        databaseConfig.forEach {
-            connectionService.createConnection(it)
-            tableConfigurationService.getDatabaseConfigurationProperties(it.id)
+        runBlocking {
+            databaseConfig.map {
+                async {
+                    val client = connectionService.createConnection(it)
+                    client?.let {
+                        it.connect()
+                        tableConfigurationService.getDatabaseConfigurationProperties(it)
+                    }
+                }
+            }.awaitAll()
         }
 
         // Fetch current database table configurations and update database if any changes have occurred

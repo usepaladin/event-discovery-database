@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec
 @Service
 class EncryptionService(private val encryptionConfigurationProperties: EncryptionConfigurationProperties) {
 
+    //Todo: Migrate to Kubernetes Secret management
     private var encryptionKeyBase64: String = encryptionConfigurationProperties.key
 
 
