@@ -4,10 +4,10 @@ debezium:
     type: file
 discover:
   require-data-encryption: false
-  server-instance-id: 48a5cc47-7bb5-4044-a922-a3424d9f774f
+  server-instance-id: ${SERVER_INSTANCE_ID}
+  tenant-id: ${TENANT_ID}
 server:
   port: 8069
-
 spring:
   application:
     name: event-discovery
@@ -17,11 +17,6 @@ spring:
       - classpath:/datasource.yml
       - classpath:/kafka.yml
       - classpath:/logging.yml
-  cloud:
-    vault:
-      token: ${VAULT_TOKEN}
-      authentication: token
-      uri: ${VAULT_URL}
-      kv:
-        enabled: true
+encryption:
+  key: ${TEMP_ENCRYPTION_KEY}
 

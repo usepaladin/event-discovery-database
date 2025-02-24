@@ -44,7 +44,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -61,7 +60,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("com.datastax.oss:java-driver-core:4.17.0")
     implementation("mysql:mysql-connector-java:8.0.33")
-    
+
     // Logging
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 

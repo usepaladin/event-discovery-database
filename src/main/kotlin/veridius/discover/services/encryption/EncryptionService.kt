@@ -1,9 +1,9 @@
 package veridius.discover.services.encryption
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import veridius.discover.configuration.properties.EncryptionConfigurationProperties
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.security.InvalidAlgorithmParameterException
@@ -16,18 +16,10 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 @Service
-class EncryptionService(private val vaultService: VaultService) {
+class EncryptionService(private val encryptionConfigurationProperties: EncryptionConfigurationProperties) {
 
-    private var encryptionKeyBase64: String? = null
+    private var encryptionKeyBase64: String = encryptionConfigurationProperties.key
 
-    /**
-     * On Service Init, fetch Tenant Encryption Key from Vault
-     */
-    @PostConstruct
-    fun init() {
-        logger.info("Encryption service initialized")
-        encryptionKeyBase64 = vaultService.getEncryptionKeyForTenant()
-    }
 
     private val logger = KotlinLogging.logger {}
 
@@ -55,10 +47,6 @@ class EncryptionService(private val vaultService: VaultService) {
      */
     fun encrypt(data: String): String? {
         val encryptionKeyBase64 = this.encryptionKeyBase64
-            ?: run {
-                logger.error("Encryption key from Vault is null. Encryption failed.")
-                return null
-            }
 
         return runCatching {
             val encryptionKeyBytes = Base64.getDecoder().decode(encryptionKeyBase64)
@@ -99,7 +87,6 @@ class EncryptionService(private val vaultService: VaultService) {
      */
     fun decrypt(ciphertextBase64: String): String? {
         val encryptionKeyBase64 = this.encryptionKeyBase64
-            ?: throw Exception("Encryption key is null")
 
         return runCatching {
             val encryptionKeyBytes = Base64.getDecoder().decode(encryptionKeyBase64)
