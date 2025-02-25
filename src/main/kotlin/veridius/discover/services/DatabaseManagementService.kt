@@ -1,6 +1,7 @@
 package veridius.discover.services
 
 import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -56,4 +57,13 @@ class DatabaseManagementService(
 
         // Fetch current database table configurations and update database if any changes have occurred
     }
+
+    @PreDestroy
+    fun destroy() {
+        // Disconnect from all active database connections
+        runBlocking {
+            connectionService.disconnectAll()
+        }
+    }
+
 }

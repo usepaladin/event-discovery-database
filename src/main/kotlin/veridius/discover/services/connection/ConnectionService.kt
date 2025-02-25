@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 class ConnectionService : CoroutineScope, DisposableBean {
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
 
-    private val activeClients = ConcurrentHashMap<UUID, DatabaseClient>()
+    private val databaseClients = ConcurrentHashMap<UUID, DatabaseClient>()
     private val clientConnectionJobs = ConcurrentHashMap<UUID, Job>()
     private val logger = KotlinLogging.logger {}
 
@@ -36,7 +36,7 @@ class ConnectionService : CoroutineScope, DisposableBean {
             }
 
         // Store details of active database client
-        activeClients[connection.id] = client
+        databaseClients[connection.id] = client
 
         // Attempt client connection if autoConnect is true
         if (autoConnect) {
@@ -54,7 +54,7 @@ class ConnectionService : CoroutineScope, DisposableBean {
     }
 
     fun getClient(id: UUID): DatabaseClient? {
-        val connection: DatabaseClient = activeClients[id] ?: throw DatabaseConnectionNotFound(
+        val connection: DatabaseClient = databaseClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"
         )
@@ -63,11 +63,11 @@ class ConnectionService : CoroutineScope, DisposableBean {
     }
 
     fun getAllClients(): List<DatabaseClient> {
-        return activeClients.values.toList()
+        return databaseClients.values.toList()
     }
 
     suspend fun disconnectClient(id: UUID) {
-        val connection: DatabaseClient = activeClients[id] ?: throw DatabaseConnectionNotFound(
+        val connection: DatabaseClient = databaseClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"
         )
@@ -81,7 +81,7 @@ class ConnectionService : CoroutineScope, DisposableBean {
                     "Connection ID: $id"
         )
 
-        val connection: DatabaseClient = activeClients[id] ?: throw DatabaseConnectionNotFound(
+        val connection: DatabaseClient = databaseClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"
         )
@@ -89,12 +89,12 @@ class ConnectionService : CoroutineScope, DisposableBean {
         // Disconnect and remove database from active connections
         connectionJob.cancelAndJoin()
         connection.disconnect()
-        activeClients.remove(id)
+        databaseClients.remove(id)
         clientConnectionJobs.remove(id)
     }
 
     suspend fun connectAll() = coroutineScope {
-        activeClients.values.map { connection ->
+        databaseClients.values.map { connection ->
             async {
                 try {
                     connection.connect()
@@ -106,9 +106,13 @@ class ConnectionService : CoroutineScope, DisposableBean {
         }.awaitAll()
     }
 
-    suspend fun disconnectAll() = coroutineScope {
+    /**
+     * This will disconnect all database clients, and clear any active or pending connection jobs.
+     * This is useful for when the application is shutting down, or when a user requests to disconnect all clients.
+     */
+    suspend fun disconnectAll(removeConnections: Boolean = false) = coroutineScope {
         clientConnectionJobs.values.forEach { it.cancelAndJoin() }
-        activeClients.values.map { connection ->
+        databaseClients.values.map { connection ->
             async {
                 try {
                     connection.disconnect()
@@ -118,14 +122,24 @@ class ConnectionService : CoroutineScope, DisposableBean {
                 }
             }
         }.awaitAll()
-        activeClients.clear()
+
+        // Remove from cache if we are planning on permanently removing the connections
+        if (removeConnections) {
+            databaseClients.clear()
+        }
+
+        // Clear all connection jobs
         clientConnectionJobs.clear()
     }
 
-    // Connection health monitoring
+    /**
+     * Continuous monitoring of database connections, checking all vital signs of each connection.
+     * Should be run as a background task on a separate thread, and will trigger appropriate actions
+     * upon detection of an anomaly.
+     */
     fun monitorConnections() = launch {
         while (isActive) {
-            activeClients.values.forEach { connection ->
+            databaseClients.values.forEach { connection ->
                 launch {
                     try {
                         if (!connection.isConnected()) {
@@ -147,7 +161,7 @@ class ConnectionService : CoroutineScope, DisposableBean {
 
     // Reactive connection states
     fun observeConnectionStates(): Flow<Map<UUID, ConnectionState>> = flow {
-        val stateFlows = activeClients.values.map { connection ->
+        val stateFlows = databaseClients.values.map { connection ->
             connection.connectionState.map { state -> connection.id to state }
         }
 
