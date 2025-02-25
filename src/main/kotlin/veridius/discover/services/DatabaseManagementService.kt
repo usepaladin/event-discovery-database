@@ -56,13 +56,17 @@ class DatabaseManagementService(
         }
 
         // Fetch current database table configurations and update database if any changes have occurred
+
+        runBlocking {
+            connectionService.disconnectAll(removeConnections = true)
+        }
     }
 
     @PreDestroy
     fun destroy() {
         // Disconnect from all active database connections
         runBlocking {
-            connectionService.disconnectAll()
+            connectionService.disconnectAll(removeConnections = true)
         }
     }
 

@@ -3,7 +3,7 @@ package veridius.discover.models.configuration
 import java.sql.DatabaseMetaData
 
 interface HikariTableConfigurationBuilder {
-    
+
     fun getTableColumns(metadata: DatabaseMetaData, table: DatabaseTable): List<Column> {
         /**
          * Relevant column data retrieval keys from result set:
@@ -24,15 +24,38 @@ interface HikariTableConfigurationBuilder {
             val autoIncrement = columnResultSet.getString("IS_AUTOINCREMENT") == "YES"
             columns.add(Column(columnName, columnType, nullable, autoIncrement, defaultValue))
         }
-
         return columns
     }
 
     fun getTablePrimaryKey(metadata: DatabaseMetaData, table: DatabaseTable): PrimaryKey? {
-        TODO()
+        val primaryKeyResultSet = metadata.getPrimaryKeys(null, table.schema, table.tableName)
+
+        //Fuck while loops and iterables
+        var primaryKeyName: String? = null
+        val primaryKeyColumns: MutableList<String> = mutableListOf()
+        while (primaryKeyResultSet.next()) {
+            if (primaryKeyName == null) {
+                primaryKeyName = primaryKeyResultSet.getString("PK_NAME")
+            }
+
+            primaryKeyColumns.add(primaryKeyResultSet.getString("COLUMN_NAME"))
+        }
+
+        if (primaryKeyColumns.size == 0) return null
+
+        return PrimaryKey(primaryKeyName, primaryKeyColumns)
     }
 
     fun getTableForeignKeys(metadata: DatabaseMetaData, table: DatabaseTable): List<ForeignKey> {
-        TODO()
+        val foreignKeyResultSet = metadata.getImportedKeys(null, table.schema, table.tableName)
+        val foreignKeys: MutableList<ForeignKey> = mutableListOf()
+        while (foreignKeyResultSet.next()) {
+            val foreignKeyName = foreignKeyResultSet.getString("FK_NAME")
+            val foreignColumn = foreignKeyResultSet.getString("FKCOLUMN_NAME")
+            val foreignTable = foreignKeyResultSet.getString("PKTABLE_NAME")
+            val foreignColumnReference = foreignKeyResultSet.getString("PKCOLUMN_NAME")
+            foreignKeys.add(ForeignKey(foreignKeyName, foreignColumn, foreignTable, foreignColumnReference))
+        }
+        return foreignKeys
     }
 }

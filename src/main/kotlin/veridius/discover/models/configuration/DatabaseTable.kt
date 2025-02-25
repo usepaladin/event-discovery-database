@@ -24,6 +24,6 @@ data class ForeignKey(
 )
 
 data class PrimaryKey(
-    val name: String,
+    val name: String? = null,
     val columns: List<String>,
 )
