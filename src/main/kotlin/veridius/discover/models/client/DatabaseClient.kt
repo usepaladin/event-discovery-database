@@ -19,6 +19,7 @@ sealed class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
 sealed class ConnectionState {
     data object Connected : ConnectionState()
     data object Disconnected : ConnectionState()
-    data class Error(val exception: Throwable) : ConnectionState()
     data object Connecting : ConnectionState()
+    data object Paused : ConnectionState()
+    data class Error(val exception: Throwable) : ConnectionState()
 }

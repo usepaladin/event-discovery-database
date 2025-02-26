@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service
 import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.services.configuration.DatabaseConfigurationService
 import veridius.discover.services.configuration.TableConfigurationService
+import veridius.discover.services.connection.ConnectionMonitoringService
 import veridius.discover.services.connection.ConnectionService
 
 /**
@@ -21,6 +22,7 @@ import veridius.discover.services.connection.ConnectionService
 class DatabaseManagementService(
     private val databaseConfigurationService: DatabaseConfigurationService,
     private val connectionService: ConnectionService,
+    private val connectionMonitoringService: ConnectionMonitoringService,
     private val tableConfigurationService: TableConfigurationService
 ) {
 
@@ -55,6 +57,8 @@ class DatabaseManagementService(
             }.awaitAll()
         }
 
+        // Set up background connection monitoring
+        connectionMonitoringService.monitorDatabaseConnections()
         // Fetch current database table configurations and update database if any changes have occurred
 
         runBlocking {

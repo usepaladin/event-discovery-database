@@ -134,32 +134,30 @@ class ConnectionService : CoroutineScope, DisposableBean {
 
     /**
      * Continuous monitoring of database connections, checking all vital signs of each connection.
-     * Should be run as a background task on a separate thread, and will trigger appropriate actions
-     * upon detection of an anomaly.
+     * Should be run as a background task on a separate thread, and will attempt to reconnect to a database
+     * if it has been disconnected not at the will of the user (ie. Paused, Connecting, etc)
      */
     fun monitorConnections() = launch {
         while (isActive) {
-            databaseClients.values.forEach { connection ->
-                launch {
-                    try {
-                        if (!connection.isConnected()) {
-                            // Attempt reconnection
-                            logger.info { "Attempting to reconnect to ${connection.id}" }
-                            connection.connect()
-                        }
-                    } catch (e: Exception) {
-                        // Handle reconnection error
-                        logger.error(e) {
-                            "Error reconnecting to ${connection.id}"
+            coroutineScope {
+                databaseClients.values.forEach { connection ->
+                    launch {
+                        try {
+                            if (!connection.isConnected() && connection.connectionState.value == ConnectionState.Disconnected) {
+                                logger.info { "Attempting to reconnect to ${connection.id}" }
+                                connection.connect()
+                            }
+                        } catch (e: Exception) {
+                            logger.error(e) { "Error reconnecting to ${connection.id}" }
                         }
                     }
                 }
             }
-            delay(30000) // Check every 30 seconds
+
+            delay(30000)
         }
     }
 
-    // Reactive connection states
     fun observeConnectionStates(): Flow<Map<UUID, ConnectionState>> = flow {
         val stateFlows = databaseClients.values.map { connection ->
             connection.connectionState.map { state -> connection.id to state }
