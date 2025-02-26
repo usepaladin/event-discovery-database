@@ -12,6 +12,11 @@ class ConnectionMonitoringService(private val connectionService: ConnectionServi
     private val scope = CoroutineScope((Dispatchers.IO + SupervisorJob()))
     private val logger = LoggerFactory.getLogger(ConnectionMonitoringService::class.java)
 
+    /**
+     * Continuously monitor database connections throughout the lifecycle of the application and will do the following:
+     *  - Monitor the Connection Status of the databases, and will attempt to reconnect on failure
+     *  - Listen for any changes to the connection state of the database, and will handle the state changes accordingly
+     */
     fun monitorDatabaseConnections() {
         scope.launch {
             // Continuously observe and monitor connection states to handle state changes

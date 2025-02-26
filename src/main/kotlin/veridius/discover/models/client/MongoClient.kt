@@ -70,7 +70,10 @@ data class MongoClient(
     }
 
     override fun getDatabaseProperties(): List<DatabaseTable> {
-        TODO("Not yet implemented")
+        if (client == null) {
+
+        }
+
     }
 
     override fun validateConfig() {

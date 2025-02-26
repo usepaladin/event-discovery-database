@@ -26,17 +26,16 @@ data class PostgresClient(
         }
 
         try {
-            logger.info { "Connecting to Postgres Database with provided configuration" }
+            logger.info { "Postgres Database => ${this.config.connectionName} => $id => Connecting..." }
             _connectionState.value = ConnectionState.Connecting
             datasource = HikariDataSource(hikariConfig)
             _connectionState.value = ConnectionState.Connected
-            logger.info { "Connected to Postgres Database with provided configuration" }
+            logger.info { "Postgres Database => ${this.config.connectionName} => $id => Connected" }
             return datasource!!
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) {
-                "Error connecting to Postgres Database with provided configuration \n" +
-                        "Stack trace: ${e.localizedMessage}"
+                "Postgres Database => ${this.config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
             throw e
         }
@@ -49,10 +48,7 @@ data class PostgresClient(
             _connectionState.value = ConnectionState.Disconnected
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
-            logger.error(e) {
-                "Error disconnecting from Postgres Database \n" +
-                        "Stack trace: ${e.message}"
-            }
+            logger.error(e) { "Postgres Database => ${this.config.connectionName} => $id => Failed to disconnect => Message: ${e.message}" }
         }
     }
 
@@ -60,22 +56,14 @@ data class PostgresClient(
         try {
             return datasource?.connection?.isValid(1000) ?: false
         } catch (e: Exception) {
-            logger.error(e) {
-                "Error checking connection to Postgres \n" +
-                        "Stack trace: ${e.message}"
-            }
+            logger.error(e) { "Postgres Database => ${this.config.connectionName} => $id => Failed to check connection status => Message: ${e.message}" }
             return false
         }
     }
 
     override fun getDatabaseProperties(): List<DatabaseTable> {
         if (datasource == null) {
-            logger.warn {
-                "Cannot fetch metadata for database client \n" +
-                        "Client Id: ${this.id} \n" +
-                        "Database Type: Postgres \n" +
-                        "Reason: No active connection available"
-            }
+            logger.error { "Cannot retrieve properties for Postgres Database => ${this.config.connectionName} | $id => No Active Connection found" }
             throw NoActiveConnectionFound("No active connection found for client ${this.id}")
         }
 
@@ -115,10 +103,7 @@ data class PostgresClient(
             }
 
         } catch (ex: Exception) {
-            logger.error(ex) {
-                "Error fetching database properties for Postgres Database \n" +
-                        "Stack trace: ${ex.message}"
-            }
+            logger.error(ex) { "Postgres Database => ${this.config.connectionName} => $id => Failed to retrieve properties => Message: ${ex.message}" }
             throw ex
         }
 

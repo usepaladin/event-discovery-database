@@ -23,15 +23,16 @@ data class MySQLClient(
 
     override fun connect(): DataSource {
         try {
+            logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connecting..." }
             _connectionState.value = ConnectionState.Connecting
             datasource = HikariDataSource(hikariConfig)
             _connectionState.value = ConnectionState.Connected
+            logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connected" }
             return datasource!!
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) {
-                "Error connecting to MySQL Database with provided configuration \n" +
-                        "Stack trace: ${e.message}"
+                "MySQL Database => ${this.config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
             throw e
         }
@@ -39,14 +40,15 @@ data class MySQLClient(
 
     override fun disconnect() {
         try {
+            logger.info { "MySQL Database => ${this.config.connectionName} => $id => Disconnecting..." }
             datasource?.connection?.close()
             datasource = null
             _connectionState.value = ConnectionState.Disconnected
+            logger.info { "MySQL Database => ${this.config.connectionName} => $id => Disconnected" }
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)
             logger.error(e) {
-                "Error disconnecting from MySQL Database \n" +
-                        "Stack trace: ${e.message}"
+                "MySQL Database => ${this.config.connectionName} => $id => Failed to disconnect => Message: ${e.message}"
             }
         }
     }
@@ -57,8 +59,7 @@ data class MySQLClient(
             return datasource?.connection?.isValid(1000) ?: false
         } catch (e: Exception) {
             logger.error(e) {
-                "Error checking connection to Postgres \n" +
-                        "Stack trace: ${e.message}"
+                "MySQL Database => ${this.config.connectionName} => $id => Failed to check connection status => Message: ${e.message}"
             }
             return false
         }
@@ -72,12 +73,7 @@ data class MySQLClient(
      */
     override fun getDatabaseProperties(): List<DatabaseTable> {
         if (datasource == null) {
-            logger.warn {
-                "Cannot fetch metadata for database client \n" +
-                        "Client Id: ${this.id} \n" +
-                        "Database Type: MySQL \n" +
-                        "Reason: No active connection available"
-            }
+            logger.warn { "MySQL Database => ${this.config.connectionName} => $id => Could not check properties, no active connection found" }
             throw NoActiveConnectionFound("No active connection found for client ${this.id}")
         }
 
@@ -105,14 +101,11 @@ data class MySQLClient(
                     }
 
                     return tables
-
                 }
-
             }
         } catch (ex: Exception) {
             logger.error(ex) {
-                "Error fetching metadata for MySQL Database \n" +
-                        "Stack trace: ${ex.message}"
+                "MySQL Database => ${this.config.connectionName} => $id => Failed to retrieve properties => Message: ${ex.message}"
             }
             throw ex
         }

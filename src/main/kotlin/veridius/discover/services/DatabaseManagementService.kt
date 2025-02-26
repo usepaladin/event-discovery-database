@@ -59,8 +59,8 @@ class DatabaseManagementService(
 
         // Set up background connection monitoring
         connectionMonitoringService.monitorDatabaseConnections()
-        // Fetch current database table configurations and update database if any changes have occurred
 
+        // Fetch current database table configurations and update database if any changes have occurred
         runBlocking {
             connectionService.disconnectAll(removeConnections = true)
         }
