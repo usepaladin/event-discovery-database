@@ -63,7 +63,7 @@ data class PostgresClient(
 
     override fun getDatabaseProperties(): List<DatabaseTable> {
         if (datasource == null) {
-            logger.error { "Cannot retrieve properties for Postgres Database => ${this.config.connectionName} | $id => No Active Connection found" }
+            logger.warn { "Postgres Database => ${this.config.connectionName} | $id => Can not retrieve properties => No Active Connection found" }
             throw NoActiveConnectionFound("No active connection found for client ${this.id}")
         }
 
