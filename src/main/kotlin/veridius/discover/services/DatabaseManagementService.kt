@@ -51,7 +51,7 @@ class DatabaseManagementService(
                     val client = connectionService.createConnection(it)
                     client?.let {
                         it.connect()
-                        tableConfigurationService.getDatabaseConfigurationProperties(it)
+                        tableConfigurationService.scanDatabaseTableConfiguration(it)
                     }
                 }
             }.awaitAll()

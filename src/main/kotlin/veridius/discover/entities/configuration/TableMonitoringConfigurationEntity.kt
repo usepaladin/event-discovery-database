@@ -2,6 +2,10 @@ package veridius.discover.entities.configuration
 
 import jakarta.persistence.*
 import veridius.discover.entities.connection.DatabaseConnectionEntity
+import veridius.discover.models.configuration.TableColumnConfiguration
+import veridius.discover.models.configuration.TableColumnConfigurationConvertor
+import veridius.discover.models.configuration.TableMetadataConfiguration
+import veridius.discover.models.configuration.TableMetadataConfigurationConvertor
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -52,6 +56,10 @@ data class TableMonitoringConfigurationEntity(
 
     @Column(name = "include_all_columns", nullable = false)
     var includeAllColumns: Boolean = true,
+
+    @Column(name = "table_metadata", columnDefinition = "JSONB")
+    @Convert(converter = TableMetadataConfigurationConvertor::class)
+    var metadata: TableMetadataConfiguration? = null,
 
     @Column(name = "table_columns", columnDefinition = "JSONB")
     @Convert(converter = TableColumnConfigurationConvertor::class)
