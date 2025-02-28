@@ -36,6 +36,8 @@ data class TableConfiguration(
                 updatedAt = entity.updatedAt,
             )
         }
+
+
     }
 }
 

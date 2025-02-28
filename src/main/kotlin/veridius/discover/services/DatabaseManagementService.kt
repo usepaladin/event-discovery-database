@@ -44,7 +44,7 @@ class DatabaseManagementService(
         val databaseConfig: List<DatabaseConnectionConfiguration> =
             databaseConfigurationService.fetchAllDatabaseConnectionConfigurations()
 
-        // Attempt to connect to each database
+        // Attempt database connection and configuration
         runBlocking {
             databaseConfig.map {
                 async {

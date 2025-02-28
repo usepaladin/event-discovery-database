@@ -1,5 +1,7 @@
 package veridius.discover.models.configuration
 
+import veridius.discover.pojo.configuration.BaseColumn
+
 data class DatabaseTable(
     val tableName: String,
     /**
@@ -21,12 +23,12 @@ data class DatabaseTable(
 )
 
 data class Column(
-    val name: String,
-    val type: String,
-    val nullable: Boolean,
-    val autoIncrement: Boolean,
-    val defaultValue: String?,
-)
+    override val name: String,
+    override val type: String,
+    override val nullable: Boolean,
+    override val autoIncrement: Boolean,
+    override val defaultValue: String?,
+) : BaseColumn
 
 data class ForeignKey(
     val name: String,
