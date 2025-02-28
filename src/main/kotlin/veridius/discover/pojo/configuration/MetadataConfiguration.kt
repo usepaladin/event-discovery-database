@@ -1,8 +1,10 @@
-package veridius.discover.models.configuration
+package veridius.discover.pojo.configuration
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+import veridius.discover.models.configuration.ForeignKey
+import veridius.discover.models.configuration.PrimaryKey
 
 data class TableMetadataConfiguration(
     var primaryKey: PrimaryKey? = null,

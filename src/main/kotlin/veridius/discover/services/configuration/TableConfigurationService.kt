@@ -3,9 +3,9 @@ package veridius.discover.services.configuration
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.CoreConfigurationProperties
-import veridius.discover.models.client.DatabaseClient
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.TableConfiguration
+import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.repositories.configuration.TableConfigurationRepository
 import veridius.discover.services.connection.ConnectionService
 import java.util.*

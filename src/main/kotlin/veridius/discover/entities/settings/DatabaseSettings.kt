@@ -2,6 +2,9 @@ package veridius.discover.entities.settings
 
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+import veridius.discover.pojo.settings.ErrorSettings
+import veridius.discover.pojo.settings.MonitoringSettings
+import veridius.discover.pojo.settings.PreviewSettings
 
 data class DatabaseSettings(
     val errors: ErrorSettings? = null,

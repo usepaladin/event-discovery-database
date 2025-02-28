@@ -1,4 +1,4 @@
-package veridius.discover.entities.settings
+package veridius.discover.pojo.settings
 
 data class MonitoringSettings(
     // How often the Database tables should be checked for schema changes + new tables

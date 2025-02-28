@@ -2,10 +2,10 @@ package veridius.discover.services.configuration
 
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.CoreConfigurationProperties
-import veridius.discover.entities.connection.ConnectionAdditionalProperties
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.entities.connection.DatabaseConnectionEntity
 import veridius.discover.exceptions.DatabaseConnectionNotFound
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
+import veridius.discover.pojo.connection.ConnectionAdditionalProperties
 import veridius.discover.repositories.connection.DatabaseConnectionConfigurationRepository
 import veridius.discover.services.encryption.EncryptionService
 import java.util.*

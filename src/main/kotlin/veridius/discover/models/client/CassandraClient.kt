@@ -9,11 +9,13 @@ import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata
 import com.datastax.oss.driver.api.core.type.DataType
 import com.datastax.oss.driver.api.core.type.UserDefinedType
 import mu.KotlinLogging
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.exceptions.NoActiveConnectionFound
 import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.PrimaryKey
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
+import veridius.discover.pojo.client.ConnectionState
+import veridius.discover.pojo.client.DatabaseClient
 import java.net.InetSocketAddress
 import java.util.*
 

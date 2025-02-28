@@ -1,5 +1,9 @@
-package veridius.discover.models.configuration
+package veridius.discover.util.configuration
 
+import veridius.discover.models.configuration.Column
+import veridius.discover.models.configuration.DatabaseTable
+import veridius.discover.models.configuration.ForeignKey
+import veridius.discover.models.configuration.PrimaryKey
 import java.sql.DatabaseMetaData
 
 interface HikariTableConfigurationBuilder {

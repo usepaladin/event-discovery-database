@@ -6,7 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.services.configuration.DatabaseConfigurationService
 import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionMonitoringService

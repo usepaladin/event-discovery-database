@@ -1,4 +1,4 @@
-package veridius.discover.entities.settings
+package veridius.discover.pojo.settings
 
 data class ErrorSettings(
     // The level of logging to use for errors

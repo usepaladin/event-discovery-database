@@ -3,6 +3,7 @@ package veridius.discover.models.configuration
 data class DatabaseTable(
     val tableName: String,
     /**
+     * Todo: Implement identifier generation
      * The identifier is a unique string made from the hash of:
      *  - Database name
      *  - Schema name (if exists)
@@ -12,7 +13,7 @@ data class DatabaseTable(
      * updates such as table name changes, schema changes, etc, which would otherwise render
      * the table unrecognizable.
      */
-    val identifier: String,
+    val identifier: String? = null,
     val schema: String? = null,
     var columns: List<Column> = listOf(),
     var foreignKeys: List<ForeignKey> = listOf(),
@@ -38,3 +39,5 @@ data class PrimaryKey(
     val name: String? = null,
     val columns: List<String>,
 )
+
+

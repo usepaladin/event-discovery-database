@@ -1,6 +1,8 @@
 package veridius.discover.models.configuration
 
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
+import veridius.discover.pojo.configuration.TableColumnConfiguration
+import veridius.discover.pojo.configuration.TableMetadataConfiguration
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -8,7 +10,8 @@ data class TableConfiguration(
     val id: UUID,
     val databaseConnectionId: UUID,
     val tableName: String,
-    val identifier: String,
+    // Todo: Add a unique identifier for the table
+    val identifier: String? = null,
     // Schema, keyspace, etc
     val namespace: String? = null,
     var isEnabled: Boolean = true,
@@ -24,7 +27,6 @@ data class TableConfiguration(
                 id = entity.id!!,
                 databaseConnectionId = entity.databaseConnectionId,
                 tableName = entity.tableName,
-                identifier = "",
                 namespace = entity.namespace,
                 isEnabled = entity.isEnabled,
                 includeAllColumns = entity.includeAllColumns,

@@ -1,4 +1,4 @@
-package veridius.discover.models.connection
+package veridius.discover.pojo.connection
 
 /**
  * Interface for database connectors

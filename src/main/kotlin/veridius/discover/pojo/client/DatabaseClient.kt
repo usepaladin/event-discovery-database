@@ -1,14 +1,14 @@
-package veridius.discover.models.client
+package veridius.discover.pojo.client
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
-import veridius.discover.models.configuration.TableConfigurationBuilder
-import veridius.discover.models.connection.DatabaseConnector
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
+import veridius.discover.pojo.connection.DatabaseConnector
+import veridius.discover.util.configuration.TableConfigurationBuilder
 import java.util.*
 
-sealed class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
+abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     abstract val id: UUID
     abstract val config: DatabaseConnectionConfiguration
 

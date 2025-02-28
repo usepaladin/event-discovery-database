@@ -1,4 +1,4 @@
-package veridius.discover.models.configuration
+package veridius.discover.pojo.configuration
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

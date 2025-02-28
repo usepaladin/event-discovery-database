@@ -2,10 +2,16 @@ package veridius.discover.models.client
 
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
 import veridius.discover.exceptions.NoActiveConnectionFound
-import veridius.discover.models.configuration.*
-import veridius.discover.models.connection.HikariConnectionConfigBuilder
+import veridius.discover.models.configuration.Column
+import veridius.discover.models.configuration.DatabaseTable
+import veridius.discover.models.configuration.ForeignKey
+import veridius.discover.models.configuration.PrimaryKey
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
+import veridius.discover.pojo.client.ConnectionState
+import veridius.discover.pojo.client.DatabaseClient
+import veridius.discover.util.configuration.HikariTableConfigurationBuilder
+import veridius.discover.util.connection.HikariConnectionConfigBuilder
 import java.sql.DatabaseMetaData
 import java.util.*
 import javax.sql.DataSource

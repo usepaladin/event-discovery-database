@@ -2,10 +2,10 @@ package veridius.discover.entities.configuration
 
 import jakarta.persistence.*
 import veridius.discover.entities.connection.DatabaseConnectionEntity
-import veridius.discover.models.configuration.TableColumnConfiguration
-import veridius.discover.models.configuration.TableColumnConfigurationConvertor
-import veridius.discover.models.configuration.TableMetadataConfiguration
-import veridius.discover.models.configuration.TableMetadataConfigurationConvertor
+import veridius.discover.pojo.configuration.TableColumnConfiguration
+import veridius.discover.pojo.configuration.TableColumnConfigurationConvertor
+import veridius.discover.pojo.configuration.TableMetadataConfiguration
+import veridius.discover.pojo.configuration.TableMetadataConfigurationConvertor
 import java.time.ZonedDateTime
 import java.util.*
 

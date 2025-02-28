@@ -1,4 +1,4 @@
-package veridius.discover.entities.connection
+package veridius.discover.pojo.connection
 
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter

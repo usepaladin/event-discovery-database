@@ -1,6 +1,6 @@
-package veridius.discover.models.connection
+package veridius.discover.util.connection
 
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
 
 interface ConfigurationValidator {
 

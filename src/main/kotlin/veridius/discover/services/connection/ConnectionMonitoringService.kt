@@ -4,7 +4,7 @@ import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import veridius.discover.models.client.ConnectionState
+import veridius.discover.pojo.client.ConnectionState
 import java.util.*
 
 @Service

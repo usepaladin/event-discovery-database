@@ -1,8 +1,7 @@
-package veridius.discover.models.connection
+package veridius.discover.util.connection
 
 import com.zaxxer.hikari.HikariConfig
-import veridius.discover.entities.connection.ConnectionBuilder
-import veridius.discover.entities.connection.DatabaseConnectionConfiguration
+import veridius.discover.models.connection.DatabaseConnectionConfiguration
 
 interface HikariConnectionConfigBuilder {
 

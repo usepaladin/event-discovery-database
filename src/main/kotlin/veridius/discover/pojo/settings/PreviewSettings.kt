@@ -1,4 +1,4 @@
-package veridius.discover.entities.settings
+package veridius.discover.pojo.settings
 
 import veridius.discover.models.common.OperationType
 

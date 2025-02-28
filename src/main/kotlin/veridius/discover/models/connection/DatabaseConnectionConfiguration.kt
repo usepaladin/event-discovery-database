@@ -1,7 +1,10 @@
-package veridius.discover.entities.connection
+package veridius.discover.models.connection
 
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
+import veridius.discover.entities.connection.DatabaseConnectionEntity
 import veridius.discover.models.common.DatabaseType
+import veridius.discover.pojo.connection.ConnectionAdditionalProperties
+import veridius.discover.pojo.connection.ConnectionPropertyConverter
 import java.time.ZonedDateTime
 import java.util.*
 
