@@ -39,7 +39,7 @@ class TableConfigurationService(
                 }
 
                 // Create an async call to fetch existing table configurations
-                val storedDatabaseConnectionConfiguration: Deferred<List<TableConfiguration>> = async {
+                val storedDatabaseConnectionConfiguration: Deferred<List<TableMonitoringConfigurationEntity>> = async {
                     fetchExistingTableConfigurations(client)
                 }
 
