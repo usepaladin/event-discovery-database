@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.jpa") version "1.9.25"
 }
 
-group = "Veredius"
+group = "Veridius"
 version = "0.0.1-SNAPSHOT"
 
 java {
