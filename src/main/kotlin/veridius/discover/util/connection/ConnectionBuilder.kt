@@ -23,15 +23,20 @@ data class ConnectionBuilder(val connection: DatabaseConnectionConfiguration) {
     }
 
     private fun buildMongoUrl(): String {
-        val baseUrl = "mongodb://${connection.hostName}:${connection.port}"
-        val auth = when {
-            connection.user != null && connection.password != null ->
-                "$connection.password:$connection.password@"
-
+        val authCredentials = when {
+            connection.user != null && connection.password != null -> "${connection.user}:${connection.password}@"
             else -> ""
         }
+        val baseUrl = "mongodb://$authCredentials${connection.hostName}:${connection.port}"
         val db = connection.database?.let { "/$it" } ?: ""
-        return "$baseUrl$auth${connection.hostName}:${connection.port}$db"
+
+        // Properly format query parameters
+        val queryParams = mutableListOf<String>()
+        connection.additionalProperties?.authSource?.let { queryParams.add("authSource=$it") }
+
+        val queryString = if (queryParams.isNotEmpty()) "?${queryParams.joinToString("&")}" else ""
+
+        return "$baseUrl$db$queryString"
     }
 
     private fun buildCassandraUrl(): String {

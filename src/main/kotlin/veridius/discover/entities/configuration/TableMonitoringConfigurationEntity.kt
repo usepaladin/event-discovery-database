@@ -1,11 +1,11 @@
 package veridius.discover.entities.configuration
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.Type
 import veridius.discover.entities.connection.DatabaseConnectionEntity
 import veridius.discover.pojo.configuration.TableColumnConfiguration
-import veridius.discover.pojo.configuration.TableColumnConfigurationConvertor
 import veridius.discover.pojo.configuration.TableMetadataConfiguration
-import veridius.discover.pojo.configuration.TableMetadataConfigurationConvertor
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -57,13 +57,13 @@ data class TableMonitoringConfigurationEntity(
     @Column(name = "include_all_columns", nullable = false)
     var includeAllColumns: Boolean = true,
 
+    @Type(JsonBinaryType::class)
     @Column(name = "table_metadata", columnDefinition = "JSONB")
-    @Convert(converter = TableMetadataConfigurationConvertor::class)
     var metadata: TableMetadataConfiguration? = null,
 
+    @Type(JsonBinaryType::class)
     @Column(name = "table_columns", columnDefinition = "JSONB")
-    @Convert(converter = TableColumnConfigurationConvertor::class)
-    var columns: List<TableColumnConfiguration> = emptyList(),
+    var columns: List<TableColumnConfiguration>? = null,
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     var createdAt: ZonedDateTime = ZonedDateTime.now(),

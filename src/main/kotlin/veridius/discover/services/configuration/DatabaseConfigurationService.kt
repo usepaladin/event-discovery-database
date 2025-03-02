@@ -43,11 +43,25 @@ class DatabaseConfigurationService(
         val databaseConnections: List<DatabaseConnectionEntity> =
             databaseConnectionConfigurationRepository.findAllByInstanceId(serverConfig.serverInstanceId)
 
-        if (databaseConnections.isEmpty()) {
+        return handleDatabaseConnectionDecryption(databaseConnections)
+    }
+
+    fun fetchAllEnabledDatabaseConnectionConfigurations(): List<DatabaseConnectionConfiguration> {
+        val databaseConnections: List<DatabaseConnectionEntity> =
+            databaseConnectionConfigurationRepository.findAllByInstanceIdAndEnabled(
+                serverConfig.serverInstanceId,
+                true
+            )
+
+        return handleDatabaseConnectionDecryption(databaseConnections)
+    }
+    
+    private fun handleDatabaseConnectionDecryption(connections: List<DatabaseConnectionEntity>): List<DatabaseConnectionConfiguration> {
+        if (connections.isEmpty()) {
             throw Exception("No database connections found")
         }
 
-        return databaseConnections.map { configuration ->
+        return connections.map { configuration ->
             val connectionConfig: DatabaseConnectionConfiguration = decryptDatabaseConfiguration(configuration)
             databaseConfigurationConnections[configuration.id!!] = connectionConfig
             connectionConfig
@@ -86,7 +100,7 @@ class DatabaseConfigurationService(
                 encryptionService.decrypt(configuration.hostName) ?: throw Exception("Failed to decrypt hostname")
             port = encryptionService.decrypt(configuration.port) ?: throw Exception("Failed to decrypt port")
 
-            configuration.databaseName?.let { encDatabase ->
+            configuration.databaseName.let { encDatabase ->
                 database = encryptionService.decrypt(encDatabase) ?: throw Exception("Failed to decrypt database")
             }
 

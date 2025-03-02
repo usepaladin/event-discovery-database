@@ -47,8 +47,8 @@ data class DatabaseConnectionEntity(
     @Column(name = "port", nullable = false)
     var port: String,
 
-    @Column(name = "database_name")
-    var databaseName: String? = null,
+    @Column(name = "database_name", nullable = false)
+    var databaseName: String,
 
     @Column(name = "username")
     var user: String? = null,

@@ -1,5 +1,6 @@
 package veridius.discover.services.configuration
 
+import jakarta.transaction.Transactional
 import kotlinx.coroutines.*
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -29,6 +30,7 @@ class TableConfigurationService(
      *  - Table Primary Keys
      *  - Table Foreign Keys (If applicable)
      */
+    @Transactional
     suspend fun scanDatabaseTableConfiguration(client: DatabaseClient) {
         try {
             val (scannedConfiguration, existingConfiguration) = coroutineScope {
@@ -88,7 +90,8 @@ class TableConfigurationService(
      * @param existingConfiguration List of existing table configurations
      * @param client Database client to retrieve table configurations for
      */
-    private suspend fun handleTableConfigurationComparison(
+    @Transactional
+    suspend fun handleTableConfigurationComparison(
         scannedConfiguration: List<DatabaseTable>,
         existingConfiguration: List<TableMonitoringConfigurationEntity>,
         client: DatabaseClient
@@ -102,12 +105,16 @@ class TableConfigurationService(
                 // Create new table configuration
                 val createdEntity: TableConfiguration = createTableConfiguration(client, scannedTable)
                 tableConfigurations[createdEntity.id] = createdEntity
-            } else {
-                // Update existing table configuration
-                val updatedEntity: TableConfiguration = updateTableConfiguration(scannedTable, existingTable)
-                tableConfigurations[updatedEntity.id] = updatedEntity
+                return@forEach
             }
+
+            // Update existing table configuration, if any changes are detected
+            val updatedEntity: TableConfiguration =
+                updateTableConfiguration(scannedTable, existingTable) ?: return@forEach
+
+            tableConfigurations[updatedEntity.id] = updatedEntity
         }
+
     }
 
     /**
@@ -118,7 +125,8 @@ class TableConfigurationService(
      *
      * @return Created table configuration representing database record
      */
-    private suspend fun createTableConfiguration(
+    @Transactional
+    suspend fun createTableConfiguration(
         client: DatabaseClient,
         scannedTable: DatabaseTable
     ): TableConfiguration {
@@ -138,7 +146,7 @@ class TableConfigurationService(
             namespace = scannedTable.schema,
             isEnabled = true,
             includeAllColumns = true,
-            columns = tableColumns,
+            columns = tableColumns.toList(),
             metadata = tableMetadata,
         )
 
@@ -157,10 +165,13 @@ class TableConfigurationService(
      *
      * @return Updated table configuration representing database record
      */
-    private suspend fun updateTableConfiguration(
+    @Transactional
+    suspend fun updateTableConfiguration(
         scannedTable: DatabaseTable,
         existingTable: TableMonitoringConfigurationEntity
-    ): TableConfiguration {
+    ): TableConfiguration? {
+        if (!compareConfigurationDiff(scannedTable, existingTable)) return null
+
         // Update existing table configuration
         val tableColumns: List<TableColumnConfiguration> = scannedTable.columns.map {
             TableColumnConfiguration.fromColumn(it)
@@ -182,5 +193,17 @@ class TableConfigurationService(
 
         return TableConfiguration.fromEntity(updatedEntity)
     }
+
+    /**
+     * Compare the differences between the scanned table configuration and the existing table configuration
+     * to determine if an update is required to the stored record
+     */
+    private suspend fun compareConfigurationDiff(
+        scannedConfig: DatabaseTable,
+        existingTable: TableMonitoringConfigurationEntity
+    ): Boolean {
+        return true
+    }
+
 
 }

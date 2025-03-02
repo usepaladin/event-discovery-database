@@ -14,6 +14,27 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
 
     protected val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+
+    final override fun validateConfig() {
+        baseConfigValidation()
+        clientConfigValidation()
+    }
+
+    /**
+     * Base configuration validation applicable to all database clients
+     */
+    protected open fun baseConfigValidation() {
+        if (config.additionalProperties?.public == false && (config.user.isNullOrEmpty() || config.password.isNullOrEmpty())) {
+            throw IllegalArgumentException("Private connections must have associated authentication credentials")
+        }
+    }
+
+    /**
+     * Extendable configuration validation for specific database clients
+     */
+    protected open fun clientConfigValidation() {
+        // No-op
+    }
 }
 
 sealed class ConnectionState {

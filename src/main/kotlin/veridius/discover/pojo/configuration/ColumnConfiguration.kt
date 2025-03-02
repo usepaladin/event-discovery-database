@@ -1,9 +1,10 @@
 package veridius.discover.pojo.configuration
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+import org.postgresql.util.PGobject
 
 data class TableColumnConfiguration(
     override var name: String? = null,
@@ -34,14 +35,37 @@ data class TableColumnConfiguration(
 }
 
 @Converter
-class TableColumnConfigurationConvertor : AttributeConverter<List<TableColumnConfiguration>, String> {
+class TableColumnConfigurationConvertor : AttributeConverter<List<TableColumnConfiguration>, Any> {
     private val objectMapper = jacksonObjectMapper()
+    override fun convertToDatabaseColumn(attribute: List<TableColumnConfiguration>?): Any? {
 
-    override fun convertToDatabaseColumn(attribute: List<TableColumnConfiguration>?): String {
-        return objectMapper.writeValueAsString(attribute ?: emptyList<TableColumnConfiguration>())
+
+        if (attribute == null) {
+            return null
+        }
+
+        val jsonString = objectMapper.writeValueAsString(attribute)
+        val pgObject = PGobject()
+        pgObject.type = "jsonb"
+        pgObject.value = jsonString
+        return pgObject
     }
 
-    override fun convertToEntityAttribute(dbData: String?): List<TableColumnConfiguration> {
-        return dbData?.let { objectMapper.readValue(it) } ?: emptyList()
+    override fun convertToEntityAttribute(dbData: Any?): List<TableColumnConfiguration> {
+        if (dbData == null) {
+            return emptyList()
+        }
+
+        val jsonString = when (dbData) {
+            is PGobject -> dbData.value
+            else -> dbData.toString()
+        }
+
+        if (jsonString.isNullOrBlank()) {
+            return emptyList()
+        }
+
+        val typeRef = object : TypeReference<List<TableColumnConfiguration>>() {}
+        return objectMapper.readValue(jsonString, typeRef)
     }
 }

@@ -1,16 +1,20 @@
 package veridius.discover.services
 
-import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import org.springframework.boot.ApplicationArguments
+import org.springframework.boot.ApplicationRunner
+import org.springframework.boot.SpringApplication
+import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.services.configuration.DatabaseConfigurationService
 import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionMonitoringService
 import veridius.discover.services.connection.ConnectionService
+import kotlin.system.exitProcess
 
 /**
  * Core database management service, Responsible for:
@@ -23,8 +27,10 @@ class DatabaseManagementService(
     private val databaseConfigurationService: DatabaseConfigurationService,
     private val connectionService: ConnectionService,
     private val connectionMonitoringService: ConnectionMonitoringService,
-    private val tableConfigurationService: TableConfigurationService
-) {
+    private val tableConfigurationService: TableConfigurationService,
+    private val applicationContext: ApplicationContext
+) : ApplicationRunner {
+
 
     /**
      * This method is called after the bean has been constructed and the dependencies have been injected.
@@ -38,11 +44,14 @@ class DatabaseManagementService(
      *  3. Proceeding with further configuration updates + fetching based on database status
      *  4. Begin monitoring the databases
      */
-    @PostConstruct
-    fun init() {
+    override fun run(args: ApplicationArguments?) {
+        startDatabaseProcessing()
+    }
+
+    fun startDatabaseProcessing() {
         // Retrieve the connection configuration of all databases we aim to connect to
         val databaseConfig: List<DatabaseConnectionConfiguration> =
-            databaseConfigurationService.fetchAllDatabaseConnectionConfigurations()
+            databaseConfigurationService.fetchAllEnabledDatabaseConnectionConfigurations()
 
         // Attempt database connection and configuration
         runBlocking {
@@ -64,6 +73,8 @@ class DatabaseManagementService(
         runBlocking {
             connectionService.disconnectAll(removeConnections = true)
         }
+        SpringApplication.exit(applicationContext)
+        exitProcess(0)
     }
 
     @PreDestroy

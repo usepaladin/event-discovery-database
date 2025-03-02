@@ -15,7 +15,7 @@ data class DatabaseConnectionConfiguration(
     val databaseType: DatabaseType,
     var hostName: String,
     var port: String,
-    var database: String?,
+    var database: String,
     var user: String?,
     var password: String?,
     var additionalProperties: ConnectionAdditionalProperties?,

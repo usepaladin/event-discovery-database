@@ -1,7 +1,6 @@
 package veridius.discover.services.connection
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
@@ -13,7 +12,6 @@ import veridius.discover.models.client.MySQLClient
 import veridius.discover.models.client.PostgresClient
 import veridius.discover.models.common.DatabaseType
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -116,14 +114,16 @@ class ConnectionService : CoroutineScope, DisposableBean {
      * This is useful for when the application is shutting down, or when a user requests to disconnect all clients.
      */
     suspend fun disconnectAll(removeConnections: Boolean = false) = coroutineScope {
+        logger.info { "Connection Service => Force Client Disconnect" }
         clientConnectionJobs.values.forEach { it.cancelAndJoin() }
         databaseClients.values.map { connection ->
             async {
                 try {
+                    logger.info { "Connection Service => ${connection.config.databaseType} Database => ${connection.id} => ${connection.config.connectionName} => Disconnecting..." }
                     connection.disconnect()
-                    logger.info { "Disconnected from ${connection.id}" }
+                    logger.info { "Connection Service => ${connection.config.databaseType} Database => ${connection.id} => ${connection.config.connectionName} => Disconnected Successfully" }
                 } catch (e: Exception) {
-                    logger.error(e) { "Error disconnecting from ${connection.id}" }
+                    logger.error(e) { "Connection Service => ${connection.config.databaseType} Database => ${connection.id} => ${connection.config.connectionName} => Unsuccessful Disconnect Attempt" }
                 }
             }
         }.awaitAll()
@@ -137,43 +137,6 @@ class ConnectionService : CoroutineScope, DisposableBean {
         clientConnectionJobs.clear()
     }
 
-    /**
-     * Continuous monitoring of database connections, checking all vital signs of each connection.
-     * Should be run as a background task on a separate thread, and will attempt to reconnect to a database
-     * if it has been disconnected not at the will of the user (ie. Paused, Connecting, etc)
-     */
-    fun monitorConnections() = launch {
-        while (isActive) {
-            coroutineScope {
-                databaseClients.values.forEach { connection ->
-                    launch {
-                        try {
-                            if (!connection.isConnected() && connection.connectionState.value == ConnectionState.Disconnected) {
-                                logger.info { "Attempting to reconnect to ${connection.id}" }
-                                connection.connect()
-                            }
-                        } catch (e: Exception) {
-                            logger.error(e) { "Error reconnecting to ${connection.id}" }
-                        }
-                    }
-                }
-            }
-
-            delay(30000)
-        }
-    }
-
-    fun observeConnectionStates(): Flow<Map<UUID, ConnectionState>> = flow {
-        val stateFlows = databaseClients.values.map { connection ->
-            connection.connectionState.map { state -> connection.id to state }
-        }
-
-        merge(*stateFlows.toTypedArray())
-            .scan(emptyMap<UUID, ConnectionState>()) { acc, (id, state) ->
-                acc + (id to state)
-            }
-            .collect { emit(it) }
-    }
 
     override fun destroy() {
         logger.info { "ConnectionService is destroying, cancelling coroutine scope..." }
