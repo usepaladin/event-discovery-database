@@ -1,0 +1,27 @@
+discover:
+  require-data-encryption: false
+  server-instance-id: ${SERVER_INSTANCE_ID}
+  tenant-id: ${TENANT_ID}
+
+server:
+  port: 8069
+spring:
+  application:
+    name: DDS
+  config:
+    import:
+      - classpath:/exclude.yml
+      - classpath:/datasource.yml
+      - classpath:/kafka.yml
+      - classpath:/logging.yml
+encryption:
+  key: ${TEMP_ENCRYPTION_KEY}
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "*"
+    web:
+      exposure:
+        include: "health,info,metrics"
+
