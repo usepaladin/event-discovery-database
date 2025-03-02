@@ -44,8 +44,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
 
     // Debezium
     implementation("io.debezium:debezium-core:3.0.7.Final")
@@ -55,10 +57,22 @@ dependencies {
     implementation("io.debezium:debezium-connector-postgres:3.0.7.Final")
 
     // Database Connections
+
+    // MongoDB
+    // KEEP DRIVERS AT 4.11
+    // Debezium supports MongoDB drivers at 4.11, waiting on further support to migrate to v5 lol
+    implementation("org.mongodb:mongodb-driver-sync:4.11.0")
+    implementation("org.mongodb:mongodb-driver-core:4.11.0")
+    implementation("org.mongodb:bson:4.11.0")
+    implementation("org.mongodb:mongodb-driver-legacy:4.11.0")
+    implementation("org.mongodb:mongodb-driver-reactivestreams:4.11.0")
+    //Postgres
     implementation("com.zaxxer:HikariCP:6.2.1")
-    implementation("org.mongodb:mongodb-driver-sync:5.1.1")
     implementation("org.postgresql:postgresql:42.7.4")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.9.2") // Postgres JsonB storage support
+    // Cassandra
     implementation("com.datastax.oss:java-driver-core:4.17.0")
+    // MySQL
     implementation("mysql:mysql-connector-java:8.0.33")
 
     // Logging
