@@ -1,24 +1,27 @@
-debezium:
-  offset-storage:
-    file-name: "/data/offset.dat"
-    type: file
 discover:
   require-data-encryption: false
   server-instance-id: ${SERVER_INSTANCE_ID}
   tenant-id: ${TENANT_ID}
+
 server:
   port: 8069
 spring:
   application:
-    name: event-discovery
+    name: DDS
   config:
     import:
       - classpath:/exclude.yml
       - classpath:/datasource.yml
       - classpath:/kafka.yml
       - classpath:/logging.yml
-  jmx:
-    enabled: false
 encryption:
   key: ${TEMP_ENCRYPTION_KEY}
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "*"
+    web:
+      exposure:
+        include: "health,info,metrics"
 
