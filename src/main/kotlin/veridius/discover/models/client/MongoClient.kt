@@ -1,7 +1,9 @@
 package veridius.discover.models.client
 
-import com.mongodb.client.*
-import com.mongodb.client.MongoClient
+import com.mongodb.client.MongoClients
+import com.mongodb.client.MongoCollection
+import com.mongodb.client.MongoDatabase
+import com.mongodb.client.MongoIterable
 import mu.KotlinLogging
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -14,16 +16,18 @@ import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.util.connection.ConnectionBuilder
 import java.util.*
+import com.mongodb.client.MongoClient as MongoDataSource
 
 data class MongoClient(
     override val id: UUID, override val config: DatabaseConnectionConfiguration
 ) : DatabaseClient() {
-    private var client: MongoClient? = null
+    private var client: MongoDataSource? = null
     private val logger = KotlinLogging.logger {}
 
     constructor(config: DatabaseConnectionConfiguration) : this(config.id, config)
 
-    override fun connect(): MongoClient {
+    override fun connect(): MongoDataSource {
+        validateConfig()
         try {
             if (client != null) {
                 _connectionState.value = ConnectionState.Connected
@@ -78,23 +82,35 @@ data class MongoClient(
 
         try {
             client.let { source ->
-                val databaseTables: MutableList<DatabaseTable> = mutableListOf()
                 val databases: MongoIterable<String> = source!!.listDatabaseNames()
-                databases.forEach { identifier ->
-                    // Fetch Database
-                    val database: MongoDatabase = source.getDatabase(identifier)
-                    // Fetch all Collections (Tables) in the Database
-                    val collections: ListCollectionNamesIterable = database.listCollectionNames()
-                    collections.forEach { name ->
-                        val collection: MongoCollection<Document> = database.getCollection(name)
-                        val databaseTable = DatabaseTable(name, identifier)
-                        // Find Primary and as many columns as possible (based on sample document), no need for foreign keys (we live that nosql life)
-                        populateDatabaseCollection(collection, databaseTable)
-                        databaseTables.add(databaseTable)
-                    }
+                if (databases.first() == null) {
+                    logger.warn { "MongoDB Database => ${config.connectionName} | $id => Can not retrieve properties => No Databases found" }
+                    throw NoActiveConnectionFound("No databases found for client $id")
                 }
 
-                return databaseTables
+                if (!databases.any { databaseIdentifier -> databaseIdentifier == config.database }) {
+                    logger.warn { "MongoDB Database => ${config.connectionName} | $id => Can not retrieve properties => Provided Database Name not found in Mongo Client" }
+                    throw NoActiveConnectionFound("Database ${config.database} not found for client $id")
+                }
+
+                val database: MongoDatabase = source.getDatabase(config.database)
+
+                // Fetch all Collections (Tables) in the Database
+                val collections = database.listCollectionNames()
+
+                return collections.map { name ->
+                    val collection: MongoCollection<Document> = database.getCollection(name)
+                    val databaseTable = DatabaseTable(
+                        tableName = name,
+                        // MongoDB does not really support the concept of schemas, so we can just use the Database as its main "schema" identifier
+                        schema = config.database,
+                    )
+
+                    // Find Primary and as many columns as possible (based on sample document), no need for foreign keys (we live that nosql life)
+                    populateDatabaseCollection(collection, databaseTable)
+                    databaseTable
+                }.toList()
+
             }
         } catch (ex: Exception) {
             logger.error(ex) { "MongoDB Database => ${config.connectionName} => $id => Failed to retrieve properties => Message: ${ex.message}" }
@@ -109,7 +125,9 @@ data class MongoClient(
             this.primaryKey = primaryKey
         }
 
-        // Need to retrieve a sample document from the collection to infer an appropriate schema
+        // Sample numerous documents (50?) to get a good idea of the collection structure
+
+
         // If there are no documents in the collection, we cant populate any table information
         val sampleDocument: Document = collection.find().limit(1).firstOrNull() ?: return
 
@@ -130,7 +148,8 @@ data class MongoClient(
             Column(
                 name = fieldPath,
                 type = type,
-                nullable = value == null,
+                // MongoDB flexible structure would allow for all values (except primary to simply not exist)
+                nullable = fieldPath != "_id",
                 autoIncrement = false,
                 defaultValue = null
             )
@@ -180,8 +199,10 @@ data class MongoClient(
         return result
     }
 
-    override fun validateConfig() {
-        TODO("Not yet implemented")
+    override fun clientConfigValidation() {
+        if (config.additionalProperties?.authSource == null) {
+            throw IllegalArgumentException("MongoDB Database => ${config.connectionName} => $id => Missing Auth Source")
+        }
     }
 
     override fun configure() {

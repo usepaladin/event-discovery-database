@@ -5,6 +5,7 @@ import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import com.datastax.oss.driver.api.core.metadata.Metadata
 import com.datastax.oss.driver.api.core.metadata.schema.ColumnMetadata
+import com.datastax.oss.driver.api.core.metadata.schema.KeyspaceMetadata
 import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata
 import com.datastax.oss.driver.api.core.type.DataType
 import com.datastax.oss.driver.api.core.type.UserDefinedType
@@ -28,6 +29,7 @@ data class CassandraClient(
     private val logger = KotlinLogging.logger {}
 
     override fun connect(): CqlSession {
+        this.validateConfig()
         try {
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Connecting..." }
             _connectionState.value = ConnectionState.Connecting
@@ -35,11 +37,14 @@ data class CassandraClient(
                 val builder: CqlSessionBuilder = CqlSession.builder()
                     .addContactPoint(InetSocketAddress(config.hostName, config.port.toInt()))
                     .withKeyspace(config.database)
+                    .withLocalDatacenter(config.additionalProperties?.dataCenter ?: "datacenter1")
 
-                config.additionalProperties?.dataCenter?.let {
-                    builder.withLocalDatacenter(it)
+                // Add credentials if provided
+                config.user?.let { user ->
+                    config.password?.let { password ->
+                        builder.withAuthCredentials(user, password)
+                    }
                 }
-
             }
             _connectionState.value = ConnectionState.Connected
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Connected" }
@@ -87,23 +92,31 @@ data class CassandraClient(
         }
 
         try {
-            //Fetch all keyspaces (databases/schemas) from the database
             session.let { source ->
                 val databaseTables: MutableList<DatabaseTable> = mutableListOf()
                 val databaseMetadata: Metadata = source!!.metadata
-                databaseMetadata.keyspaces.filter { (name, _) ->
-                    // Filter out system keyspaces
-                    !name.asInternal().startsWith("system")
-                }.forEach { (name, metadata) ->
+                val database: Map<CqlIdentifier, KeyspaceMetadata> = databaseMetadata.keyspaces.filter {
+                    // Find user defined keyspace
+                        name ->
+                    name.key.asInternal() == config.database
+                }
+
+                if (database.isEmpty()) {
+                    logger.warn { "Cassandra Database => ${config.connectionName} | $id => Can not retrieve properties => No Database found" }
+                    throw NoActiveConnectionFound("No Keyspace found for database ${this.id} => Keyspace name: ${config.database}")
+                }
+
+                database.forEach { (name, metadata) ->
                     // Fetch all tables from the keyspace
-                    val tables: Map<CqlIdentifier, TableMetadata> = metadata.tables
+                    val tables = metadata.tables
 
                     // Create a DatabaseTable object for each table
                     tables.forEach { (tableName, tableMetadata) ->
                         // Create a class with the table name and keyspace name
                         val databaseTable = DatabaseTable(
-                            tableName.asInternal(),
-                            name.asInternal(),
+                            tableName = tableName.asInternal(),
+                            // Keyspace
+                            schema = name.asInternal(),
                         )
 
                         // Find all Columns, and primary key (Cassandra does not fuck with foreign keys so no bother)
@@ -172,8 +185,10 @@ data class CassandraClient(
         }
     }
 
-    override fun validateConfig() {
-        TODO("Not yet implemented")
+    override fun clientConfigValidation() {
+        if (config.additionalProperties?.dataCenter == null) {
+            throw IllegalArgumentException("Cassandra Database => ${config.connectionName} => $id => Datacenter must be provided")
+        }
     }
 
     override fun configure() {

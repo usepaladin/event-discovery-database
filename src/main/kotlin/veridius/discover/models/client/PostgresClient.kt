@@ -90,7 +90,12 @@ data class PostgresClient(
                     while (tableResultSet.next()) {
                         val schema = tableResultSet.getString("TABLE_SCHEM")
                         val tableName = tableResultSet.getString("TABLE_NAME")
-                        tables.add(DatabaseTable(tableName, schema))
+                        tables.add(
+                            DatabaseTable(
+                                tableName = tableName,
+                                schema = schema,
+                            )
+                        )
                     }
 
                     tables.forEach { table ->
@@ -113,11 +118,6 @@ data class PostgresClient(
             throw ex
         }
 
-    }
-
-
-    override fun validateConfig() {
-        TODO("Not yet implemented")
     }
 
     override fun configure() {

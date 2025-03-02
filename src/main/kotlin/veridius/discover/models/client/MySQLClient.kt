@@ -28,6 +28,7 @@ data class MySQLClient(
         generateHikariConfig(config, HikariConnectionConfigBuilder.HikariDatabaseType.MYSQL)
 
     override fun connect(): DataSource {
+        validateConfig()
         try {
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connecting..." }
             _connectionState.value = ConnectionState.Connecting
@@ -91,7 +92,11 @@ data class MySQLClient(
                     val tables: MutableList<DatabaseTable> = mutableListOf()
                     while (tableResultSet.next()) {
                         val tableName = tableResultSet.getString("TABLE_NAME")
-                        tables.add(DatabaseTable(tableName))
+                        tables.add(
+                            DatabaseTable(
+                                tableName = tableName
+                            )
+                        )
                     }
 
                     tables.forEach { table ->
@@ -115,10 +120,6 @@ data class MySQLClient(
             }
             throw ex
         }
-    }
-
-    override fun validateConfig() {
-        TODO("Not yet implemented")
     }
 
     override fun configure() {
