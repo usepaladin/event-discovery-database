@@ -31,7 +31,6 @@ class DatabaseManagementService(
     private val applicationContext: ApplicationContext
 ) : ApplicationRunner {
 
-
     /**
      * This method is called after the bean has been constructed and the dependencies have been injected.
      *
