@@ -19,9 +19,13 @@ import java.util.*
  */
 
 @Service
-class ConnectionMonitoringService(private val connectionService: ConnectionService, private val logger: KLogger) {
-    private val scope = CoroutineScope((Dispatchers.IO + SupervisorJob()))
+class ConnectionMonitoringService(
+    private val connectionService: ConnectionService,
+    private val logger: KLogger,
+    private val dispatcher: CoroutineDispatcher
+) {
 
+    private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
     /**
      * Continuously monitor database connections throughout the lifecycle of the application and will do the following:
