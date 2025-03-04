@@ -5,7 +5,6 @@ import veridius.discover.entities.connection.DatabaseConnectionEntity
 import veridius.discover.models.common.DatabaseType
 import veridius.discover.pojo.connection.ConnectionAdditionalProperties
 import veridius.discover.pojo.connection.ConnectionPropertyConverter
-import java.time.ZonedDateTime
 import java.util.*
 
 data class DatabaseConnectionConfiguration(
@@ -18,10 +17,8 @@ data class DatabaseConnectionConfiguration(
     var database: String,
     var user: String?,
     var password: String?,
-    var additionalProperties: ConnectionAdditionalProperties?,
+    var additionalProperties: ConnectionAdditionalProperties? = null,
     val isEnabled: Boolean,
-    val createdAt: ZonedDateTime,
-    val updatedAt: ZonedDateTime,
     val tableConfigurations: List<TableMonitoringConfigurationEntity> = mutableListOf()
 ) {
     companion object Factory {
@@ -39,7 +36,7 @@ data class DatabaseConnectionConfiguration(
         ): DatabaseConnectionConfiguration {
             if (requireEncryption) {
                 return DatabaseConnectionConfiguration(
-                    id = entity.id!!,
+                    id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
                     instanceId = entity.instanceId,
                     connectionName = entity.connectionName,
                     databaseType = entity.databaseType,
@@ -50,15 +47,13 @@ data class DatabaseConnectionConfiguration(
                     password = "",
                     additionalProperties = null,
                     isEnabled = false,
-                    createdAt = entity.createdAt,
-                    updatedAt = entity.updatedAt,
                     tableConfigurations = entity.tableMonitoringConfigurations
                 )
             }
             val propertyConverter = ConnectionPropertyConverter()
 
             return DatabaseConnectionConfiguration(
-                id = entity.id!!,
+                id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
                 instanceId = entity.instanceId,
                 connectionName = entity.connectionName,
                 databaseType = entity.databaseType,
@@ -69,8 +64,6 @@ data class DatabaseConnectionConfiguration(
                 password = entity.password,
                 additionalProperties = propertyConverter.convertToEntityAttribute(entity.additionalPropertiesText),
                 isEnabled = entity.isEnabled,
-                createdAt = entity.createdAt,
-                updatedAt = entity.updatedAt,
                 tableConfigurations = entity.tableMonitoringConfigurations
             )
 

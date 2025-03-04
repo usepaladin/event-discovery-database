@@ -79,8 +79,13 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     // Testing
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        // Exclude Mockito
+        exclude(group = "org.mockito")
+    }
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("io.mockk:mockk:1.13.17")
     testImplementation("org.springframework.grpc:spring-grpc-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")

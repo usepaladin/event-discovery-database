@@ -1,7 +1,7 @@
 package veridius.discover.services.connection
 
 import kotlinx.coroutines.*
-import mu.KotlinLogging
+import mu.KLogger
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
 import veridius.discover.exceptions.ConnectionJobNotFound
@@ -18,12 +18,12 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 @Service
-class ConnectionService : CoroutineScope, DisposableBean {
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
+class ConnectionService(private val logger: KLogger, private val dispatcher: CoroutineDispatcher) : CoroutineScope,
+    DisposableBean {
+    override val coroutineContext: CoroutineContext = SupervisorJob() + dispatcher
 
     private val databaseClients = ConcurrentHashMap<UUID, DatabaseClient>()
     private val clientConnectionJobs = ConcurrentHashMap<UUID, Job>()
-    private val logger = KotlinLogging.logger {}
 
     fun createConnection(
         connection: DatabaseConnectionConfiguration,

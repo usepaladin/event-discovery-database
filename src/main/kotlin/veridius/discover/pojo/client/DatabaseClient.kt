@@ -15,6 +15,11 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     protected val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
+    fun updateConnectionState(newState: ConnectionState) {
+        _connectionState.value = newState
+    }
+
+
     final override fun validateConfig() {
         baseConfigValidation()
         clientConfigValidation()

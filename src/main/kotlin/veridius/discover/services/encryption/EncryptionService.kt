@@ -1,7 +1,7 @@
 package veridius.discover.services.encryption
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
+import mu.KLogger
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.EncryptionConfigurationProperties
 import java.nio.ByteBuffer
@@ -16,13 +16,13 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 @Service
-class EncryptionService(private val encryptionConfigurationProperties: EncryptionConfigurationProperties) {
+class EncryptionService(
+    private val encryptionConfigurationProperties: EncryptionConfigurationProperties,
+    private val logger: KLogger
+) {
 
     //Todo: Migrate to Kubernetes Secret management
     private var encryptionKeyBase64: String = encryptionConfigurationProperties.key
-
-
-    private val logger = KotlinLogging.logger {}
 
     private val algorithm = "AES"
     private val cipherTransformation = "AES/GCM/NoPadding" // AES in Galois/Counter Mode (GCM)

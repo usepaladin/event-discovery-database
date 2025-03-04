@@ -2,7 +2,7 @@ package veridius.discover.services.configuration
 
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.*
-import mu.KotlinLogging
+import mu.KLogger
 import org.springframework.stereotype.Service
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
 import veridius.discover.models.configuration.DatabaseTable
@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class TableConfigurationService(
     private val tableMonitoringRepository: TableConfigurationRepository,
+    private val logger: KLogger
 ) {
-    private val logger = KotlinLogging.logger {}
+
     private val tableConfigurations: ConcurrentHashMap<UUID, TableConfiguration> = ConcurrentHashMap()
 
     /**
