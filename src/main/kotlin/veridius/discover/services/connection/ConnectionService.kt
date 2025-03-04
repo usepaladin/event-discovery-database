@@ -17,6 +17,12 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
+/*
+    Todo: More connection support
+        - Oracle
+        - MariaDB
+ */
+
 @Service
 class ConnectionService(private val logger: KLogger, private val dispatcher: CoroutineDispatcher) : CoroutineScope,
     DisposableBean {

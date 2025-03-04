@@ -52,6 +52,7 @@ dependencies {
     // Debezium
     implementation("io.debezium:debezium-core:3.0.7.Final")
     implementation("io.debezium:debezium-api:3.0.7.Final")
+    implementation("io.debezium:debezium-embedded:3.0.7.Final")
     implementation("io.debezium:debezium-connector-mongodb:3.0.7.Final")
     implementation("io.debezium:debezium-connector-mysql:3.0.7.Final")
     implementation("io.debezium:debezium-connector-postgres:3.0.7.Final")

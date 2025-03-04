@@ -24,4 +24,5 @@ management:
     web:
       exposure:
         include: "health,info,metrics"
-
+debezium:
+  file-dir: ./data

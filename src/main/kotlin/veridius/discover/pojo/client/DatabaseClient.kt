@@ -8,6 +8,9 @@ import veridius.discover.pojo.connection.DatabaseConnector
 import veridius.discover.util.configuration.TableConfigurationBuilder
 import java.util.*
 
+/**
+ * Todo: Ensure Configured Database Driver is supported by debezium
+ */
 abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     abstract val id: UUID
     abstract val config: DatabaseConnectionConfiguration
