@@ -15,7 +15,7 @@ import java.util.*
  * - Configurable Reconnect Attempts + Backoff
  * - Connection State History
  * - Event Pushing to Kafka Broker
- * - Integrarion with Spring Actuator + Health Checks
+ * - Integration with Spring Actuator + Health Checks
  */
 
 @Service
