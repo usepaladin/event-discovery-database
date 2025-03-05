@@ -6,12 +6,11 @@ import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import java.util.*
 
-abstract class DatabaseMonitoringConnector(
-    protected val client: DatabaseClient,
-    protected val databaseConnectionConfiguration: DatabaseConnectionConfiguration,
-    protected val tableConfigurations: Map<UUID, TableConfiguration>,
-    protected val fileStorageDir: String
-) {
+abstract class DatabaseMonitoringConnector(private val fileStorageDir: String) {
+    protected abstract val client: DatabaseClient
+    protected abstract val databaseConnectionConfiguration: DatabaseConnectionConfiguration
+    protected abstract val tableConfigurations: Map<UUID, TableConfiguration>
+
     protected fun commonProps(): MutableMap<String, String> = mutableMapOf(
         "offset.storage" to FileOffsetBackingStore::class.java.name, // Storing offset information,
         "offset.storage.file.filename" to "$fileStorageDir/${client.id}.offsets", // File to store offset information
@@ -25,8 +24,16 @@ abstract class DatabaseMonitoringConnector(
         "include.schema.changes" to "true",
     )
 
+    /**
+     * Configure the list of tables to be monitored by the connector
+     */
     abstract fun buildTableList(): List<String>
-    abstract fun buildTableColumnList(): Map<String, List<String>>
 
+    /**
+     * Configure a list of specific columns that will be monitored for each table
+     * If the table is not included in the table list, the columns will not be monitored
+     * If the column list is empty, all columns will be monitored
+     */
+    abstract fun buildTableColumnList(): Map<String, List<String>>
     abstract fun getConnectorProps(): Map<String, String>
 }
