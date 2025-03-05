@@ -11,8 +11,6 @@ data class ConnectionAdditionalProperties(
     // MongoDB - Origin of the User connecting to the database (ie. Admin)
     @Enumerated(EnumType.STRING)
     val authSource: String? = null,
-    // If the database connection is public (ie. No Authentication required)
-    val public: Boolean? = false,
 )
 
 @Converter

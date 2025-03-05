@@ -15,7 +15,7 @@ data class DatabaseConnectionConfiguration(
     var hostName: String,
     var port: String,
     var database: String,
-    var user: String?,
+    var user: String,
     var password: String?,
     var additionalProperties: ConnectionAdditionalProperties? = null,
     val isEnabled: Boolean,

@@ -44,7 +44,7 @@ enabling simplistic automated event generation and streaming for building reacti
 - Debezium for PostgreSQL uses logical replication with pgoutput (recommended) or wal2json. You must enable logical
   replication.
 
-```angular2html
+```
 ALTER SYSTEM SET wal_level = logical;
 ALTER SYSTEM SET max_replication_slots = 10;
 ALTER SYSTEM SET max_wal_senders = 10;
@@ -57,53 +57,53 @@ SELECT pg_reload_conf();
 
 - A role for this would look like:
 
-```angular2html
-CREATE ROLE
-<name> WITH REPLICATION LOGIN;
+```
+CREATE ROLE <name> WITH REPLICATION LOGIN;
 ```
 
 - The user provided in the configuration should then be granted this role.
 
-```angular2html
-GRANT REPLICATION TO
-<name>;
+```
+GRANT REPLICATION TO <name>;
 ```
 
 - For all databases that are to be monitored, the user provided with the `REPLICATION` role should be granted
   appropriate permissions
 
-```angular2html
-GRANT CONNECT ON DATABASE mydatabase TO
-<name>;
-    GRANT USAGE ON SCHEMA public TO
-    <name>;
-        GRANT SELECT ON ALL TABLES IN SCHEMA
-        <schema> TO
-            <name>;
-                ALTER DEFAULT PRIVILEGES IN SCHEMA
-                <schema> GRANT SELECT ON TABLES TO
-                    <name>;
+```
+GRANT CONNECT ON DATABASE mydatabase TO <name>;
+GRANT USAGE ON SCHEMA public TO <name>; 
+GRANT SELECT ON ALL TABLES IN SCHEMA <schema> TO <name>;
+ALTER DEFAULT PRIVILEGES IN SCHEMA <schema> GRANT SELECT ON TABLES TO <name>;
 ```
 
 - You should also create a replication slot to allow changes to be monitored and tracked
 
-```angular2html
+```
 SELECT * FROM pg_create_logical_replication_slot('debezium_slot', 'pgoutput');
 ```
 
-```angular2html
+```
 SELECT * FROM pg_create_logical_replication_slot('debezium_slot', 'pgoutput');
 ```
 
 ### MySQL
 
-- Debezium for MySQL requires binlog replication.
+- Change monitoring on MySQL utilizes the MySQL binary log. To enable this, the following steps must be taken:
+    - Ensure that the MySQL server is configured to use binary logging. This can be done by adding the following to the
+      `my.cnf` file:
 
-```angular2html
-[mysqld]
-log_bin=mysql-bin
-binlog_format=ROW
-binlog_row_image=FULL
+```
+SET GLOBAL server_id = 1;
+SET GLOBAL log_bin = 'mysql-bin';
+SET GLOBAL binlog_format = 'ROW';
+SET GLOBAL binlog_row_image = 'FULL';
+```
+
+- The user provided in the configuration should have the following permissions:
+
+```
+GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '<name>'@'%';
 ```
 
 ## Technological Stack

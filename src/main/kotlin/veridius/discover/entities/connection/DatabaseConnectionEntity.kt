@@ -50,8 +50,8 @@ data class DatabaseConnectionEntity(
     @Column(name = "database_name", nullable = false)
     var databaseName: String,
 
-    @Column(name = "username")
-    var user: String? = null,
+    @Column(name = "username", nullable = false)
+    var user: String,
 
     @Column(name = "password")
     var password: String? = null,

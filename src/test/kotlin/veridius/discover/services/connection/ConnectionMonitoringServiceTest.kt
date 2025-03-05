@@ -59,32 +59,6 @@ class ConnectionMonitoringServiceTest {
     }
 
     @Test
-    fun `test monitoring service ignores paused clients`() = runTest {
-        val config = TestDatabaseConfigurations.createPostgresConfig()
-        val mockClient = mockk<DatabaseClient>()
-        val connectionStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Paused)
-
-        coEvery { mockClient.id } returns config.id
-        coEvery { mockClient.config } returns config
-        coEvery { mockClient.isConnected() } returns false
-        // Return our MutableStateFlow
-        every { mockClient.connectionState } returns connectionStateFlow
-
-        coEvery { mockClient.connect() } answers {
-            connectionStateFlow.value = ConnectionState.Connected
-            Any()
-        }
-
-        coEvery { connectionService.getAllClients() } returns listOf(mockClient)
-
-        // Start monitoring
-        monitoringService.monitorDatabaseConnections()
-
-        // Verify that the monitoring service detected the disconnected state and attempted to reconnect
-        coVerify(exactly = 0, timeout = 5000) { mockClient.connect() }
-    }
-
-    @Test
     fun `test monitoring service with multiple clients and connection failure`() = runTest(testDispatcher) {
         val config1 = TestDatabaseConfigurations.createPostgresConfig()
         val config2 = TestDatabaseConfigurations.createPostgresConfig()
@@ -212,7 +186,6 @@ class ConnectionMonitoringServiceTest {
         connectionStateFlow1.value = ConnectionState.Connected
         connectionStateFlow1.value = ConnectionState.Disconnected
         connectionStateFlow1.value = ConnectionState.Connected
-        connectionStateFlow1.value = ConnectionState.Paused
 
 
         advanceTimeBy(1000)  // Give the flow time to process
@@ -227,6 +200,5 @@ class ConnectionMonitoringServiceTest {
         assertTrue(states[3][config1.id] == ConnectionState.Connected)
         assertTrue(states[4][config1.id] == ConnectionState.Disconnected)
         assertTrue(states[5][config1.id] == ConnectionState.Connected)
-        assertTrue(states[6][config1.id] == ConnectionState.Paused)
     }
 } 

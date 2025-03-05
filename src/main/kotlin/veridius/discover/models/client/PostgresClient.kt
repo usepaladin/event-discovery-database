@@ -37,6 +37,9 @@ data class PostgresClient(
             datasource = HikariDataSource(hikariConfig)
             _connectionState.value = ConnectionState.Connected
             logger.info { "Postgres Database => ${this.config.connectionName} => $id => Connected" }
+
+            //todo: Ensure User has appropriate roles and permissions for debezium connector purposes
+
             return datasource!!
         } catch (e: Exception) {
             _connectionState.value = ConnectionState.Error(e)

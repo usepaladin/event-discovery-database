@@ -1,5 +1,6 @@
 package veridius.discover.models.monitoring
 
+import io.debezium.connector.postgresql.PostgresConnector as SourcePostgresConnector
 import veridius.discover.models.client.PostgresClient
 import veridius.discover.models.configuration.TableConfiguration
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
@@ -17,10 +18,22 @@ data class PostgresConnector(
     }
 
     override fun buildTableColumnList(): Map<String, List<String>> {
-        
+
     }
 
     override fun getConnectorProps(): Map<String, String> {
-        return commonProps()
+        return commonProps().apply {
+            putAll(
+                mapOf(
+                    "connector.class" to SourcePostgresConnector::class.java.name,
+                    "database.server.name" to client.config.connectionName,
+                    "database.hostname" to client.config.hostName,
+                    "database.port" to client.config.port,
+                    "database.user" to client.config.user,
+                    "database.password" to (client.config.password ?: ""),
+                    "database.dbname" to client.config.database,
+                    "database.server.name" to client.config.connectionName,
+                    "topic.prefix" to client.config.connectionName,
+        }
     }
 }
