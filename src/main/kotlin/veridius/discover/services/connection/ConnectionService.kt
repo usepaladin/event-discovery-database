@@ -62,7 +62,7 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
         return client
     }
 
-    fun getClient(id: UUID): DatabaseClient? {
+    fun getClient(id: UUID): DatabaseClient {
         val connection: DatabaseClient = databaseClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"

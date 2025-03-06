@@ -22,6 +22,10 @@ class TableConfigurationService(
 
     private val tableConfigurations: ConcurrentHashMap<UUID, TableConfiguration> = ConcurrentHashMap()
 
+    fun getDatabaseClientTableConfiguration(client: DatabaseClient): List<TableConfiguration> {
+        return client.config.tableConfigurations.mapNotNull { tableConfigurations[it.id] }
+    }
+
     /**
      * Scan database client to obtain all relevant metadata for a tables database table configuration, which includes:
      *  - Database Schemas (If applicable)
@@ -70,7 +74,8 @@ class TableConfigurationService(
     private suspend fun fetchExistingTableConfigurations(client: DatabaseClient): List<TableMonitoringConfigurationEntity> {
         val tableConfiguration: List<TableMonitoringConfigurationEntity> =
             withContext(Dispatchers.IO) {
-                tableMonitoringRepository.findAllByDatabaseConnectionId(client.id)
+                // Should lazy load table configurations based on client id
+                client.config.tableConfigurations
             }
         if (tableConfiguration.isEmpty()) {
             logger.info {

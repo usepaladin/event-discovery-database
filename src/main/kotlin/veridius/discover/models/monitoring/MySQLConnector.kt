@@ -4,16 +4,17 @@ import veridius.discover.models.configuration.TableConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.pojo.monitoring.DatabaseMonitoringConnector
 import java.util.*
-import io.debezium.connector.postgresql.PostgresConnector as SourcePostgresConnector
+import io.debezium.connector.mysql.MySqlConnector as SourceMySQLConnector
 
-data class PostgresConnector(
+class MySQLConnector(
     override val client: DatabaseClient,
     override val tableConfigurations: List<TableConfiguration>,
     private val fileStorageDir: String
 ) : DatabaseMonitoringConnector(fileStorageDir) {
+
     override fun buildTableList(): String {
         return tableConfigurations
-            .filter { it.isEnabled }.joinToString(",") { "${it.namespace}.${it.tableName}" }
+            .filter { it.isEnabled }.joinToString(",") { "${client.config.database}.${it.tableName}" }
     }
 
     override fun buildTableColumnList(): String {
@@ -21,7 +22,7 @@ data class PostgresConnector(
             .filter { it.isEnabled && !it.includeAllColumns && !it.columns.isNullOrEmpty() }
             .flatMap {
                 it.columns!!.map { column ->
-                    "${it.namespace}.${it.tableName}.${column.name}"
+                    "${client.config.database}.${it.tableName}.${column.name}"
                 }
             }.joinToString(",")
     }
@@ -30,15 +31,14 @@ data class PostgresConnector(
         return commonProps().apply {
             putAll(
                 mapOf(
-                    "connector.class" to SourcePostgresConnector::class.java.name,
-                    "database.server.name" to client.config.connectionName,
+                    "connector.class" to SourceMySQLConnector::class.java.name,
                     "database.server.id" to client.config.id.toString(),
+                    "database.server.name" to client.config.connectionName,
                     "database.hostname" to client.config.hostName,
                     "database.port" to client.config.port,
                     "database.user" to client.config.user,
                     "database.password" to (client.config.password ?: ""),
                     "database.dbname" to client.config.database,
-                    "database.server.name" to client.config.connectionName,
                     "topic.prefix" to client.config.connectionName,
                     "table.include.list" to buildTableList(),
                     "column.include.list" to buildTableColumnList()

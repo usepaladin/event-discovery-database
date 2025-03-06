@@ -32,9 +32,10 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
      * Base configuration validation applicable to all database clients
      */
     protected open fun baseConfigValidation() {
-        if (config.additionalProperties?.public == false && (config.user.isNullOrEmpty() || config.password.isNullOrEmpty())) {
-            throw IllegalArgumentException("Private connections must have associated authentication credentials")
-        }
+        require(config.hostName.isNotBlank()) { "Hostname cannot be blank" }
+        require(config.port.isNotBlank()) { "Port cannot be blank" }
+        require(config.user.isNotBlank()) { "Username cannot be blank" }
+        require(config.database.isNotBlank()) { "Database name cannot be blank" }
     }
 
     /**
