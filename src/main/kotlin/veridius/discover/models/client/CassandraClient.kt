@@ -16,7 +16,6 @@ import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.client.DatabaseClient
-import veridius.discover.pojo.state.ConnectionState
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -32,7 +31,7 @@ data class CassandraClient(
         this.validateConfig()
         try {
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Connecting..." }
-            _connectionState.value = ConnectionState.Connecting
+            _connectionState.value = ClientConnectionState.Connecting
             if (session == null) {
                 val builder: CqlSessionBuilder = CqlSession.builder()
                     .addContactPoint(InetSocketAddress(config.hostName, config.port.toInt()))
@@ -46,11 +45,11 @@ data class CassandraClient(
                     }
                 }
             }
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ClientConnectionState.Connected
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Connected" }
             return session!!
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "Cassandra Database => ${config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
@@ -63,10 +62,10 @@ data class CassandraClient(
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Disconnecting..." }
             session?.close()
             session = null
-            _connectionState.value = ConnectionState.Disconnected
+            _connectionState.value = ClientConnectionState.Disconnected
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Disconnected" }
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "Cassandra Database => ${config.connectionName} => $id => Failed to disconnect => Message: ${e.message}"
             }

@@ -1,5 +1,7 @@
 package veridius.discover.models.monitoring
 
+import io.debezium.storage.file.history.FileSchemaHistory
+import veridius.discover.configuration.properties.DebeziumConfigurationProperties
 import veridius.discover.models.configuration.TableConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.pojo.monitoring.DatabaseMonitoringConnector
@@ -9,11 +11,15 @@ import io.debezium.connector.postgresql.PostgresConnector as SourcePostgresConne
 data class PostgresConnector(
     override val client: DatabaseClient,
     override val tableConfigurations: List<TableConfiguration>,
-    private val fileStorageDir: String
-) : DatabaseMonitoringConnector(fileStorageDir) {
+    private val storageConfig: DebeziumConfigurationProperties
+) : DatabaseMonitoringConnector(storageConfig) {
     override fun buildTableList(): String {
         return tableConfigurations
             .filter { it.isEnabled }.joinToString(",") { "${it.namespace}.${it.tableName}" }
+    }
+
+    private fun buildSchemaList(): String {
+        return tableConfigurations.filter { it.isEnabled }.map { it.namespace }.distinct().joinToString(",")
     }
 
     override fun buildTableColumnList(): String {
@@ -40,6 +46,16 @@ data class PostgresConnector(
                     "database.dbname" to client.config.database,
                     "database.server.name" to client.config.connectionName,
                     "topic.prefix" to client.config.connectionName,
+                    "plugin.name" to "pgoutput",
+                    "schema.history.internal" to FileSchemaHistory::class.java.name,
+                    "schema.history.internal.file.filename" to "${storageConfig.historyDir}/${client.id}.${storageConfig.historyFileName}",
+                    // Performance tuning
+                    "max.batch.size" to "2048", // Increase batch size for better throughput
+                    "max.queue.size" to "8192", // Increase queue size
+                    "poll.interval.ms" to "100", // More frequent polling
+                    // Heartbeat for connection monitoring
+                    "heartbeat.interval.ms" to "5000", // Send heartbeat every 5 seconds
+                    "schema.include.list" to buildSchemaList(),
                     "table.include.list" to buildTableList(),
                     "column.include.list" to buildTableColumnList()
                 )

@@ -16,10 +16,10 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     abstract val id: UUID
     abstract val config: DatabaseConnectionConfiguration
 
-    protected val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
-    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+    protected val _connectionState = MutableStateFlow<ClientConnectionState>(ClientConnectionState.Disconnected)
+    val connectionState: StateFlow<ClientConnectionState> = _connectionState.asStateFlow()
 
-    fun updateConnectionState(newState: ConnectionState) {
+    fun updateConnectionState(newState: ClientConnectionState) {
         _connectionState.value = newState
     }
 
@@ -42,7 +42,12 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     /**
      * Extendable configuration validation for specific database clients
      */
-    protected open fun clientConfigValidation() {
-        // No-op
+    protected open fun clientConfigValidation() {}
+
+    sealed class ClientConnectionState : ConnectionState<ClientConnectionState>() {
+        data object Disconnected : ClientConnectionState()
+        data object Connecting : ClientConnectionState()
+        data object Connected : ClientConnectionState()
+        data class Error(val exception: Exception) : ClientConnectionState()
     }
 }

@@ -5,7 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import mu.KLogger
 import org.springframework.stereotype.Service
-import veridius.discover.pojo.state.ConnectionState
+import veridius.discover.pojo.client.DatabaseClient.ClientConnectionState
 import java.util.*
 
 /**
@@ -47,7 +47,7 @@ class ConnectionMonitoringService(
         }
     }
 
-    private suspend fun handleConnectionStateChange(states: Map<UUID, ConnectionState>) {
+    private suspend fun handleConnectionStateChange(states: Map<UUID, ClientConnectionState>) {
         logger.info { "DDS Monitoring => Connection Monitoring Service => Connection State Change Detected" }
         println(states.values)
     }
@@ -64,7 +64,7 @@ class ConnectionMonitoringService(
                     logger.info { "DDS Monitoring => Connection Monitoring Service => Attempting Database Connection Health Check" }
                     launch {
                         try {
-                            if (!connection.isConnected() && connection.connectionState.value == ConnectionState.Disconnected) {
+                            if (!connection.isConnected() && connection.connectionState.value == ClientConnectionState.Disconnected) {
                                 logger.info { "DDS Monitoring => ${connection.config.databaseType} Database => ${connection.id} => ${connection.config.connectionName} => Database Connection Lost, attempting reconnect..." }
                                 connection.connect()
                                 logger.info { "DDS Monitoring => ${connection.config.databaseType} Database => ${connection.id} => ${connection.config.connectionName} => Database Reconnect Successful" }
@@ -82,13 +82,13 @@ class ConnectionMonitoringService(
         }
     }
 
-    fun observeConnectionStates(): Flow<Map<UUID, ConnectionState>> = flow {
+    fun observeConnectionStates(): Flow<Map<UUID, ClientConnectionState>> = flow {
         val stateFlows = connectionService.getAllClients().map { connection ->
             connection.connectionState.map { state -> connection.id to state }
         }
 
         merge(*stateFlows.toTypedArray())
-            .scan(emptyMap<UUID, ConnectionState>()) { acc, (id, state) ->
+            .scan(emptyMap<UUID, ClientConnectionState>()) { acc, (id, state) ->
                 acc + (id to state)
             }
             .collect { emit(it) }

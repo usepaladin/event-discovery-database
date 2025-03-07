@@ -10,7 +10,6 @@ import veridius.discover.models.configuration.ForeignKey
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.client.DatabaseClient
-import veridius.discover.pojo.state.ConnectionState
 import veridius.discover.util.configuration.HikariTableConfigurationBuilder
 import veridius.discover.util.connection.HikariConnectionConfigBuilder
 import java.sql.DatabaseMetaData
@@ -31,13 +30,13 @@ data class MySQLClient(
         validateConfig()
         try {
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connecting..." }
-            _connectionState.value = ConnectionState.Connecting
+            _connectionState.value = ClientConnectionState.Connecting
             datasource = HikariDataSource(hikariConfig)
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ClientConnectionState.Connected
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connected" }
             return datasource!!
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "MySQL Database => ${this.config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
@@ -50,10 +49,10 @@ data class MySQLClient(
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Disconnecting..." }
             datasource?.connection?.close()
             datasource = null
-            _connectionState.value = ConnectionState.Disconnected
+            _connectionState.value = ClientConnectionState.Disconnected
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Disconnected" }
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "MySQL Database => ${this.config.connectionName} => $id => Failed to disconnect => Message: ${e.message}"
             }

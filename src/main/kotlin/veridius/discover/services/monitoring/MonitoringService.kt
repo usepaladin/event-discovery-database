@@ -1,8 +1,8 @@
 package veridius.discover.services.monitoring
 
+import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
-import io.debezium.engine.RecordChangeEvent
-import io.debezium.engine.format.ChangeEventFormat
+import io.debezium.engine.format.Json
 import jakarta.annotation.PreDestroy
 import mu.KLogger
 import org.springframework.stereotype.Service
@@ -20,6 +20,13 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+/**
+ * Todo:
+ * - Implement JMX for monitoring engine pausing and resuming
+ * - Implement JMX for real time monitoring statistics and metrics
+ * - Configure connections to be monitored based on user preferences
+ * */
+
 @Service
 class MonitoringService(
     private val debeziumConfigurationProperties: DebeziumConfigurationProperties,
@@ -28,7 +35,12 @@ class MonitoringService(
     private val logger: KLogger,
 ) {
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
-    private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<RecordChangeEvent<ByteArray>>>()
+    private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<ChangeEvent<String, String>>>()
+
+    fun startMonitoring() {
+        val clients: List<DatabaseClient> = connectionService.getAllClients()
+        clients.forEach { client -> startMonitoringEngine(client) }
+    }
 
     fun startMonitoringEngine(client: DatabaseClient) {
         val tableConfigurations: List<TableConfiguration> =
@@ -39,20 +51,37 @@ class MonitoringService(
 
         logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Starting Monitoring Engine" }
         try {
-
-            val engine: DebeziumEngine<RecordChangeEvent<ByteArray>> =
+            monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connecting)
+            val engine: DebeziumEngine<ChangeEvent<String, String>> =
                 //todo: Incorporate Preferences (ie. Schema type)
-                DebeziumEngine.create(ChangeEventFormat.of(io.debezium.engine.format.Avro::class.java))
+                DebeziumEngine.create(Json::class.java)
                     .using(monitoringConnector.getConnectorProps())
                     .notifying { record -> handleObservation(record) }
                     .build()
 
             monitoringEngines[client.id] = engine
             executor.execute(engine)
+            monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connected)
             logger.info { "CDC Monitoring Service => Database Id: $client.id => Monitoring Engine Instantiated and Started" }
+
         } catch (e: Exception) {
             logger.error(e) { "CDC Monitoring Service => Database Id: $client.id => Failed to Start Monitoring Engine" }
+            monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Error(e))
         }
+    }
+
+    /**
+     * Utilises JMX to pause the actual monitoring task without shutting down connection to the engine
+     */
+    fun pauseMonitoringEngine(databaseId: UUID) {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Utilises JMX to resume the actual monitoring task
+     */
+    fun resumeMonitoringEngine(databaseId: UUID) {
+        TODO("Not yet implemented")
     }
 
     private fun buildDatabaseMonitoringConnector(
@@ -63,10 +92,10 @@ class MonitoringService(
             DatabaseType.POSTGRES -> PostgresConnector(
                 client,
                 configuration,
-                debeziumConfigurationProperties.fileDir
+                debeziumConfigurationProperties
             )
 
-            DatabaseType.MYSQL -> MySQLConnector(client, configuration, debeziumConfigurationProperties.fileDir)
+            DatabaseType.MYSQL -> MySQLConnector(client, configuration, debeziumConfigurationProperties)
             else -> {
                 throw IllegalArgumentException("Database Type Not Supported")
             }
@@ -76,7 +105,7 @@ class MonitoringService(
     fun updateMonitoringConfiguration() {}
 
     fun stopMonitoringEngine(databaseId: UUID) {
-        val engine: DebeziumEngine<RecordChangeEvent<ByteArray>> = monitoringEngines[databaseId]
+        val engine: DebeziumEngine<ChangeEvent<String, String>> = monitoringEngines[databaseId]
             ?: throw IllegalArgumentException("No monitoring engine found for database id: $databaseId")
 
         try {
@@ -92,7 +121,7 @@ class MonitoringService(
     /**
      * Notification handler upon observation of a Database record alteration
      */
-    private fun handleObservation(record: RecordChangeEvent<ByteArray>) {}
+    private fun handleObservation(record: ChangeEvent<String, String>) {}
 
     @PreDestroy
     fun shutdownMonitoring() {

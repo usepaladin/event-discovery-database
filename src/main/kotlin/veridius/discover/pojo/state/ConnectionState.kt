@@ -1,14 +1,9 @@
 package veridius.discover.pojo.state
 
-open class ConnectionState {
+open class ConnectionState<T : ConnectionState<T>> {
+    data object Connected : ConnectionState<Nothing>()
+    data object Disconnected : ConnectionState<Nothing>()
+    data object Connecting : ConnectionState<Nothing>()
+    data class Error(val exception: Throwable) : ConnectionState<Nothing>()
 
-    data object Connected : ConnectionState()
-    data object Disconnected : ConnectionState()
-    data object Connecting : ConnectionState()
-    data class Error(val exception: Throwable) : ConnectionState()
-
-}
-
-open class MonitoringConnectionState : ConnectionState() {
-    data object Paused : MonitoringConnectionState()
 }

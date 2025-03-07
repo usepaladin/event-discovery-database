@@ -1,8 +1,8 @@
 package veridius.discover.services.connection
 
+import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
 import mu.KLogger
-import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Service
 import veridius.discover.exceptions.ConnectionJobNotFound
 import veridius.discover.exceptions.DatabaseConnectionNotFound
@@ -15,7 +15,6 @@ import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 
 /*
     Todo: More connection support
@@ -24,9 +23,8 @@ import kotlin.coroutines.CoroutineContext
  */
 
 @Service
-class ConnectionService(private val logger: KLogger, private val dispatcher: CoroutineDispatcher) : CoroutineScope,
-    DisposableBean {
-    override val coroutineContext: CoroutineContext = SupervisorJob() + dispatcher
+class ConnectionService(private val logger: KLogger, private val dispatcher: CoroutineDispatcher) {
+    private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
     private val databaseClients = ConcurrentHashMap<UUID, DatabaseClient>()
     private val clientConnectionJobs = ConcurrentHashMap<UUID, Job>()
@@ -49,7 +47,7 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
 
         // Attempt client connection if autoConnect is true
         if (autoConnect) {
-            clientConnectionJobs[connection.id] = launch {
+            clientConnectionJobs[connection.id] = scope.launch {
                 try {
                     client.connect()
                     logger.info { "Connected to ${client.id}" }
@@ -144,9 +142,10 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
     }
 
 
-    override fun destroy() {
-        logger.info { "ConnectionService is destroying, cancelling coroutine scope..." }
-        cancel() // Cancel the CoroutineScope when the bean is destroyed
-        logger.info { "Coroutine scope cancelled." }
+    @PreDestroy
+    fun destroy() {
+        runBlocking {
+            disconnectAll(removeConnections = true)
+        }
     }
 }

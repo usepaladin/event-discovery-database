@@ -14,6 +14,7 @@ import veridius.discover.services.configuration.DatabaseConfigurationService
 import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionMonitoringService
 import veridius.discover.services.connection.ConnectionService
+import veridius.discover.services.monitoring.MonitoringService
 import kotlin.system.exitProcess
 
 /**
@@ -28,6 +29,7 @@ class DatabaseManagementService(
     private val connectionService: ConnectionService,
     private val connectionMonitoringService: ConnectionMonitoringService,
     private val tableConfigurationService: TableConfigurationService,
+    private val monitoringService: MonitoringService,
     private val applicationContext: ApplicationContext
 ) : ApplicationRunner {
 
@@ -67,11 +69,11 @@ class DatabaseManagementService(
 
         // Set up background connection monitoring
         connectionMonitoringService.monitorDatabaseConnections()
+        // Start monitoring engines
+        monitoringService.startMonitoring()
 
         // Fetch current database table configurations and update database if any changes have occurred
-        runBlocking {
-            connectionService.disconnectAll(removeConnections = true)
-        }
+        destroy()
         SpringApplication.exit(applicationContext)
         exitProcess(0)
     }
@@ -80,6 +82,7 @@ class DatabaseManagementService(
     fun destroy() {
         // Disconnect from all active database connections
         runBlocking {
+            monitoringService.shutdownMonitoring()
             connectionService.disconnectAll(removeConnections = true)
         }
     }
