@@ -38,3 +38,4 @@ abstract class DatabaseMonitoringConnector(private val fileStorageDir: String) {
     abstract fun buildTableColumnList(): String
     abstract fun getConnectorProps(): Properties
 }
+

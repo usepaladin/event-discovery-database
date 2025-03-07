@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.connection.DatabaseConnector
+import veridius.discover.pojo.state.ConnectionState
 import veridius.discover.util.configuration.TableConfigurationBuilder
 import java.util.*
 
@@ -44,11 +45,4 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     protected open fun clientConfigValidation() {
         // No-op
     }
-}
-
-sealed class ConnectionState {
-    data object Connected : ConnectionState()
-    data object Disconnected : ConnectionState()
-    data object Connecting : ConnectionState()
-    data class Error(val exception: Throwable) : ConnectionState()
 }

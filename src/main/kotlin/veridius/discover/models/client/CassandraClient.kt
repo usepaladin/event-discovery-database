@@ -15,8 +15,8 @@ import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
+import veridius.discover.pojo.state.ConnectionState
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -40,7 +40,7 @@ data class CassandraClient(
                     .withLocalDatacenter(config.additionalProperties?.dataCenter ?: "datacenter1")
 
                 // Add credentials if provided
-                config.user?.let { user ->
+                config.user.let { user ->
                     config.password?.let { password ->
                         builder.withAuthCredentials(user, password)
                     }

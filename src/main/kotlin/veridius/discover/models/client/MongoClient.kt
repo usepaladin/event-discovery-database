@@ -12,8 +12,8 @@ import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
+import veridius.discover.pojo.state.ConnectionState
 import veridius.discover.util.connection.ConnectionBuilder
 import java.util.*
 import com.mongodb.client.MongoClient as MongoDataSource

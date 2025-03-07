@@ -13,8 +13,8 @@ import mu.KLogger
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
+import veridius.discover.pojo.state.ConnectionState
 import veridius.discover.utils.TestDatabaseConfigurations
 import java.util.*
 

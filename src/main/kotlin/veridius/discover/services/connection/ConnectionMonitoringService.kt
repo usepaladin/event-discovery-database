@@ -5,7 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import mu.KLogger
 import org.springframework.stereotype.Service
-import veridius.discover.pojo.client.ConnectionState
+import veridius.discover.pojo.state.ConnectionState
 import java.util.*
 
 /**

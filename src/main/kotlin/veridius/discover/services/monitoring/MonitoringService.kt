@@ -30,15 +30,14 @@ class MonitoringService(
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
     private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<RecordChangeEvent<ByteArray>>>()
 
-    fun startMonitoringEngine(databaseId: UUID) {
-        val client: DatabaseClient = connectionService.getClient(databaseId)
+    fun startMonitoringEngine(client: DatabaseClient) {
         val tableConfigurations: List<TableConfiguration> =
             configurationService.getDatabaseClientTableConfiguration(client)
 
         val monitoringConnector: DatabaseMonitoringConnector =
             buildDatabaseMonitoringConnector(client, tableConfigurations)
 
-        logger.info { "CDC Monitoring Service => Database Id: $databaseId => Starting Monitoring Engine" }
+        logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Starting Monitoring Engine" }
         try {
 
             val engine: DebeziumEngine<RecordChangeEvent<ByteArray>> =
@@ -48,11 +47,11 @@ class MonitoringService(
                     .notifying { record -> handleObservation(record) }
                     .build()
 
-            monitoringEngines[databaseId] = engine
+            monitoringEngines[client.id] = engine
             executor.execute(engine)
-            logger.info { "CDC Monitoring Service => Database Id: $databaseId => Monitoring Engine Instantiated and Started" }
+            logger.info { "CDC Monitoring Service => Database Id: $client.id => Monitoring Engine Instantiated and Started" }
         } catch (e: Exception) {
-            logger.error(e) { "CDC Monitoring Service => Database Id: $databaseId => Failed to Start Monitoring Engine" }
+            logger.error(e) { "CDC Monitoring Service => Database Id: $client.id => Failed to Start Monitoring Engine" }
         }
     }
 
@@ -88,7 +87,6 @@ class MonitoringService(
             logger.info { "CDC Monitoring Service => Database Id: $databaseId => Monitoring Engine Stopped" }
             monitoringEngines.remove(databaseId)
         }
-
     }
 
     /**
