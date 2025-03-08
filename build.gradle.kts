@@ -45,7 +45,6 @@ dependencies {
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 
@@ -56,6 +55,11 @@ dependencies {
     implementation("io.debezium:debezium-connector-mongodb:3.0.7.Final")
     implementation("io.debezium:debezium-connector-mysql:3.0.7.Final")
     implementation("io.debezium:debezium-connector-postgres:3.0.7.Final")
+
+
+    implementation("org.antlr:antlr4-runtime:4.13.0")
+    implementation("org.antlr:antlr4:4.13.0") // Ensure the tool version matches
+
 
     // Database Connections
 
@@ -78,6 +82,7 @@ dependencies {
 
     // Logging
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test") {

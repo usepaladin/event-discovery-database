@@ -21,4 +21,3 @@ logging:
         hibernate: INFO
         ehcache: INFO
         quartz: INFO
-        debezium: INFO

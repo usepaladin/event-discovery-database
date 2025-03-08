@@ -85,6 +85,22 @@ GRANT SELECT ON ALL TABLES IN SCHEMA '<schema>' TO '<name>';
     - Ensure that the MySQL server is configured to use binary logging. There are numerous ways of doing this dependent
       on your platform (ie. Local deployment v Cloud hosted)
 
+- You can determine if binary logging is enabled by running the following command:
+
+```mysql
+-- returns ON or OFF
+
+-- for MySQL 5.x
+SELECT variable_value as "BINARY LOGGING STATUS (log-bin) ::"
+FROM information_schema.global_variables
+WHERE variable_name = 'log_bin';
+
+-- for MySQL 8.x
+SELECT variable_value as "BINARY LOGGING STATUS (log-bin) ::"
+FROM performance_schema.global_variables
+WHERE variable_name = 'log_bin'; 
+```
+
 #### Query Console (Temporary)
 
 ```mysql
@@ -141,6 +157,11 @@ inbuilt tools and settings to make these changes.
     - server_id = 1 (Must be unique across replicas)
 4. Apply the parameter group to your MySQL instance.
 5. Restart the instance for changes to take effect.
+
+If you run MySQL on Amazon RDS, you must enable automated backups for your database instance for binary logging to
+occur.
+If the database instance is not configured to perform automated backups, the binlog is disabled, even if you apply the
+settings described in the previous steps.
 
 #### Google Cloud SQL
 
@@ -213,10 +234,11 @@ SHOW VARIABLES LIKE 'expire_logs_days';
 
 ### User Permissions
 
-- The user provided in the configuration should have the following permissions:
+- A user should be created and be granted the follow permissions to allow access to database monitoring functionality:
 
 ```mysql
-GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '<name>'@'%';
+CREATE USER '<name>'@'<host>' IDENTIFIED BY '<password>';
+GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '<user>' IDENTIFIED BY '<password>';
 ```
 
 - The user should also have the following permissions on the database and schema(s) that are to be monitored:
@@ -225,7 +247,11 @@ GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *
 GRANT SELECT ON *.* TO '<name>'@'%';
 ```
 
-- This user can then be used when configuring the service to monitor the database.
+- You can then run the following to finalize the permissions:
+
+```mysql
+FLUSH PRIVILEGES;
+```
 
 ## Technological Stack
 

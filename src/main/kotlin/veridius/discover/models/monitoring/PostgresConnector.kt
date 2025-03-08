@@ -1,6 +1,5 @@
 package veridius.discover.models.monitoring
 
-import io.debezium.storage.file.history.FileSchemaHistory
 import veridius.discover.configuration.properties.DebeziumConfigurationProperties
 import veridius.discover.models.configuration.TableConfiguration
 import veridius.discover.pojo.client.DatabaseClient
@@ -53,10 +52,6 @@ data class PostgresConnector(
                     // Postgres Logical Replication
                     "plugin.name" to "pgoutput",
                     "publication.name" to "dds_publication_${client.config.connectionName}",
-
-                    // Schema history
-                    "schema.history.internal" to FileSchemaHistory::class.java.name,
-                    "schema.history.internal.file.filename" to "${storageConfig.historyDir}/${client.id}.${storageConfig.historyFileName}",
                     // Performance tuning
                     "max.batch.size" to "2048", // Increase batch size for better throughput
                     "max.queue.size" to "8192", // Increase queue size

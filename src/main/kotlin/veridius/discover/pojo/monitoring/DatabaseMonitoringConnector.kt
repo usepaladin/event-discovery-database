@@ -1,5 +1,6 @@
 package veridius.discover.pojo.monitoring
 
+import io.debezium.storage.file.history.FileSchemaHistory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.apache.kafka.connect.storage.FileOffsetBackingStore
@@ -26,6 +27,12 @@ abstract class DatabaseMonitoringConnector(private val storageConfig: DebeziumCo
             put(
                 "offset.storage.file.filename",
                 "${storageConfig.offsetStorageDir}/${client.id}.${storageConfig.offsetStorageFileName}"
+            )
+            // Schema history
+            put("schema.history.internal", FileSchemaHistory::class.java.name)
+            put(
+                "schema.history.internal.file.filename",
+                "${storageConfig.historyDir}/${client.id}.${storageConfig.historyFileName}"
             )
             put("offset.flush.interval.ms", "10000")
             put("offset.flush.timeout.ms", "5000")
