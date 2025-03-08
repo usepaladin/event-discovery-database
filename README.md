@@ -37,74 +37,195 @@ enabling simplistic automated event generation and streaming for building reacti
 - **Robust Error Handling and Monitoring:** Implements comprehensive error handling and exposes metrics for monitoring
   service health and performance.
 
-## Database Pre-requisites
+# Database Pre-requisites
 
-### Postgres
+## Postgres
+
+### Altering Database Configurations
 
 - Debezium for PostgreSQL uses logical replication with pgoutput (recommended) or wal2json. You must enable logical
   replication.
 
-```
+```postgresql
 ALTER SYSTEM SET wal_level = logical;
 ALTER SYSTEM SET max_replication_slots = 10;
 ALTER SYSTEM SET max_wal_senders = 10;
 SELECT pg_reload_conf();
 ```
 
-- When using pgoutput, this service must operate within the database as a user with the following permissions
+### User Permissions
+
+- When using pgoutput, this service must operate within the database as a role/user with the following permissions
     - REPLICATION
     - LOGIN
 
 - A role for this would look like:
 
-```
-CREATE ROLE <name> WITH REPLICATION LOGIN;
-```
-
-- The user provided in the configuration should then be granted this role.
-
-```
-GRANT REPLICATION TO <name>;
+```postgresql
+CREATE ROLE '<name>' WITH REPLICATION LOGIN PASSWORD '<password>';
 ```
 
-- For all databases that are to be monitored, the user provided with the `REPLICATION` role should be granted
-  appropriate permissions
+- The role would then also need to be granted access to the database and schema(s) that are to be monitored:
 
-```
-GRANT CONNECT ON DATABASE mydatabase TO <name>;
-GRANT USAGE ON SCHEMA public TO <name>; 
-GRANT SELECT ON ALL TABLES IN SCHEMA <schema> TO <name>;
-ALTER DEFAULT PRIVILEGES IN SCHEMA <schema> GRANT SELECT ON TABLES TO <name>;
-```
+```postgresql
+GRANT CONNECT ON DATABASE mydatabase TO '<name>';
 
-- You should also create a replication slot to allow changes to be monitored and tracked
-
-```
-SELECT * FROM pg_create_logical_replication_slot('debezium_slot', 'pgoutput');
+-- Repeat for all schemas that are to be monitored
+GRANT USAGE ON SCHEMA public TO '<name>';
+GRANT SELECT ON ALL TABLES IN SCHEMA '<schema>' TO '<name>';
 ```
 
-```
-SELECT * FROM pg_create_logical_replication_slot('debezium_slot', 'pgoutput');
-```
+- The role can then be used to configure the service and monitor the database successfully.
 
-### MySQL
+## MySQL
+
+### Altering Database Configurations
 
 - Change monitoring on MySQL utilizes the MySQL binary log. To enable this, the following steps must be taken:
-    - Ensure that the MySQL server is configured to use binary logging. This can be done by adding the following to the
-      `my.cnf` file:
+    - Ensure that the MySQL server is configured to use binary logging. There are numerous ways of doing this dependent
+      on your platform (ie. Local deployment v Cloud hosted)
 
-```
+#### Query Console (Temporary)
+
+```mysql
 SET GLOBAL server_id = 1;
 SET GLOBAL log_bin = 'mysql-bin';
 SET GLOBAL binlog_format = 'ROW';
 SET GLOBAL binlog_row_image = 'FULL';
 ```
 
+- You can alter your global configuration values, however, upon server restart, these values will be lost. To make these
+  changes permanent.
+
+#### Configuration File (Permanent)
+
+1. Locate MySQL Configuration File
+   Linux/macOS: /etc/mysql/my.cnf or /etc/my.cnf
+   Windows: C:\ProgramData\MySQL\MySQL Server X.X\my.ini
+2. Edit my.cnf or my.ini and Add the Following
+
+```text
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+binlog_row_image=FULL
+expire_logs_days=7
+```
+
+3. Restart MySQL to Apply the Changes
+
+``` shell
+sudo systemctl restart mysql
+# or..
+sudo service mysql restart
+```
+
+- Alternatively, on windows:
+    - Open the Services application
+    - Locate MySQL
+    - Restart the service
+
+Most cloud providers will not necessarily allow you to directly edit the configuration file. Instead, you can use
+inbuilt tools and settings to make these changes.
+
+#### AWS RDS
+
+1. Go to the AWS RDS Console.
+2. Select Parameter Groups → Create Parameter Group.
+3. Modify the following parameters:
+    - binlog_format = ROW
+    - binlog_row_image = FULL
+    - log_bin = mysql-bin (Not always needed, as RDS enables it by default)
+    - expire_logs_days = 7
+    - server_id = 1 (Must be unique across replicas)
+4. Apply the parameter group to your MySQL instance.
+5. Restart the instance for changes to take effect.
+
+#### Google Cloud SQL
+
+1. Open Cloud SQL in Google Cloud Console.
+2. Select your MySQL instance.
+3. Go to Configuration > Edit Flags.
+    - Add or update the following:
+    - binlog_format = ROW
+    - binlog_row_image = FULL
+    - expire_logs_days = 7
+    - server_id = 1
+4. Restart the instance to apply the changes.
+
+#### Azure Database for MySQL
+
+1. Go to Azure Portal → MySQL Server.
+2. Navigate to Settings > Server parameters.
+3. Find the following parameters and update them:
+    - binlog_format = ROW
+    - binlog_row_image = FULL
+    - expire_logs_days = 7
+    - server_id = 1
+4. Save the changes and restart the MySQL server.
+
+#### Self Hosted on VPS
+
+- If you're running MySQL on a cloud VM (e.g., AWS EC2, GCP Compute Engine, DigitalOcean Droplet), you do have access to
+  my.cnf (as you are just accessing a remote instance). In this case, modify it as follows:
+
+1. SSH into your server.
+
+```shell
+ssh user@your-server-ip
+```
+
+2. Open my.cnf in a text editor (e.g., nano, vim).
+
+```shell
+sudo nano /etc/mysql/my.cnf
+```
+
+3. Add these lines under [mysqld]:
+
+```text
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+binlog_row_image=FULL
+expire_logs_days=7
+```
+
+4. Save the file and restart MySQL.
+
+```shell
+sudo systemctl restart mysql
+```
+
+### Verifying Configuration Changes
+
+After restarting MySQL, check if the settings are correctly applied:
+
+```mysql
+SHOW VARIABLES LIKE 'server_id';
+SHOW VARIABLES LIKE 'log_bin';
+SHOW VARIABLES LIKE 'binlog_format';
+SHOW VARIABLES LIKE 'binlog_row_image';
+SHOW VARIABLES LIKE 'expire_logs_days';
+```
+
+### User Permissions
+
 - The user provided in the configuration should have the following permissions:
 
-```
+```mysql
 GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '<name>'@'%';
 ```
+
+- The user should also have the following permissions on the database and schema(s) that are to be monitored:
+
+```mysql
+GRANT SELECT ON *.* TO '<name>'@'%';
+```
+
+- This user can then be used when configuring the service to monitor the database.
 
 ## Technological Stack
 
