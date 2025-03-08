@@ -6,7 +6,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
-import org.springframework.boot.SpringApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
@@ -15,7 +14,6 @@ import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionMonitoringService
 import veridius.discover.services.connection.ConnectionService
 import veridius.discover.services.monitoring.MonitoringService
-import kotlin.system.exitProcess
 
 /**
  * Core database management service, Responsible for:
@@ -32,7 +30,6 @@ class DatabaseManagementService(
     private val monitoringService: MonitoringService,
     private val applicationContext: ApplicationContext
 ) : ApplicationRunner {
-
     /**
      * This method is called after the bean has been constructed and the dependencies have been injected.
      *
@@ -72,10 +69,10 @@ class DatabaseManagementService(
         // Start monitoring engines
         monitoringService.startMonitoring()
 
-        // Fetch current database table configurations and update database if any changes have occurred
-        destroy()
-        SpringApplication.exit(applicationContext)
-        exitProcess(0)
+//        // Fetch current database table configurations and update database if any changes have occurred
+//        destroy()
+//        SpringApplication.exit(applicationContext)
+//        exitProcess(0)
     }
 
     @PreDestroy

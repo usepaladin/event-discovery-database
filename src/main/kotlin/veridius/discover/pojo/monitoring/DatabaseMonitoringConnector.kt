@@ -22,16 +22,19 @@ abstract class DatabaseMonitoringConnector(private val storageConfig: DebeziumCo
 
     protected fun commonProps(): Properties {
         return Properties().apply {
-            "offset.storage" to FileOffsetBackingStore::class.java.name // Storing offset information,
-            "offset.storage.file.filename" to "${storageConfig.offsetStorageDir}/${client.id}.${storageConfig.offsetStorageFileName}" // File to store offset information
-            "offset.flush.interval.ms" to "10000" // Flush interval for offset storage,
-            "offset.flush.timeout.ms" to "5000" // Timeout for offset flush,
-            "offset.flush.size" to "10000" // Size of offset flush,
-            "offset.flush.count" to "10000" // Count of offset flush,
-            "database.history.kafka.bootstrap.servers" to "192.168.0.241:9092"
-            "database.history.kafka.topic" to "dbhistory.${client.config.connectionName}"
-            "database.history.kafka.recovery.poll.interval.ms" to "500"
-            "include.schema.changes" to "true"
+            put("offset.storage", FileOffsetBackingStore::class.java.name)
+            put(
+                "offset.storage.file.filename",
+                "${storageConfig.offsetStorageDir}/${client.id}.${storageConfig.offsetStorageFileName}"
+            )
+            put("offset.flush.interval.ms", "10000")
+            put("offset.flush.timeout.ms", "5000")
+            put("offset.flush.size", "10000")
+            put("offset.flush.count", "10000")
+            put("database.history.kafka.bootstrap.servers", "192.168.0.241:9092")
+            put("database.history.kafka.topic", "dbhistory.${client.config.connectionName}")
+            put("database.history.kafka.recovery.poll.interval.ms", "500")
+            put("include.schema.changes", "true")
         }
     }
 

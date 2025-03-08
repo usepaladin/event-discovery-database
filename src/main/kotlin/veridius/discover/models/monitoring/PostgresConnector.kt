@@ -33,9 +33,14 @@ data class PostgresConnector(
     }
 
     override fun getConnectorProps(): Properties {
-        return commonProps().apply {
+        val includedSchemas: String = buildSchemaList()
+        val includedTables: String = buildTableList()
+        val includedColumns: String = buildTableColumnList()
+
+        val props: Properties = commonProps().apply {
             putAll(
                 mapOf(
+                    "name" to "postgres-connector-${client.config.connectionName}",
                     "connector.class" to SourcePostgresConnector::class.java.name,
                     "database.server.name" to client.config.connectionName,
                     "database.server.id" to client.config.id.toString(),
@@ -44,9 +49,12 @@ data class PostgresConnector(
                     "database.user" to client.config.user,
                     "database.password" to (client.config.password ?: ""),
                     "database.dbname" to client.config.database,
-                    "database.server.name" to client.config.connectionName,
                     "topic.prefix" to client.config.connectionName,
+                    // Postgres Logical Replication
                     "plugin.name" to "pgoutput",
+                    "publication.name" to "dds_publication_${client.config.connectionName}",
+
+                    // Schema history
                     "schema.history.internal" to FileSchemaHistory::class.java.name,
                     "schema.history.internal.file.filename" to "${storageConfig.historyDir}/${client.id}.${storageConfig.historyFileName}",
                     // Performance tuning
@@ -55,11 +63,28 @@ data class PostgresConnector(
                     "poll.interval.ms" to "100", // More frequent polling
                     // Heartbeat for connection monitoring
                     "heartbeat.interval.ms" to "5000", // Send heartbeat every 5 seconds
-                    "schema.include.list" to buildSchemaList(),
-                    "table.include.list" to buildTableList(),
-                    "column.include.list" to buildTableColumnList()
                 )
             )
         }
+
+        includedSchemas.takeIf { it.isNotBlank() }?.let {
+            props.apply {
+                put("schema.include.list", includedSchemas)
+            }
+        }
+
+        includedTables.takeIf { it.isNotBlank() }?.let {
+            props.apply {
+                put("table.include.list", includedTables)
+            }
+        }
+
+        includedColumns.takeIf { it.isNotBlank() }?.let {
+            props.apply {
+                put("column.include.list", includedColumns)
+            }
+        }
+
+        return props
     }
 }

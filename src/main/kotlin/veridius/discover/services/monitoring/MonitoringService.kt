@@ -15,6 +15,7 @@ import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.pojo.monitoring.DatabaseMonitoringConnector
 import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionService
+import java.io.File
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
@@ -51,6 +52,12 @@ class MonitoringService(
 
         logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Starting Monitoring Engine" }
         try {
+            // Add this before initializing the Debezium engine
+            val offsetDir = File("/tmp/debezium/offsets/")
+            if (!offsetDir.exists()) {
+                offsetDir.mkdirs()
+            }
+
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connecting)
             val engine: DebeziumEngine<ChangeEvent<String, String>> =
                 //todo: Incorporate Preferences (ie. Schema type)
@@ -62,7 +69,7 @@ class MonitoringService(
             monitoringEngines[client.id] = engine
             executor.execute(engine)
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connected)
-            logger.info { "CDC Monitoring Service => Database Id: $client.id => Monitoring Engine Instantiated and Started" }
+            logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Monitoring Engine Instantiated and Started" }
 
         } catch (e: Exception) {
             logger.error(e) { "CDC Monitoring Service => Database Id: $client.id => Failed to Start Monitoring Engine" }
@@ -121,7 +128,9 @@ class MonitoringService(
     /**
      * Notification handler upon observation of a Database record alteration
      */
-    private fun handleObservation(record: ChangeEvent<String, String>) {}
+    private fun handleObservation(record: ChangeEvent<String, String>) {
+        logger.info { "CDC Monitoring Service => Database Id: ${record.key()} => Record Observed: ${record.value()}" }
+    }
 
     @PreDestroy
     fun shutdownMonitoring() {

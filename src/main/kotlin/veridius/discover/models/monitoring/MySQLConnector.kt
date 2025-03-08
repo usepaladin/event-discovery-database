@@ -1,5 +1,6 @@
 package veridius.discover.models.monitoring
 
+import veridius.discover.configuration.properties.DebeziumConfigurationProperties
 import veridius.discover.models.configuration.TableConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.pojo.monitoring.DatabaseMonitoringConnector
@@ -9,8 +10,8 @@ import io.debezium.connector.mysql.MySqlConnector as SourceMySQLConnector
 class MySQLConnector(
     override val client: DatabaseClient,
     override val tableConfigurations: List<TableConfiguration>,
-    private val fileStorageDir: String
-) : DatabaseMonitoringConnector(fileStorageDir) {
+    private val storageConfig: DebeziumConfigurationProperties
+) : DatabaseMonitoringConnector(storageConfig) {
 
     override fun buildTableList(): String {
         return tableConfigurations

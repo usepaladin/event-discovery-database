@@ -4,6 +4,7 @@ import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import mu.KLogger
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import veridius.discover.pojo.client.DatabaseClient.ClientConnectionState
 import java.util.*
@@ -22,7 +23,7 @@ import java.util.*
 class ConnectionMonitoringService(
     private val connectionService: ConnectionService,
     private val logger: KLogger,
-    private val dispatcher: CoroutineDispatcher
+    @Qualifier("coroutineDispatcher") private val dispatcher: CoroutineDispatcher
 ) {
 
     private val scope = CoroutineScope(dispatcher + SupervisorJob())

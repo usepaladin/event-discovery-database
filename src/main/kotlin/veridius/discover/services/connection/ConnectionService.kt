@@ -3,6 +3,7 @@ package veridius.discover.services.connection
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
 import mu.KLogger
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import veridius.discover.exceptions.ConnectionJobNotFound
 import veridius.discover.exceptions.DatabaseConnectionNotFound
@@ -23,7 +24,10 @@ import java.util.concurrent.ConcurrentHashMap
  */
 
 @Service
-class ConnectionService(private val logger: KLogger, private val dispatcher: CoroutineDispatcher) {
+class ConnectionService(
+    private val logger: KLogger,
+    @Qualifier("coroutineDispatcher") private val dispatcher: CoroutineDispatcher
+) {
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
     private val databaseClients = ConcurrentHashMap<UUID, DatabaseClient>()
@@ -145,6 +149,7 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
     @PreDestroy
     fun destroy() {
         runBlocking {
+            scope.cancel()
             disconnectAll(removeConnections = true)
         }
     }
