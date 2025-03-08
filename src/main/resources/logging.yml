@@ -5,6 +5,9 @@ logging:
   file:
     name: ./logs/event-discovery.log
   level:
+    io.debezium: INFO
+    io.debezium.connector: INFO
+    io.debezium.connector.postgresql: INFO
     root: debug
     org:
       springframework:
