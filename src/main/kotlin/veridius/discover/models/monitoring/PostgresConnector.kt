@@ -10,8 +10,9 @@ import io.debezium.connector.postgresql.PostgresConnector as SourcePostgresConne
 data class PostgresConnector(
     override val client: DatabaseClient,
     override val tableConfigurations: List<TableConfiguration>,
-    private val storageConfig: DebeziumConfigurationProperties
-) : DatabaseMonitoringConnector(storageConfig) {
+    private val storageConfig: DebeziumConfigurationProperties,
+    private val kafkaBootstrapServers: String
+) : DatabaseMonitoringConnector(storageConfig, kafkaBootstrapServers) {
     override fun buildTableList(): String {
         return tableConfigurations
             .filter { it.isEnabled }.joinToString(",") { "${it.namespace}.${it.tableName}" }

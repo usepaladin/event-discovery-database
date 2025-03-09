@@ -10,7 +10,7 @@ import veridius.discover.pojo.client.DatabaseClient.ClientConnectionState
 import java.util.*
 
 /**
- * Todo: Further Expand Functionality: I just made barebones monitoring capabilities for the shits n giggles
+ * Todo: Further Expand Functionality: I just made barebones monitoring capabilities `for the s`hits n giggles
  *
  * - Configurable Polling Intervals
  * - Configurable Reconnect Attempts + Backoff

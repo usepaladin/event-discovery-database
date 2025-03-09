@@ -6,6 +6,7 @@ import io.debezium.engine.format.Json
 import jakarta.annotation.PreDestroy
 import mu.KLogger
 import org.springframework.stereotype.Service
+import veridius.discover.configuration.KafkaConfiguration
 import veridius.discover.configuration.properties.DebeziumConfigurationProperties
 import veridius.discover.models.common.DatabaseType
 import veridius.discover.models.configuration.TableConfiguration
@@ -33,8 +34,10 @@ class MonitoringService(
     private val debeziumConfigurationProperties: DebeziumConfigurationProperties,
     private val connectionService: ConnectionService,
     private val configurationService: TableConfigurationService,
+    private val kafkaConfiguration: KafkaConfiguration,
     private val logger: KLogger,
 ) {
+
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
     private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<ChangeEvent<String, String>>>()
 
@@ -99,10 +102,17 @@ class MonitoringService(
             DatabaseType.POSTGRES -> PostgresConnector(
                 client,
                 configuration,
-                debeziumConfigurationProperties
+                debeziumConfigurationProperties,
+                kafkaConfiguration.getKafkaBootstrapServers()
             )
 
-            DatabaseType.MYSQL -> MySQLConnector(client, configuration, debeziumConfigurationProperties)
+            DatabaseType.MYSQL -> MySQLConnector(
+                client,
+                configuration,
+                debeziumConfigurationProperties,
+                kafkaConfiguration.getKafkaBootstrapServers()
+            )
+
             else -> {
                 throw IllegalArgumentException("Database Type Not Supported")
             }

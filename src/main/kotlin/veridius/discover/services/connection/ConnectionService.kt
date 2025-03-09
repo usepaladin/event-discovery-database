@@ -149,15 +149,13 @@ class ConnectionService(
 
     @PreDestroy
     fun destroy() {
-        // Cancel the scope first
-        scope.cancel()
-
         // Use a CompletableFuture to handle the async disconnection
         val future = CompletableFuture<Unit>()
         scope.launch {
             try {
                 disconnectAll(removeConnections = true)
                 future.complete(Unit)
+                scope.cancel()
             } catch (e: Exception) {
                 logger.error(e) { "Error during service shutdown" }
                 future.completeExceptionally(e)

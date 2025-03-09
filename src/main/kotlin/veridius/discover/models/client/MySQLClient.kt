@@ -121,6 +121,10 @@ data class MySQLClient(
         }
     }
 
+    override fun clientConfigValidation() {
+        // No additional validation required for MySQL
+    }
+
     override fun configure() {
         TODO("Not yet implemented")
     }

@@ -209,6 +209,8 @@ class TableConfigurationService(
     /**
      * Compare the differences between the scanned table configuration and the existing table configuration
      * to determine if an update is required to the stored record
+     *
+     * todo: Implement comparison logic
      */
     private suspend fun compareConfigurationDiff(
         scannedConfig: DatabaseTable,

@@ -10,7 +10,10 @@ import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.pojo.state.ConnectionState
 import java.util.*
 
-abstract class DatabaseMonitoringConnector(private val storageConfig: DebeziumConfigurationProperties) {
+abstract class DatabaseMonitoringConnector(
+    private val storageConfig: DebeziumConfigurationProperties,
+    private val kafkaBootstrapServers: String
+) {
 
 
     protected abstract val client: DatabaseClient
@@ -40,7 +43,7 @@ abstract class DatabaseMonitoringConnector(private val storageConfig: DebeziumCo
             put("offset.flush.timeout.ms", "5000")
             put("offset.flush.size", "10000")
             put("offset.flush.count", "10000")
-            put("database.history.kafka.bootstrap.servers", "192.168.0.241:9092")
+            put("database.history.kafka.bootstrap.servers", kafkaBootstrapServers)
             put("database.history.kafka.topic", "dbhistory.${client.config.connectionName}")
             put("database.history.kafka.recovery.poll.interval.ms", "500")
             put("include.schema.changes", "true")

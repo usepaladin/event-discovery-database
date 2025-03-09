@@ -25,10 +25,6 @@ data class PostgresClient(
     private val logger = KotlinLogging.logger {}
     override val hikariConfig = generateHikariConfig(config, HikariConnectionConfigBuilder.HikariDatabaseType.POSTGRES)
 
-    override fun clientConfigValidation() {
-        // no-op
-    }
-
     override fun connect(): DataSource {
         if (_connectionState.value == ClientConnectionState.Connected && datasource != null) {
             return datasource!!
@@ -132,6 +128,11 @@ data class PostgresClient(
 
     override fun configure() {
         TODO("Not yet implemented")
+    }
+
+    override fun clientConfigValidation() {
+        // No additional validation needed for Postgres clients
+        // This method is implemented to satisfy the DatabaseClient interface
     }
 
 

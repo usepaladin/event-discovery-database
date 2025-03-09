@@ -11,8 +11,9 @@ import io.debezium.connector.mysql.MySqlConnector as SourceMySQLConnector
 class MySQLConnector(
     override val client: DatabaseClient,
     override val tableConfigurations: List<TableConfiguration>,
-    private val storageConfig: DebeziumConfigurationProperties
-) : DatabaseMonitoringConnector(storageConfig) {
+    private val storageConfig: DebeziumConfigurationProperties,
+    private val kafkaBootstrapServers: String
+) : DatabaseMonitoringConnector(storageConfig, kafkaBootstrapServers) {
 
     override fun buildTableList(): String {
         return tableConfigurations

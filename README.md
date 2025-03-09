@@ -18,7 +18,7 @@ applications.
 DDS acts as a crucial bridge connecting user's existing data infrastructure to the event-driven architecture,
 enabling simplistic automated event generation and streaming for building reactive applications and scalable services.
 
-**Key Features**
+## Key Features
 
 - **Automated Event Discovery:** Intelligently detects relevant data changes without requiring manual instrumentation of
   user applications.
@@ -138,9 +138,9 @@ sudo service mysql restart
 ```
 
 - Alternatively, on Windows:
-    - Open the Services application
-    - Locate MySQL
-    - Restart the service
+    1. Open the Services application
+    2. Locate MySQL
+    3. Restart the service
 
 Most cloud providers will not necessarily allow you to directly edit the configuration file. Instead, you can use
 inbuilt tools and settings to make these changes.
