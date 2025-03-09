@@ -25,6 +25,10 @@ data class PostgresClient(
     private val logger = KotlinLogging.logger {}
     override val hikariConfig = generateHikariConfig(config, HikariConnectionConfigBuilder.HikariDatabaseType.POSTGRES)
 
+    override fun clientConfigValidation() {
+        // no-op
+    }
+
     override fun connect(): DataSource {
         if (_connectionState.value == ClientConnectionState.Connected && datasource != null) {
             return datasource!!
@@ -37,7 +41,11 @@ data class PostgresClient(
             _connectionState.value = ClientConnectionState.Connected
             logger.info { "Postgres Database => ${this.config.connectionName} => $id => Connected" }
 
-            //todo: Ensure User has appropriate roles and permissions for debezium connector purposes
+            //TODO: Ensure user has appropriate roles and permissions for Debezium connector:
+            // - Replication permissions
+            // - SELECT permissions on tables to be monitored
+            // - See https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-permissions
+
 
             return datasource!!
         } catch (e: Exception) {

@@ -82,8 +82,8 @@ GRANT SELECT ON ALL TABLES IN SCHEMA '<schema>' TO '<name>';
 ### Altering Database Configurations
 
 - Change monitoring on MySQL utilizes the MySQL binary log. To enable this, the following steps must be taken:
-    - Ensure that the MySQL server is configured to use binary logging. There are numerous ways of doing this dependent
-      on your platform (ie. Local deployment v Cloud hosted)
+    - Ensure that the MySQL server is configured to use binary logging. There are numerous ways of doing this, depending
+      on your platform (i.e., local deployment vs. cloud hosted)
 
 - You can determine if binary logging is enabled by running the following command:
 
@@ -137,7 +137,7 @@ sudo systemctl restart mysql
 sudo service mysql restart
 ```
 
-- Alternatively, on windows:
+- Alternatively, on Windows:
     - Open the Services application
     - Locate MySQL
     - Restart the service

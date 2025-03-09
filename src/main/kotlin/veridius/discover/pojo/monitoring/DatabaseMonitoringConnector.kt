@@ -11,6 +11,8 @@ import veridius.discover.pojo.state.ConnectionState
 import java.util.*
 
 abstract class DatabaseMonitoringConnector(private val storageConfig: DebeziumConfigurationProperties) {
+
+
     protected abstract val client: DatabaseClient
     protected abstract val tableConfigurations: List<TableConfiguration>
 
@@ -63,7 +65,7 @@ abstract class DatabaseMonitoringConnector(private val storageConfig: DebeziumCo
         data object Connecting : MonitoringConnectionState()
         data object Connected : MonitoringConnectionState()
         data object Paused : MonitoringConnectionState()
-        data class Error(val exception: Exception) : MonitoringConnectionState()
+        data class Error(val exception: Throwable) : MonitoringConnectionState()
     }
 }
 

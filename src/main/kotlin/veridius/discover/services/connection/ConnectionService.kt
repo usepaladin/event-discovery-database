@@ -15,6 +15,7 @@ import veridius.discover.models.common.DatabaseType
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /*
@@ -148,9 +149,19 @@ class ConnectionService(
 
     @PreDestroy
     fun destroy() {
-        runBlocking {
-            scope.cancel()
-            disconnectAll(removeConnections = true)
+        // Cancel the scope first
+        scope.cancel()
+
+        // Use a CompletableFuture to handle the async disconnection
+        val future = CompletableFuture<Unit>()
+        scope.launch {
+            try {
+                disconnectAll(removeConnections = true)
+                future.complete(Unit)
+            } catch (e: Exception) {
+                logger.error(e) { "Error during service shutdown" }
+                future.completeExceptionally(e)
+            }
         }
     }
 }

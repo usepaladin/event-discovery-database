@@ -22,6 +22,12 @@ class TableConfigurationService(
 
     private val tableConfigurations: ConcurrentHashMap<UUID, TableConfiguration> = ConcurrentHashMap()
 
+    /**
+     * Retrieves table configurations associated with the given database client.
+     *
+     * @param client The database client to retrieve table configurations for
+     * @return List of table configurations associated with the client
+     */
     fun getDatabaseClientTableConfiguration(client: DatabaseClient): List<TableConfiguration> {
         return client.config.tableConfigurations.mapNotNull { tableConfigurations[it.id] }
     }
@@ -74,8 +80,8 @@ class TableConfigurationService(
     private suspend fun fetchExistingTableConfigurations(client: DatabaseClient): List<TableMonitoringConfigurationEntity> {
         val tableConfiguration: List<TableMonitoringConfigurationEntity> =
             withContext(Dispatchers.IO) {
-                // Should lazy load table configurations based on client id
-                client.config.tableConfigurations
+                // Fetch configurations from repository based on client id
+                tableMonitoringRepository.findAllByDatabaseConnectionId(client.id)
             }
         if (tableConfiguration.isEmpty()) {
             logger.info {

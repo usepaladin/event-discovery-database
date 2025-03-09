@@ -34,7 +34,9 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
      */
     protected open fun baseConfigValidation() {
         require(config.hostName.isNotBlank()) { "Hostname cannot be blank" }
-        require(config.port.isNotBlank()) { "Port cannot be blank" }
+        require(config.port.toIntOrNull()?.let { it in 1..65535 } == true) {
+            "Port must be a valid integer in the range 1..65535"
+        }
         require(config.user.isNotBlank()) { "Username cannot be blank" }
         require(config.database.isNotBlank()) { "Database name cannot be blank" }
     }
@@ -42,12 +44,12 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
     /**
      * Extendable configuration validation for specific database clients
      */
-    protected open fun clientConfigValidation() {}
+    abstract fun clientConfigValidation()
 
     sealed class ClientConnectionState : ConnectionState<ClientConnectionState>() {
         data object Disconnected : ClientConnectionState()
         data object Connecting : ClientConnectionState()
         data object Connected : ClientConnectionState()
-        data class Error(val exception: Exception) : ClientConnectionState()
+        data class Error(val exception: Throwable) : ClientConnectionState()
     }
 }

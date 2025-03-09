@@ -73,7 +73,7 @@ class MySQLConnector(
                     "database.serverTimezone" to "UTC",
                     "database.allowPublicKeyRetrieval" to "true",
                     "database.tcpKeepAlive" to "true",
-                    "database.ssl.mode" to "disabled"
+                    "database.ssl.mode" to "preferred"
                 )
             )
         }
