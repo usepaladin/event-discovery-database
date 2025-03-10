@@ -9,7 +9,8 @@ import com.datastax.oss.driver.api.core.metadata.schema.KeyspaceMetadata
 import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata
 import com.datastax.oss.driver.api.core.type.DataType
 import com.datastax.oss.driver.api.core.type.UserDefinedType
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
+
 import veridius.discover.exceptions.NoActiveConnectionFound
 import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable

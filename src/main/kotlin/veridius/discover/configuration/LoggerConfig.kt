@@ -1,7 +1,7 @@
 package veridius.discover.configuration
 
-import mu.KLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

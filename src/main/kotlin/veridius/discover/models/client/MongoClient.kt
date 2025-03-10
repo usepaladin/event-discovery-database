@@ -4,7 +4,7 @@ import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.Document
 import org.bson.types.ObjectId
 import veridius.discover.exceptions.NoActiveConnectionFound

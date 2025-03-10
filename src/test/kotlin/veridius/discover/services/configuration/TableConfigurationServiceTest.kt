@@ -1,9 +1,9 @@
 package veridius.discover.services.configuration
 
+import io.github.oshai.kotlinlogging.KLogger
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import mu.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -169,4 +169,4 @@ class TableConfigurationServiceTest {
 //        // Verify no save operations were performed since there were no changes
 //        coVerify(exactly = 0) { mockTableConfigRepository.save(any()) }
 //    }
-} 
+}

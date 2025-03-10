@@ -1,8 +1,8 @@
 package veridius.discover.services.configuration
 
+import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.*
-import mu.KLogger
 import org.springframework.stereotype.Service
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
 import veridius.discover.models.configuration.DatabaseTable

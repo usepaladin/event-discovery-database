@@ -81,7 +81,9 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.33")
 
     // Logging
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0") // Updated to latest
+    implementation("ch.qos.logback:logback-classic:1.5.11") // Explicit Logback
+    implementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency.
 
 
     // Testing
@@ -97,6 +99,8 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("io.debezium:debezium-testing-testcontainers:3.0.7.Final")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("ch.qos.logback:logback-classic:1.5.11") // Explicit Logback in test scope
+    testImplementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency in test scope.
 }
 
 dependencyManagement {
@@ -135,6 +139,7 @@ protobuf {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
 }
 
 tasks.test {

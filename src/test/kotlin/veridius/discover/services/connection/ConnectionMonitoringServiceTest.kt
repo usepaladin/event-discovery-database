@@ -1,7 +1,14 @@
 package veridius.discover.services.connection
 
 
-import io.mockk.*
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
@@ -9,27 +16,41 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import mu.KLogger
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.pojo.client.DatabaseClient.ClientConnectionState
 import veridius.discover.utils.TestDatabaseConfigurations
+import veridius.discover.utils.TestLogAppender
 import java.util.*
 
 @ExperimentalCoroutinesApi
 class ConnectionMonitoringServiceTest {
     private lateinit var connectionService: ConnectionService
     private lateinit var monitoringService: ConnectionMonitoringService
-    private lateinit var logger: KLogger
+    private lateinit var testLogAppender: TestLogAppender
     private val testDispatcher = UnconfinedTestDispatcher()
+
+    private val logger: KLogger = KotlinLogging.logger {}
+
+    // Underlying logback logger
+    private lateinit var logbackLogger: Logger
 
     @BeforeEach
     fun setup() {
         connectionService = mockk<ConnectionService>()
-        logger = mockk<KLogger>(relaxed = true)
+        logbackLogger = LoggerFactory.getLogger(logger.name) as Logger
+        testLogAppender = TestLogAppender.factory(logbackLogger, Level.DEBUG)
         monitoringService = ConnectionMonitoringService(connectionService, logger, testDispatcher)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        logbackLogger.detachAppender(testLogAppender)
+        testLogAppender.stop()
     }
 
     @Test
@@ -103,16 +124,14 @@ class ConnectionMonitoringServiceTest {
         coVerify(exactly = 1, timeout = 5000) { mockClient2.connect() } //verify client 2 attempts to connect
 
         advanceTimeBy(10000)
-        // Expect one logging exception (Client 2 Connection)
-        verify(exactly = 1, timeout = 10000) {
-            logger.error(
-                t = any(),
-                msg = any()
-            )
-
-        } //verify error log
         assertTrue(connectionStateFlow1.value == ClientConnectionState.Connected) //check the mutable state flow
         monitoringService.endMonitoring()
+//         Expect one logging exception (Client 2 Connection)
+        assertTrue {
+            testLogAppender.logs.any {
+                it.level == Level.ERROR && it.message.contains("Database Reconnect Unsuccessful")
+            }
+        }
     }
 
 
@@ -206,4 +225,4 @@ class ConnectionMonitoringServiceTest {
         assertTrue(states[4][config1.id] == ClientConnectionState.Disconnected)
         assertTrue(states[5][config1.id] == ClientConnectionState.Connected)
     }
-} 
+}

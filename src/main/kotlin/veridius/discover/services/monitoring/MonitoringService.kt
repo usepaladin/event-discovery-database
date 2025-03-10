@@ -3,8 +3,8 @@ package veridius.discover.services.monitoring
 import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
 import io.debezium.engine.format.Json
+import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
-import mu.KLogger
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.KafkaConfiguration
 import veridius.discover.configuration.properties.DebeziumConfigurationProperties
@@ -21,6 +21,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Todo:
@@ -56,10 +57,19 @@ class MonitoringService(
         logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Starting Monitoring Engine" }
         try {
             // Add this before initializing the Debezium engine
-            val offsetDir = File("/tmp/debezium/offsets/")
+            val offsetDir = File(debeziumConfigurationProperties.offsetStorageDir)
             if (!offsetDir.exists()) {
                 offsetDir.mkdirs()
             }
+
+            /**
+             * ChangeEvent v RecordChangeEvent
+             * The RecordChangeEvent interface in Debezium is used in specific scenarios
+             * when you need a higher-level abstraction for change events
+             *
+             * Currently we are using ChangeEvent<String, String> which is a generic implementation of RecordChangeEvent
+             * which provides access to the raw change event data for the pure focus of Pushing events to Kafka
+             */
 
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connecting)
             val engine: DebeziumEngine<ChangeEvent<String, String>> =
@@ -151,5 +161,16 @@ class MonitoringService(
         monitoringEngines.clear()
         logger.info { "CDC Monitoring Service => All Database Monitoring Connections Shut Down" }
         executor.shutdown()
+
+        // Wait for tasks to complete with a timeout
+        try {
+            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                logger.warn { "CDC Monitoring Service => Executor did not terminate in the specified time." }
+                executor.shutdownNow()
+            }
+        } catch (e: InterruptedException) {
+            logger.error(e) { "CDC Monitoring Service => Shutdown interrupted" }
+            executor.shutdownNow()
+        }
     }
 }

@@ -1,8 +1,8 @@
 package veridius.discover.services.connection
 
+import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
-import mu.KLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import veridius.discover.exceptions.ConnectionJobNotFound
@@ -17,6 +17,7 @@ import veridius.discover.pojo.client.DatabaseClient
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 /*
     Todo: More connection support
@@ -160,6 +161,14 @@ class ConnectionService(
                 logger.error(e) { "Error during service shutdown" }
                 future.completeExceptionally(e)
             }
+        }
+
+        try {
+            // Block with a reasonable timeout to ensure cleanup completes
+            future.get(30, TimeUnit.SECONDS)
+            logger.info { "Connection Service => All connections successfully closed" }
+        } catch (e: Exception) {
+            logger.error(e) { "Connection Service => Failed to gracefully close all connections" }
         }
     }
 }

@@ -1,9 +1,9 @@
 package veridius.discover.services.connection
 
+import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import mu.KLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import veridius.discover.pojo.client.DatabaseClient.ClientConnectionState

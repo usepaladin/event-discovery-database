@@ -1,7 +1,7 @@
 package veridius.discover.models.client
 
 import com.zaxxer.hikari.HikariDataSource
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import veridius.discover.exceptions.NoActiveConnectionFound
 import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
