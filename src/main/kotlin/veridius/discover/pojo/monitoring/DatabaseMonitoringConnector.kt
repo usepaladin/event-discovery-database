@@ -7,7 +7,6 @@ import org.apache.kafka.connect.storage.FileOffsetBackingStore
 import veridius.discover.configuration.properties.DebeziumConfigurationProperties
 import veridius.discover.models.configuration.TableConfiguration
 import veridius.discover.pojo.client.DatabaseClient
-import veridius.discover.pojo.state.ConnectionState
 import java.util.*
 
 abstract class DatabaseMonitoringConnector(
@@ -63,7 +62,7 @@ abstract class DatabaseMonitoringConnector(
     abstract fun buildTableColumnList(): String
     abstract fun getConnectorProps(): Properties
 
-    sealed class MonitoringConnectionState : ConnectionState<MonitoringConnectionState>() {
+    sealed class MonitoringConnectionState {
         data object Disconnected : MonitoringConnectionState()
         data object Disconnecting : MonitoringConnectionState()
         data object Reconnecting : MonitoringConnectionState()
