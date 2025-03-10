@@ -1,8 +1,8 @@
 package veridius.discover.services.configuration
 
+import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.*
-import mu.KLogger
 import org.springframework.stereotype.Service
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
 import veridius.discover.models.configuration.DatabaseTable
@@ -21,6 +21,16 @@ class TableConfigurationService(
 ) {
 
     private val tableConfigurations: ConcurrentHashMap<UUID, TableConfiguration> = ConcurrentHashMap()
+
+    /**
+     * Retrieves table configurations associated with the given database client.
+     *
+     * @param client The database client to retrieve table configurations for
+     * @return List of table configurations associated with the client
+     */
+    fun getDatabaseClientTableConfiguration(client: DatabaseClient): List<TableConfiguration> {
+        return client.config.tableConfigurations.mapNotNull { tableConfigurations[it.id] }
+    }
 
     /**
      * Scan database client to obtain all relevant metadata for a tables database table configuration, which includes:
@@ -70,6 +80,7 @@ class TableConfigurationService(
     private suspend fun fetchExistingTableConfigurations(client: DatabaseClient): List<TableMonitoringConfigurationEntity> {
         val tableConfiguration: List<TableMonitoringConfigurationEntity> =
             withContext(Dispatchers.IO) {
+                // Fetch configurations from repository based on client id
                 tableMonitoringRepository.findAllByDatabaseConnectionId(client.id)
             }
         if (tableConfiguration.isEmpty()) {
@@ -198,6 +209,8 @@ class TableConfigurationService(
     /**
      * Compare the differences between the scanned table configuration and the existing table configuration
      * to determine if an update is required to the stored record
+     *
+     * todo: Implement comparison logic
      */
     private suspend fun compareConfigurationDiff(
         scannedConfig: DatabaseTable,

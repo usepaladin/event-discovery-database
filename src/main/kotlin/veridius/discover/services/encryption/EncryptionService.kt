@@ -1,7 +1,7 @@
 package veridius.discover.services.encryption
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KLogger
+import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import veridius.discover.configuration.properties.EncryptionConfigurationProperties
 import java.nio.ByteBuffer
@@ -69,13 +69,13 @@ class EncryptionService(
             Base64.getEncoder().encodeToString(byteBuffer.array())
 
         }.onFailure { e ->
-            logger.error("Encryption failed: {}", e.message)
+            logger.error { "${"Encryption failed: {}"} ${e.message}" }
             when (e) {
-                is NoSuchAlgorithmException -> logger.error("Encryption algorithm not found")
-                is NoSuchPaddingException -> logger.error("Padding exception")
-                is IllegalBlockSizeException -> logger.error("Illegal block size during encryption")
-                is BadPaddingException -> logger.error("Bad padding during encryption")
-                is InvalidKeyException -> logger.error("Invalid encryption key")
+                is NoSuchAlgorithmException -> logger.error { "Encryption algorithm not found" }
+                is NoSuchPaddingException -> logger.error { "Padding exception" }
+                is IllegalBlockSizeException -> logger.error { "Illegal block size during encryption" }
+                is BadPaddingException -> logger.error { "Bad padding during encryption" }
+                is InvalidKeyException -> logger.error { "Invalid encryption key" }
             }
         }.getOrNull()
     }
@@ -97,7 +97,7 @@ class EncryptionService(
             val decodedCiphertextBytes = Base64.getDecoder().decode(ciphertextBase64)
 
             if (decodedCiphertextBytes.size < ivLengthBytes) {
-                logger.error("Invalid ciphertext format: IV is missing or too short.")
+                logger.error { "Invalid ciphertext format: IV is missing or too short." }
                 return@runCatching null
             }
 
@@ -112,15 +112,15 @@ class EncryptionService(
             String(decryptedBytes, StandardCharsets.UTF_8)
 
         }.onFailure { e ->
-            logger.error("Decryption failed: {}", e.message)
+            logger.error { "${"Decryption failed: {}"} ${e.message}" }
             when (e) {
-                is NoSuchAlgorithmException -> logger.error("Decryption algorithm not found")
-                is NoSuchPaddingException -> logger.error("Padding exception during decryption")
-                is IllegalBlockSizeException -> logger.error("Illegal block size during decryption")
-                is BadPaddingException -> logger.error("Bad padding during decryption (possibly incorrect key or corrupted ciphertext)")
-                is InvalidKeyException -> logger.error("Invalid decryption key")
-                is AEADBadTagException -> logger.error("Authentication tag mismatch (ciphertext integrity compromised or incorrect key)")
-                is InvalidAlgorithmParameterException -> logger.error("Invalid algorithm parameters during decryption")
+                is NoSuchAlgorithmException -> logger.error { "Decryption algorithm not found" }
+                is NoSuchPaddingException -> logger.error { "Padding exception during decryption" }
+                is IllegalBlockSizeException -> logger.error { "Illegal block size during decryption" }
+                is BadPaddingException -> logger.error { "Bad padding during decryption (possibly incorrect key or corrupted ciphertext)" }
+                is InvalidKeyException -> logger.error { "Invalid decryption key" }
+                is AEADBadTagException -> logger.error { "Authentication tag mismatch (ciphertext integrity compromised or incorrect key)" }
+                is InvalidAlgorithmParameterException -> logger.error { "Invalid algorithm parameters during decryption" }
             }
         }.getOrNull()
     }

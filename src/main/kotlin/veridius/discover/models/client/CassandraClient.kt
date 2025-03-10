@@ -9,13 +9,13 @@ import com.datastax.oss.driver.api.core.metadata.schema.KeyspaceMetadata
 import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata
 import com.datastax.oss.driver.api.core.type.DataType
 import com.datastax.oss.driver.api.core.type.UserDefinedType
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
+
 import veridius.discover.exceptions.NoActiveConnectionFound
 import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
 import java.net.InetSocketAddress
 import java.util.*
@@ -32,7 +32,7 @@ data class CassandraClient(
         this.validateConfig()
         try {
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Connecting..." }
-            _connectionState.value = ConnectionState.Connecting
+            _connectionState.value = ClientConnectionState.Connecting
             if (session == null) {
                 val builder: CqlSessionBuilder = CqlSession.builder()
                     .addContactPoint(InetSocketAddress(config.hostName, config.port.toInt()))
@@ -40,17 +40,17 @@ data class CassandraClient(
                     .withLocalDatacenter(config.additionalProperties?.dataCenter ?: "datacenter1")
 
                 // Add credentials if provided
-                config.user?.let { user ->
+                config.user.let { user ->
                     config.password?.let { password ->
                         builder.withAuthCredentials(user, password)
                     }
                 }
             }
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ClientConnectionState.Connected
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Connected" }
             return session!!
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "Cassandra Database => ${config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
@@ -63,10 +63,10 @@ data class CassandraClient(
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Disconnecting..." }
             session?.close()
             session = null
-            _connectionState.value = ConnectionState.Disconnected
+            _connectionState.value = ClientConnectionState.Disconnected
             logger.info { "Cassandra Database => ${config.connectionName} => $id => Disconnected" }
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "Cassandra Database => ${config.connectionName} => $id => Failed to disconnect => Message: ${e.message}"
             }

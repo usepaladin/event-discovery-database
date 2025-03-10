@@ -1,14 +1,13 @@
 package veridius.discover.models.client
 
 import com.zaxxer.hikari.HikariDataSource
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import veridius.discover.exceptions.NoActiveConnectionFound
 import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.ForeignKey
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.util.configuration.HikariTableConfigurationBuilder
 import veridius.discover.util.connection.HikariConnectionConfigBuilder
@@ -27,19 +26,26 @@ data class PostgresClient(
     override val hikariConfig = generateHikariConfig(config, HikariConnectionConfigBuilder.HikariDatabaseType.POSTGRES)
 
     override fun connect(): DataSource {
-        if (_connectionState.value == ConnectionState.Connected && datasource != null) {
+        if (_connectionState.value == ClientConnectionState.Connected && datasource != null) {
             return datasource!!
         }
 
         try {
             logger.info { "Postgres Database => ${this.config.connectionName} => $id => Connecting..." }
-            _connectionState.value = ConnectionState.Connecting
+            _connectionState.value = ClientConnectionState.Connecting
             datasource = HikariDataSource(hikariConfig)
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ClientConnectionState.Connected
             logger.info { "Postgres Database => ${this.config.connectionName} => $id => Connected" }
+
+            //TODO: Ensure user has appropriate roles and permissions for Debezium connector:
+            // - Replication permissions
+            // - SELECT permissions on tables to be monitored
+            // - See https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-permissions
+
+
             return datasource!!
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "Postgres Database => ${this.config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
@@ -51,9 +57,9 @@ data class PostgresClient(
         try {
             datasource?.connection?.close()
             datasource = null
-            _connectionState.value = ConnectionState.Disconnected
+            _connectionState.value = ClientConnectionState.Disconnected
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) { "Postgres Database => ${this.config.connectionName} => $id => Failed to disconnect => Message: ${e.message}" }
         }
     }
@@ -122,6 +128,11 @@ data class PostgresClient(
 
     override fun configure() {
         TODO("Not yet implemented")
+    }
+
+    override fun clientConfigValidation() {
+        // No additional validation needed for Postgres clients
+        // This method is implemented to satisfy the DatabaseClient interface
     }
 
 

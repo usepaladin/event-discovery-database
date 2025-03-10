@@ -45,16 +45,21 @@ dependencies {
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 
     // Debezium
     implementation("io.debezium:debezium-core:3.0.7.Final")
     implementation("io.debezium:debezium-api:3.0.7.Final")
+    implementation("io.debezium:debezium-embedded:3.0.7.Final")
     implementation("io.debezium:debezium-connector-mongodb:3.0.7.Final")
     implementation("io.debezium:debezium-connector-mysql:3.0.7.Final")
     implementation("io.debezium:debezium-connector-postgres:3.0.7.Final")
+
+
+    implementation("org.antlr:antlr4-runtime:4.13.0")
+    implementation("org.antlr:antlr4:4.13.0") // Ensure the tool version matches
+
 
     // Database Connections
 
@@ -76,7 +81,10 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.33")
 
     // Logging
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0") // Updated to latest
+    implementation("ch.qos.logback:logback-classic:1.5.11") // Explicit Logback
+    implementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency.
+
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -91,6 +99,8 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("io.debezium:debezium-testing-testcontainers:3.0.7.Final")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("ch.qos.logback:logback-classic:1.5.11") // Explicit Logback in test scope
+    testImplementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency in test scope.
 }
 
 dependencyManagement {
@@ -129,6 +139,7 @@ protobuf {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
 }
 
 tasks.test {

@@ -6,24 +6,27 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Kotlin](https://img.shields.io/badge/Kotlin-v1.9+-orange.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
 
-**Service Overview**
+## Service Overview
 
-The **Data Event Discovery Service (DDS)** is one of the Core tools within the planned Veridius lineup. Its primary
+The **Data Event Discovery Service (DDS)** is one of the Core tools that is available for use within the Veridius EDAasS
+suite. Its primary
 responsibility is to automatically discover and capture data changes from user-configured data sources and transform
-these changes into structured events published to a Kafka broker. The DDS is designed to be a key component in the
-Veridius event-driven architecture, enabling the development of reactive applications that respond to real-time data
-changes.
+these changes into structured events published to a Kafka broker. The service is designed to be highly extensible,
+robust and monitorable, allowing it to be a key tool in allowing businesses to develop scalable, reactive services and
+applications.
 
-DDS acts as the crucial bridge connecting user's existing data infrastructure to the event-driven architecture,
-enabling "zero-config" automated event generation and streaming for building reactive applications.
+DDS acts as a crucial bridge connecting user's existing data infrastructure to the event-driven architecture,
+enabling simplistic automated event generation and streaming for building reactive applications and scalable services.
 
-**Key Features**
+## Key Features
 
 - **Automated Event Discovery:** Intelligently detects relevant data changes without requiring manual instrumentation of
   user applications.
 - **Database Change Data Capture (CDC):** Leverages Debezium Embedded Engine to capture real-time changes (CRUD
   operations) from various database types
-    - MySQL, PostgreSQL, MongoDB, Cassandra (with more support planned).
+    - MySQL, PostgreSQL, MariaDB, Oracle, SQL Server
+        - **(Support for more databases will be added in future releases)**
+
 - **Standardized Event Generation:** Transforms detected changes into structured events with a consistent schema
   (compatible with Avro, Protobuf, or other serialization formats).
 - **Event Publishing to Event Bus:** Efficiently publishes generated events to a specified Kafka broker for downstream
@@ -34,95 +37,231 @@ enabling "zero-config" automated event generation and streaming for building rea
 - **Robust Error Handling and Monitoring:** Implements comprehensive error handling and exposes metrics for monitoring
   service health and performance.
 
-**Technological Stack**
+# Database Pre-requisites
 
-**Getting Started - Development Setup**
+## Postgres
 
-1. **Prerequisites:**
+### Altering Database Configurations
 
-    - [JDK 17 or later](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html)
-    - [Gradle](https://gradle.org/install/) (or use Gradle wrapper included in the project)
-    - [Docker](https://www.docker.com/get-started) (for containerization)
-    - (Optionally) A running instance of [Kafka](https://kafka.apache.org/)
-      and [Schema Registry](https://docs.confluent.io/platform/schema-registry/overview/index.html) for local testing (
-      if you have dependencies on these already set up). For basic development, you might use in-memory mocks or
-      testcontainers initially.
+- Debezium for PostgreSQL uses logical replication with pgoutput (recommended) or wal2json. You must enable logical
+  replication.
 
-2. **Clone the Repository:**
+```postgresql
+ALTER SYSTEM SET wal_level = logical;
+ALTER SYSTEM SET max_replication_slots = 10;
+ALTER SYSTEM SET max_wal_senders = 10;
+SELECT pg_reload_conf();
+```
 
-   ```bash
-   git clone git@github.com:VeridiusApp/event-discovery-database.git event-discovery
-   cd event-discovery
-   ```
+### User Permissions
 
-3. **Build the Service:**
+- When using pgoutput, this service must operate within the database as a role/user with the following permissions
+    - REPLICATION
+    - LOGIN
 
-   ```bash
-   ./gradlew build
-   ```
+- A role for this would look like:
 
-   (or `gradlew.bat build` on Windows)
+```postgresql
+CREATE ROLE '<name>' WITH REPLICATION LOGIN PASSWORD '<password>';
+```
 
-4. **Run the Service (Locally - for Development/Testing):**
+- The role would then also need to be granted access to the database and schema(s) that are to be monitored:
 
-   ```bash
-   ./gradlew run
-   ```
+```postgresql
+GRANT CONNECT ON DATABASE mydatabase TO '<name>';
 
-   or run directly from your IDE (e.g., IntelliJ IDEA) after importing the Gradle project.
+-- Repeat for all schemas that are to be monitored
+GRANT USAGE ON SCHEMA public TO '<name>';
+GRANT SELECT ON ALL TABLES IN SCHEMA '<schema>' TO '<name>';
+```
 
-   **Note:** For local development, you'll need to configure the EDS to connect to your local database instances and
-   Event Bus Core (if you have a mock or local setup for the Event Bus). See the [Configuration](#configuration) section
-   below.
+- The role can then be used to configure the service and monitor the database successfully.
 
-**Configuration**
+## MySQL
 
-The EDS service is configured via [Typesafe Config](https://github.com/lightbend/config). Configuration settings are
-typically loaded from:
+### Altering Database Configurations
 
-- `application.conf` (in `src/main/resources/`) - Default configurations.
-- Environment variables - For overriding configurations in different environments.
+- Change monitoring on MySQL utilizes the MySQL binary log. To enable this, the following steps must be taken:
+    - Ensure that the MySQL server is configured to use binary logging. There are numerous ways of doing this, depending
+      on your platform (i.e., local deployment vs. cloud hosted)
 
-**Key Configuration Parameters:**
+- You can determine if binary logging is enabled by running the following command:
 
-- Ill detail configuration when i actually get a service to build lol
+```mysql
+-- returns ON or OFF
 
-See the `application.conf` file in `src/main/resources/` for a full list of configuration options and their default
-values.
+-- for MySQL 5.x
+SELECT variable_value as "BINARY LOGGING STATUS (log-bin) ::"
+FROM information_schema.global_variables
+WHERE variable_name = 'log_bin';
 
-**Running in Docker**
+-- for MySQL 8.x
+SELECT variable_value as "BINARY LOGGING STATUS (log-bin) ::"
+FROM performance_schema.global_variables
+WHERE variable_name = 'log_bin'; 
+```
 
-1. **Build the Docker Image:**
+#### Query Console (Temporary)
 
-   ```bash
-   ./gradlew dockerBuild
-   ```
+```mysql
+SET GLOBAL server_id = 1;
+SET GLOBAL log_bin = 'mysql-bin';
+SET GLOBAL binlog_format = 'ROW';
+SET GLOBAL binlog_row_image = 'FULL';
+```
 
-   This will build a Docker image for the EDS service.
+- You can alter your global configuration values, however, upon server restart, these values will be lost. To make these
+  changes permanent.
 
-2. **Run the Docker Container:**
-   ```bash
-   docker run -d \
-     -e EDS_INSTANCE_ID="your-instance-id" \ # Replace with your instance ID
-     -e METADATA_DATABASE_JDBC_URL="..." \ # Configure Metadata DB connection via env vars
-     -e METADATA_DATABASE_USERNAME="..." \
-     -e METADATA_DATABASE_PASSWORD="..." \
-     -e EVENTBUS_KAFKA_BOOTSTRAP_SERVERS="..." \ # Kafka brokers for Event Bus
-     -e SCHEMA_REGISTRY_URL="..." \ # Schema Registry URL
-     your-eds-docker-image:latest
-   ```
-   **Important:**
-    - Replace placeholder environment variables with your actual configuration values.
-    - Ensure the EDS container has network access to the Metadata Database, Kafka brokers, Schema Registry, and the user
-      data sources it needs to monitor (databases, APIs - remember to use `host.docker.internal` or appropriate network
-      addressing for local setups, and proper service discovery in deployed environments).
-    - For production deployments, consider using a container orchestration platform like Kubernetes.
+#### Configuration File (Permanent)
 
-**Contributing**
+1. Locate MySQL Configuration File
+   Linux/macOS: /etc/mysql/my.cnf or /etc/my.cnf
+   Windows: C:\ProgramData\MySQL\MySQL Server X.X\my.ini
+2. Edit my.cnf or my.ini and Add the Following
+
+```text
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+binlog_row_image=FULL
+expire_logs_days=7
+```
+
+3. Restart MySQL to Apply the Changes
+
+``` shell
+sudo systemctl restart mysql
+# or..
+sudo service mysql restart
+```
+
+- Alternatively, on Windows:
+    1. Open the Services application
+    2. Locate MySQL
+    3. Restart the service
+
+Most cloud providers will not necessarily allow you to directly edit the configuration file. Instead, you can use
+inbuilt tools and settings to make these changes.
+
+#### AWS RDS
+
+1. Go to the AWS RDS Console.
+2. Select Parameter Groups → Create Parameter Group.
+3. Modify the following parameters:
+    - binlog_format = ROW
+    - binlog_row_image = FULL
+    - log_bin = mysql-bin (Not always needed, as RDS enables it by default)
+    - expire_logs_days = 7
+    - server_id = 1 (Must be unique across replicas)
+4. Apply the parameter group to your MySQL instance.
+5. Restart the instance for changes to take effect.
+
+If you run MySQL on Amazon RDS, you must enable automated backups for your database instance for binary logging to
+occur.
+If the database instance is not configured to perform automated backups, the binlog is disabled, even if you apply the
+settings described in the previous steps.
+
+#### Google Cloud SQL
+
+1. Open Cloud SQL in Google Cloud Console.
+2. Select your MySQL instance.
+3. Go to Configuration > Edit Flags.
+    - Add or update the following:
+    - binlog_format = ROW
+    - binlog_row_image = FULL
+    - expire_logs_days = 7
+    - server_id = 1
+4. Restart the instance to apply the changes.
+
+#### Azure Database for MySQL
+
+1. Go to Azure Portal → MySQL Server.
+2. Navigate to Settings > Server parameters.
+3. Find the following parameters and update them:
+    - binlog_format = ROW
+    - binlog_row_image = FULL
+    - expire_logs_days = 7
+    - server_id = 1
+4. Save the changes and restart the MySQL server.
+
+#### Self Hosted on VPS
+
+- If you're running MySQL on a cloud VM (e.g., AWS EC2, GCP Compute Engine, DigitalOcean Droplet), you do have access to
+  my.cnf (as you are just accessing a remote instance). In this case, modify it as follows:
+
+1. SSH into your server.
+
+```shell
+ssh user@your-server-ip
+```
+
+2. Open my.cnf in a text editor (e.g., nano, vim).
+
+```shell
+sudo nano /etc/mysql/my.cnf
+```
+
+3. Add these lines under [mysqld]:
+
+```text
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+binlog_row_image=FULL
+expire_logs_days=7
+```
+
+4. Save the file and restart MySQL.
+
+```shell
+sudo systemctl restart mysql
+```
+
+### Verifying Configuration Changes
+
+After restarting MySQL, check if the settings are correctly applied:
+
+```mysql
+SHOW VARIABLES LIKE 'server_id';
+SHOW VARIABLES LIKE 'log_bin';
+SHOW VARIABLES LIKE 'binlog_format';
+SHOW VARIABLES LIKE 'binlog_row_image';
+SHOW VARIABLES LIKE 'expire_logs_days';
+```
+
+### User Permissions
+
+- A user should be created and be granted the follow permissions to allow access to database monitoring functionality:
+
+```mysql
+CREATE USER '<name>'@'<host>' IDENTIFIED BY '<password>';
+GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '<user>' IDENTIFIED BY '<password>';
+```
+
+- The user should also have the following permissions on the database and schema(s) that are to be monitored:
+
+```mysql
+GRANT SELECT ON *.* TO '<name>'@'%';
+```
+
+- You can then run the following to finalize the permissions:
+
+```mysql
+FLUSH PRIVILEGES;
+```
+
+## Technological Stack
+
+- Kotlin!
+
+## Contributing
 
 We welcome contributions to the Database Event Discovery Service or any other Veridius related service! Please see
 the [`CONTRIBUTING.md`](CONTRIBUTING.md) file for guidelines on how to contribute.
 
-**License**
+## License
 
 This project is licensed under the [Apache 2.0 License](LICENSE). See the `LICENSE` file for details.

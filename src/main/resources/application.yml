@@ -6,6 +6,9 @@ discover:
 server:
   port: 8069
 spring:
+  jmx:
+    enabled: true
+    unique-names: true
   application:
     name: DDS
   config:
@@ -17,11 +20,22 @@ spring:
 encryption:
   key: ${TEMP_ENCRYPTION_KEY}
 management:
+  jmx:
+    metrics:
+      export:
+        enabled: true
+  server:
+    address: 0.0.0.0
   endpoints:
     jmx:
       exposure:
         include: "*"
+      domain: dds
     web:
       exposure:
         include: "health,info,metrics"
-
+debezium:
+  offset-storage-dir: /tmp/debezium/offsets
+  offset-storage-file-name: debezium-offsets.dat
+  history-dir: /tmp/debezium/history
+  history-file-name: debezium-history.dat

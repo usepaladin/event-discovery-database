@@ -1,11 +1,13 @@
 package veridius.discover.entities.connection
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 import veridius.discover.entities.configuration.TableMonitoringConfigurationEntity
 import veridius.discover.models.common.DatabaseType
 import java.time.ZonedDateTime
 import java.util.*
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(
     name = "database_connection",
@@ -50,8 +52,8 @@ data class DatabaseConnectionEntity(
     @Column(name = "database_name", nullable = false)
     var databaseName: String,
 
-    @Column(name = "username")
-    var user: String? = null,
+    @Column(name = "username", nullable = false)
+    var user: String,
 
     @Column(name = "password")
     var password: String? = null,

@@ -1,7 +1,14 @@
 package veridius.discover.services.connection
 
 
-import io.mockk.*
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
@@ -9,34 +16,49 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import mu.KLogger
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import veridius.discover.pojo.client.ConnectionState
+import org.slf4j.LoggerFactory
 import veridius.discover.pojo.client.DatabaseClient
+import veridius.discover.pojo.client.DatabaseClient.ClientConnectionState
 import veridius.discover.utils.TestDatabaseConfigurations
+import veridius.discover.utils.TestLogAppender
 import java.util.*
 
 @ExperimentalCoroutinesApi
 class ConnectionMonitoringServiceTest {
     private lateinit var connectionService: ConnectionService
     private lateinit var monitoringService: ConnectionMonitoringService
-    private lateinit var logger: KLogger
+    private lateinit var testLogAppender: TestLogAppender
     private val testDispatcher = UnconfinedTestDispatcher()
+
+    private val logger: KLogger = KotlinLogging.logger {}
+
+    // Underlying logback logger
+    private lateinit var logbackLogger: Logger
 
     @BeforeEach
     fun setup() {
         connectionService = mockk<ConnectionService>()
-        logger = mockk<KLogger>(relaxed = true)
+        logbackLogger = LoggerFactory.getLogger(logger.name) as Logger
+        testLogAppender = TestLogAppender.factory(logbackLogger, Level.DEBUG)
         monitoringService = ConnectionMonitoringService(connectionService, logger, testDispatcher)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        logbackLogger.detachAppender(testLogAppender)
+        testLogAppender.stop()
     }
 
     @Test
     fun `test monitoring service detects disconnected clients`() = runTest {
         val config = TestDatabaseConfigurations.createPostgresConfig()
         val mockClient = mockk<DatabaseClient>()
-        val connectionStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Disconnected)
+        val connectionStateFlow: MutableStateFlow<ClientConnectionState> =
+            MutableStateFlow(ClientConnectionState.Disconnected)
 
         coEvery { mockClient.id } returns config.id
         coEvery { mockClient.config } returns config
@@ -45,7 +67,7 @@ class ConnectionMonitoringServiceTest {
         every { mockClient.connectionState } returns connectionStateFlow
 
         coEvery { mockClient.connect() } answers {
-            connectionStateFlow.value = ConnectionState.Connected
+            connectionStateFlow.value = ClientConnectionState.Connected
             Any()
         }
 
@@ -59,41 +81,17 @@ class ConnectionMonitoringServiceTest {
     }
 
     @Test
-    fun `test monitoring service ignores paused clients`() = runTest {
-        val config = TestDatabaseConfigurations.createPostgresConfig()
-        val mockClient = mockk<DatabaseClient>()
-        val connectionStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Paused)
-
-        coEvery { mockClient.id } returns config.id
-        coEvery { mockClient.config } returns config
-        coEvery { mockClient.isConnected() } returns false
-        // Return our MutableStateFlow
-        every { mockClient.connectionState } returns connectionStateFlow
-
-        coEvery { mockClient.connect() } answers {
-            connectionStateFlow.value = ConnectionState.Connected
-            Any()
-        }
-
-        coEvery { connectionService.getAllClients() } returns listOf(mockClient)
-
-        // Start monitoring
-        monitoringService.monitorDatabaseConnections()
-
-        // Verify that the monitoring service detected the disconnected state and attempted to reconnect
-        coVerify(exactly = 0, timeout = 5000) { mockClient.connect() }
-    }
-
-    @Test
     fun `test monitoring service with multiple clients and connection failure`() = runTest(testDispatcher) {
         val config1 = TestDatabaseConfigurations.createPostgresConfig()
         val config2 = TestDatabaseConfigurations.createPostgresConfig()
 
         //Mock Multiple Database Clients
         val mockClient1 = mockk<DatabaseClient>()
-        val connectionStateFlow1: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Disconnected)
+        val connectionStateFlow1: MutableStateFlow<ClientConnectionState> =
+            MutableStateFlow(ClientConnectionState.Disconnected)
         val mockClient2 = mockk<DatabaseClient>()
-        val connectionStateFlow2: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Disconnected)
+        val connectionStateFlow2: MutableStateFlow<ClientConnectionState> =
+            MutableStateFlow(ClientConnectionState.Disconnected)
 
         //Mock Configuration
         every { mockClient1.id } returns config1.id
@@ -111,7 +109,7 @@ class ConnectionMonitoringServiceTest {
 
         // Mock Client 1 will connect successfully
         coEvery { mockClient1.connect() } answers {
-            connectionStateFlow1.value = ConnectionState.Connected
+            connectionStateFlow1.value = ClientConnectionState.Connected
             Any()
         }
 
@@ -126,16 +124,14 @@ class ConnectionMonitoringServiceTest {
         coVerify(exactly = 1, timeout = 5000) { mockClient2.connect() } //verify client 2 attempts to connect
 
         advanceTimeBy(10000)
-        // Expect one logging exception (Client 2 Connection)
-        verify(exactly = 1, timeout = 10000) {
-            logger.error(
-                t = any(),
-                msg = any()
-            )
-
-        } //verify error log
-        assertTrue(connectionStateFlow1.value == ConnectionState.Connected) //check the mutable state flow
+        assertTrue(connectionStateFlow1.value == ClientConnectionState.Connected) //check the mutable state flow
         monitoringService.endMonitoring()
+//         Expect one logging exception (Client 2 Connection)
+        assertTrue {
+            testLogAppender.logs.any {
+                it.level == Level.ERROR && it.message.contains("Database Reconnect Unsuccessful")
+            }
+        }
     }
 
 
@@ -143,7 +139,8 @@ class ConnectionMonitoringServiceTest {
     fun `Test monitoring service repeated polls`() = runTest(testDispatcher) {
         val config = TestDatabaseConfigurations.createPostgresConfig()
         val mockClient = mockk<DatabaseClient>()
-        val connectionStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Disconnected)
+        val connectionStateFlow: MutableStateFlow<ClientConnectionState> =
+            MutableStateFlow(ClientConnectionState.Disconnected)
 
         coEvery { mockClient.id } returns config.id
         coEvery { mockClient.config } returns config
@@ -153,12 +150,12 @@ class ConnectionMonitoringServiceTest {
 
         every { mockClient.connectionState } returns connectionStateFlow
 
-        every { mockClient.updateConnectionState(ConnectionState.Connected) } answers {
-            connectionStateFlow.value = ConnectionState.Connected
+        every { mockClient.updateConnectionState(ClientConnectionState.Connected) } answers {
+            connectionStateFlow.value = ClientConnectionState.Connected
         }
 
         coEvery { mockClient.connect() } answers {
-            connectionStateFlow.value = ConnectionState.Connected
+            connectionStateFlow.value = ClientConnectionState.Connected
             Any()
         }
         coEvery { connectionService.getAllClients() } returns listOf(mockClient)
@@ -194,7 +191,8 @@ class ConnectionMonitoringServiceTest {
     fun `test observeConnectionStates with multiple state changes`() = runTest(testDispatcher) {
         val config1 = TestDatabaseConfigurations.createPostgresConfig()
         val mockClient1 = mockk<DatabaseClient>()
-        val connectionStateFlow1: MutableStateFlow<ConnectionState> = MutableStateFlow(ConnectionState.Disconnected)
+        val connectionStateFlow1: MutableStateFlow<ClientConnectionState> =
+            MutableStateFlow(ClientConnectionState.Disconnected)
 
         every { mockClient1.id } returns config1.id
         every { mockClient1.config } returns config1
@@ -202,17 +200,16 @@ class ConnectionMonitoringServiceTest {
 
         coEvery { connectionService.getAllClients() } returns listOf(mockClient1)
 
-        val states = mutableListOf<Map<UUID, ConnectionState>>()
+        val states = mutableListOf<Map<UUID, ClientConnectionState>>()
         val job = launch { //Need to launch this to collect in the background
             monitoringService.observeConnectionStates().toList(states)
         }
 
 
-        connectionStateFlow1.value = ConnectionState.Connecting  // Simulate state changes
-        connectionStateFlow1.value = ConnectionState.Connected
-        connectionStateFlow1.value = ConnectionState.Disconnected
-        connectionStateFlow1.value = ConnectionState.Connected
-        connectionStateFlow1.value = ConnectionState.Paused
+        connectionStateFlow1.value = ClientConnectionState.Connecting  // Simulate state changes
+        connectionStateFlow1.value = ClientConnectionState.Connected
+        connectionStateFlow1.value = ClientConnectionState.Disconnected
+        connectionStateFlow1.value = ClientConnectionState.Connected
 
 
         advanceTimeBy(1000)  // Give the flow time to process
@@ -222,11 +219,10 @@ class ConnectionMonitoringServiceTest {
         assertTrue(states.size >= 5)
         //Check the states
         assertTrue(states[0].isEmpty())
-        assertTrue(states[1][config1.id] == ConnectionState.Disconnected)
-        assertTrue(states[2][config1.id] == ConnectionState.Connecting)
-        assertTrue(states[3][config1.id] == ConnectionState.Connected)
-        assertTrue(states[4][config1.id] == ConnectionState.Disconnected)
-        assertTrue(states[5][config1.id] == ConnectionState.Connected)
-        assertTrue(states[6][config1.id] == ConnectionState.Paused)
+        assertTrue(states[1][config1.id] == ClientConnectionState.Disconnected)
+        assertTrue(states[2][config1.id] == ClientConnectionState.Connecting)
+        assertTrue(states[3][config1.id] == ClientConnectionState.Connected)
+        assertTrue(states[4][config1.id] == ClientConnectionState.Disconnected)
+        assertTrue(states[5][config1.id] == ClientConnectionState.Connected)
     }
-} 
+}

@@ -1,8 +1,9 @@
 package veridius.discover.services.connection
 
+import io.github.oshai.kotlinlogging.KLogger
+import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
-import mu.KLogger
-import org.springframework.beans.factory.DisposableBean
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import veridius.discover.exceptions.ConnectionJobNotFound
 import veridius.discover.exceptions.DatabaseConnectionNotFound
@@ -14,13 +15,22 @@ import veridius.discover.models.common.DatabaseType
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
 import veridius.discover.pojo.client.DatabaseClient
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
+import java.util.concurrent.TimeUnit
+
+/*
+    Todo: More connection support
+        - Oracle
+        - MariaDB
+ */
 
 @Service
-class ConnectionService(private val logger: KLogger, private val dispatcher: CoroutineDispatcher) : CoroutineScope,
-    DisposableBean {
-    override val coroutineContext: CoroutineContext = SupervisorJob() + dispatcher
+class ConnectionService(
+    private val logger: KLogger,
+    @Qualifier("coroutineDispatcher") private val dispatcher: CoroutineDispatcher
+) {
+    private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
     private val databaseClients = ConcurrentHashMap<UUID, DatabaseClient>()
     private val clientConnectionJobs = ConcurrentHashMap<UUID, Job>()
@@ -43,7 +53,7 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
 
         // Attempt client connection if autoConnect is true
         if (autoConnect) {
-            clientConnectionJobs[connection.id] = launch {
+            clientConnectionJobs[connection.id] = scope.launch {
                 try {
                     client.connect()
                     logger.info { "Connected to ${client.id}" }
@@ -56,7 +66,7 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
         return client
     }
 
-    fun getClient(id: UUID): DatabaseClient? {
+    fun getClient(id: UUID): DatabaseClient {
         val connection: DatabaseClient = databaseClients[id] ?: throw DatabaseConnectionNotFound(
             "Active database connection not found \n" +
                     "Database ID: $id"
@@ -138,9 +148,27 @@ class ConnectionService(private val logger: KLogger, private val dispatcher: Cor
     }
 
 
-    override fun destroy() {
-        logger.info { "ConnectionService is destroying, cancelling coroutine scope..." }
-        cancel() // Cancel the CoroutineScope when the bean is destroyed
-        logger.info { "Coroutine scope cancelled." }
+    @PreDestroy
+    fun destroy() {
+        // Use a CompletableFuture to handle the async disconnection
+        val future = CompletableFuture<Unit>()
+        scope.launch {
+            try {
+                disconnectAll(removeConnections = true)
+                future.complete(Unit)
+                scope.cancel()
+            } catch (e: Exception) {
+                logger.error(e) { "Error during service shutdown" }
+                future.completeExceptionally(e)
+            }
+        }
+
+        try {
+            // Block with a reasonable timeout to ensure cleanup completes
+            future.get(30, TimeUnit.SECONDS)
+            logger.info { "Connection Service => All connections successfully closed" }
+        } catch (e: Exception) {
+            logger.error(e) { "Connection Service => Failed to gracefully close all connections" }
+        }
     }
 }

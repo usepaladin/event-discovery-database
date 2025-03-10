@@ -4,7 +4,7 @@ import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.MongoIterable
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.Document
 import org.bson.types.ObjectId
 import veridius.discover.exceptions.NoActiveConnectionFound
@@ -12,7 +12,6 @@ import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.util.connection.ConnectionBuilder
 import java.util.*
@@ -30,20 +29,20 @@ data class MongoClient(
         validateConfig()
         try {
             if (client != null) {
-                _connectionState.value = ConnectionState.Connected
+                _connectionState.value = ClientConnectionState.Connected
                 client!!
             }
 
-            _connectionState.value = ConnectionState.Connecting
+            _connectionState.value = ClientConnectionState.Connecting
             logger.info { "MongoDB Database => ${config.connectionName} => $id => Connecting..." }
             val connectionBuilder = ConnectionBuilder(config)
             val connectionURL = connectionBuilder.buildConnectionURL()
             client = MongoClients.create(connectionURL)
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ClientConnectionState.Connected
             logger.info { "MongoDB Database => ${config.connectionName} => $id => Connected" }
             return client!!
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) { "MongoDB Database => ${config.connectionName} => $id => Failed to connect => Message: ${e.message}" }
             throw e
         }
@@ -54,10 +53,10 @@ data class MongoClient(
             logger.info { "MongoDB Database => ${config.connectionName} => $id => Disconnecting..." }
             client?.close()
             client = null
-            _connectionState.value = ConnectionState.Disconnected
+            _connectionState.value = ClientConnectionState.Disconnected
             logger.info { "MongoDB Database => ${config.connectionName} => $id => Disconnected" }
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) { "MongoDB Database => ${config.connectionName} => $id => Failed to disconnect => Message: ${e.message}" }
             throw e
         }

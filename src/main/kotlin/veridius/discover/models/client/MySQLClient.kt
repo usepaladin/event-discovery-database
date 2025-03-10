@@ -2,14 +2,13 @@ package veridius.discover.models.client
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import veridius.discover.exceptions.NoActiveConnectionFound
 import veridius.discover.models.configuration.Column
 import veridius.discover.models.configuration.DatabaseTable
 import veridius.discover.models.configuration.ForeignKey
 import veridius.discover.models.configuration.PrimaryKey
 import veridius.discover.models.connection.DatabaseConnectionConfiguration
-import veridius.discover.pojo.client.ConnectionState
 import veridius.discover.pojo.client.DatabaseClient
 import veridius.discover.util.configuration.HikariTableConfigurationBuilder
 import veridius.discover.util.connection.HikariConnectionConfigBuilder
@@ -31,13 +30,13 @@ data class MySQLClient(
         validateConfig()
         try {
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connecting..." }
-            _connectionState.value = ConnectionState.Connecting
+            _connectionState.value = ClientConnectionState.Connecting
             datasource = HikariDataSource(hikariConfig)
-            _connectionState.value = ConnectionState.Connected
+            _connectionState.value = ClientConnectionState.Connected
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Connected" }
             return datasource!!
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "MySQL Database => ${this.config.connectionName} => $id => Failed to connect => Message: ${e.message}"
             }
@@ -50,10 +49,10 @@ data class MySQLClient(
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Disconnecting..." }
             datasource?.connection?.close()
             datasource = null
-            _connectionState.value = ConnectionState.Disconnected
+            _connectionState.value = ClientConnectionState.Disconnected
             logger.info { "MySQL Database => ${this.config.connectionName} => $id => Disconnected" }
         } catch (e: Exception) {
-            _connectionState.value = ConnectionState.Error(e)
+            _connectionState.value = ClientConnectionState.Error(e)
             logger.error(e) {
                 "MySQL Database => ${this.config.connectionName} => $id => Failed to disconnect => Message: ${e.message}"
             }
@@ -120,6 +119,10 @@ data class MySQLClient(
             }
             throw ex
         }
+    }
+
+    override fun clientConfigValidation() {
+        // No additional validation required for MySQL
     }
 
     override fun configure() {
