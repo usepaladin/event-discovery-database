@@ -65,9 +65,20 @@ abstract class DatabaseMonitoringConnector(
 
     sealed class MonitoringConnectionState : ConnectionState<MonitoringConnectionState>() {
         data object Disconnected : MonitoringConnectionState()
+        data object Disconnecting : MonitoringConnectionState()
+        data object Reconnecting : MonitoringConnectionState()
         data object Connecting : MonitoringConnectionState()
         data object Connected : MonitoringConnectionState()
         data object Paused : MonitoringConnectionState()
+
+        // todo: Look into making error actionable (ie. Further details of what the error was caused by
+        // so we can implement user resolution strategies in the web client (ie. AuthenticationError, ConfigurationError, SchemaError, etc.)
+        /**
+         * etc...
+         *   data class AuthenticationError(val reason: String) : MonitoringConnectionState() // Actionable: Re-prompt for credentials
+         *   data class NetworkTimeoutError(val retryAttempts: Int) : MonitoringConnectionState() // Actionable: Retry with backoff
+         *   data class ConfigurationError(val configIssue: String) : MonitoringConnectionState() //Actionable: prevent connector running.
+         * */
         data class Error(val exception: Throwable) : MonitoringConnectionState()
     }
 }

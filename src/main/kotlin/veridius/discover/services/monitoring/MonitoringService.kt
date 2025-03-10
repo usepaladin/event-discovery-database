@@ -17,6 +17,7 @@ import veridius.discover.pojo.monitoring.DatabaseMonitoringConnector
 import veridius.discover.services.configuration.TableConfigurationService
 import veridius.discover.services.connection.ConnectionService
 import java.io.File
+import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
@@ -85,7 +86,7 @@ class MonitoringService(
             logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Monitoring Engine Instantiated and Started" }
 
         } catch (e: Exception) {
-            logger.error(e) { "CDC Monitoring Service => Database Id: $client.id => Failed to Start Monitoring Engine" }
+            logger.error(e) { "CDC Monitoring Service => Database Id: ${client.id} => Failed to Start Monitoring Engine" }
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Error(e))
         }
     }
@@ -132,16 +133,25 @@ class MonitoringService(
     fun updateMonitoringConfiguration() {}
 
     fun stopMonitoringEngine(databaseId: UUID) {
-        val engine: DebeziumEngine<ChangeEvent<String, String>> = monitoringEngines[databaseId]
-            ?: throw IllegalArgumentException("No monitoring engine found for database id: $databaseId")
+        val engine = monitoringEngines.remove(databaseId)
+
+        if (engine == null) {
+            logger.info {
+                "CDC Monitoring Service => Database Id: $databaseId => No monitoring engine found =>" +
+                        "An engine potentially does not exist with the given Id, or has already been stopped by a previous request"
+            }
+            return
+        }
 
         try {
             engine.close()
+            logger.info { "CDC Monitoring Service => Database Id: $databaseId => Monitoring Engine Stopped Successfully" }
+        } catch (e: IOException) {
+            // Log the *specific* exception (IOException here) for better diagnostics.
+            logger.error(e) { "CDC Monitoring Service => Database Id: $databaseId => Failed to close engine: ${e.message}" }
+            // Consider re-throwing, or wrapping in a custom exception, *if* higher levels need to handle this failure.
         } catch (e: Exception) {
-            logger.error(e) { "CDC Monitoring Service => Database Id: $databaseId => Failed to Stop Monitoring Engine" }
-        } finally {
-            logger.info { "CDC Monitoring Service => Database Id: $databaseId => Monitoring Engine Stopped" }
-            monitoringEngines.remove(databaseId)
+            logger.error(e) { "CDC Monitoring Service => Database Id: $databaseId => Unexpected error while stopping engine: ${e.message}" }
         }
     }
 

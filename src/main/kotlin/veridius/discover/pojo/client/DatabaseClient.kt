@@ -48,6 +48,8 @@ abstract class DatabaseClient : DatabaseConnector, TableConfigurationBuilder {
 
     sealed class ClientConnectionState : ConnectionState<ClientConnectionState>() {
         data object Disconnected : ClientConnectionState()
+        data object Disconnecting : ClientConnectionState()
+        data object Reconnecting : ClientConnectionState()
         data object Connecting : ClientConnectionState()
         data object Connected : ClientConnectionState()
         data class Error(val exception: Throwable) : ClientConnectionState()

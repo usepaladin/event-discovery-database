@@ -43,6 +43,27 @@ object TestColumnConfigurations {
         updatedAt = ZonedDateTime.now()
     )
 
+    /**
+     * Generate a sample table column configuration for
+     * when internal data is not necessary during testing
+     * just good to have a sample column configuration
+     */
+    fun generateSampleTableColumn(): Pair<PrimaryKey, List<TableColumnConfiguration>> {
+        // Mock table configurations
+        val primaryKey = PrimaryKey(
+            columns = listOf("id"),
+            name = "test_table_pkey"
+        )
+
+        val columns = listOf(
+            createMockColumn("id", "int", false),
+            createMockColumn("name", "varchar", true),
+            createMockColumn("age", "int", true)
+        )
+
+        return Pair(primaryKey, columns)
+    }
+
     fun createMockColumn(name: String, type: String, nullable: Boolean = true): TableColumnConfiguration {
         return TableColumnConfiguration(
             name = name,
