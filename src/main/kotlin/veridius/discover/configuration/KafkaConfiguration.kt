@@ -12,6 +12,4 @@ class KafkaConfiguration {
     fun getKafkaBootstrapServers(): String {
         return kafkaBootstrapServers
     }
-
-
 }

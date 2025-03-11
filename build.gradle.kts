@@ -45,6 +45,9 @@ dependencies {
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.cloud:spring-cloud-stream")
+    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
+    testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 
@@ -95,7 +98,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.13.17")
     testImplementation("org.springframework.grpc:spring-grpc-test")
-    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("io.debezium:debezium-testing-testcontainers:3.0.7.Final")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

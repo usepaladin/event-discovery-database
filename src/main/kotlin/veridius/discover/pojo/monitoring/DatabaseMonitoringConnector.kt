@@ -11,7 +11,8 @@ import java.util.*
 
 abstract class DatabaseMonitoringConnector(
     private val storageConfig: DebeziumConfigurationProperties,
-    private val kafkaBootstrapServers: String
+    private val kafkaBootstrapServers: String,
+    private val storageBackend: StorageBackend
 ) {
 
 
@@ -26,7 +27,7 @@ abstract class DatabaseMonitoringConnector(
     }
 
     protected fun commonProps(): Properties {
-        return Properties().apply {
+        val props: Properties = Properties().apply {
             put("offset.storage", FileOffsetBackingStore::class.java.name)
             put(
                 "offset.storage.file.filename",
@@ -42,11 +43,16 @@ abstract class DatabaseMonitoringConnector(
             put("offset.flush.timeout.ms", "5000")
             put("offset.flush.size", "10000")
             put("offset.flush.count", "10000")
-            put("database.history.kafka.bootstrap.servers", kafkaBootstrapServers)
-            put("database.history.kafka.topic", "dbhistory.${client.config.connectionName}")
+//            put("database.history.kafka.bootstrap.servers", kafkaBootstrapServers)
+//            put("database.history.kafka.topic", "dbhistory.${client.config.connectionName}")
             put("database.history.kafka.recovery.poll.interval.ms", "500")
             put("include.schema.changes", "true")
         }
+
+        
+        storageBackend.applyProperties(props)
+
+        return props
     }
 
     /**
@@ -61,6 +67,7 @@ abstract class DatabaseMonitoringConnector(
      */
     abstract fun buildTableColumnList(): String
     abstract fun getConnectorProps(): Properties
+
 
     sealed class MonitoringConnectionState {
         data object Disconnected : MonitoringConnectionState()
