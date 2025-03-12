@@ -8,7 +8,7 @@
 
 ## Service Overview
 
-The **Data Event Discovery Service (DDS)** is one of the Core tools that is available for use within the Veridius EDAasS
+The **Data Event Discovery Service (DDS)** is one of the Core tools that is available for use within the paladin EDAasS
 suite. Its primary
 responsibility is to automatically discover and capture data changes from user-configured data sources and transform
 these changes into structured events published to a Kafka broker. The service is designed to be highly extensible,
@@ -259,7 +259,7 @@ FLUSH PRIVILEGES;
 
 ## Contributing
 
-We welcome contributions to the Database Event Discovery Service or any other Veridius related service! Please see
+We welcome contributions to the Database Event Discovery Service or any other paladin related service! Please see
 the [`CONTRIBUTING.md`](CONTRIBUTING.md) file for guidelines on how to contribute.
 
 ## License

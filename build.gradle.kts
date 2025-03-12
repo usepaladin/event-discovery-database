@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.jpa") version "1.9.25"
 }
 
-group = "Veridius"
+group = "paladin"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -31,7 +31,7 @@ repositories {
 
 extra["snippetsDir"] = file("build/generated-snippets")
 extra["springGrpcVersion"] = "0.3.0"
-val springCloudVersion by extra("2024.0.0")
+
 
 dependencies {
 
@@ -45,9 +45,6 @@ dependencies {
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.cloud:spring-cloud-stream")
-    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
-    testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 
@@ -108,7 +105,7 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.grpc:spring-grpc-dependencies:${property("springGrpcVersion")}")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+
     }
 }
 
