@@ -11,12 +11,12 @@ import io.mockk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.slf4j.LoggerFactory
-import paladin.discover.configuration.KafkaConfiguration
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.services.configuration.TableConfigurationService
 import paladin.discover.services.connection.ConnectionService
+import paladin.discover.services.producer.ProducerService
 import paladin.discover.utils.TestColumnConfigurations
 import paladin.discover.utils.TestDatabaseConfigurations
 import paladin.discover.utils.TestLogAppender
@@ -34,8 +34,8 @@ class MonitoringServiceTest {
     private lateinit var debeziumConfigProperties: DebeziumConfigurationProperties
     private lateinit var connectionService: ConnectionService
     private lateinit var configurationService: TableConfigurationService
-    private lateinit var kafkaConfiguration: KafkaConfiguration
     private lateinit var monitoringService: MonitoringService
+    private lateinit var producerService: ProducerService
     private lateinit var mockEngine: DebeziumEngine<ChangeEvent<String, String>>
     private lateinit var mockExecutor: ExecutorService
     private lateinit var testAppender: TestLogAppender
@@ -48,9 +48,8 @@ class MonitoringServiceTest {
         // Initialize mocks
         debeziumConfigProperties = mockk<DebeziumConfigurationProperties>()
         connectionService = mockk<ConnectionService>()
-        kafkaConfiguration = mockk<KafkaConfiguration>()
         configurationService = mockk<TableConfigurationService>()
-
+        producerService = mockk<ProducerService>()
         mockEngine = mockk<DebeziumEngine<ChangeEvent<String, String>>>()
 
         // Initialize service
@@ -58,6 +57,7 @@ class MonitoringServiceTest {
             debeziumConfigProperties,
             connectionService,
             configurationService,
+            producerService,
             kafkaConfiguration,
             logger
         )

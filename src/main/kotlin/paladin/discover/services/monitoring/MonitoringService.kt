@@ -6,7 +6,6 @@ import io.debezium.engine.format.Json
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Service
-import paladin.discover.configuration.KafkaConfiguration
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.models.common.DatabaseType
 import paladin.discover.models.configuration.TableConfiguration
@@ -16,7 +15,7 @@ import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.configuration.TableConfigurationService
 import paladin.discover.services.connection.ConnectionService
-import java.io.File
+import paladin.discover.services.producer.ProducerService
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -36,9 +35,10 @@ class MonitoringService(
     private val debeziumConfigurationProperties: DebeziumConfigurationProperties,
     private val connectionService: ConnectionService,
     private val configurationService: TableConfigurationService,
-    private val kafkaConfiguration: KafkaConfiguration,
+    private val producerService: ProducerService,
     private val logger: KLogger,
-) {
+
+    ) {
 
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
     private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<ChangeEvent<String, String>>>()
@@ -110,15 +110,13 @@ class MonitoringService(
             DatabaseType.POSTGRES -> PostgresConnector(
                 client,
                 configuration,
-                debeziumConfigurationProperties,
-                kafkaConfiguration.getKafkaBootstrapServers()
+                debeziumConfigurationProperties
             )
 
             DatabaseType.MYSQL -> MySQLConnector(
                 client,
                 configuration,
-                debeziumConfigurationProperties,
-                kafkaConfiguration.getKafkaBootstrapServers()
+                debeziumConfigurationProperties
             )
 
             else -> {
@@ -156,7 +154,11 @@ class MonitoringService(
      * Notification handler upon observation of a Database record alteration
      */
     private fun handleObservation(record: ChangeEvent<String, String>) {
-        logger.info { "CDC Monitoring Service => Database Id: ${record.key()} => Record Observed: ${record.value()}" }
+        logger.info { "CDC Monitoring Service => Database Id: ${record.key()} => Record Observed" }
+        println(record)
+        // Default topic naming schema: <schema>.<table>.<operation>
+        // todo: Allow custom naming for the topic schemas
+//        val topic: String = "${record.key().schema()}.${record.key().table()}.${record.value().operation()}"
     }
 
     @PreDestroy

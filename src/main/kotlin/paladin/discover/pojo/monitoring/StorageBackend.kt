@@ -6,6 +6,11 @@ import paladin.discover.util.monitor.ConnectorStorageConfiguration
 import java.io.File
 import java.util.*
 
+enum class StorageBackendType {
+    KAFKA,
+    FILE
+}
+
 sealed class StorageBackend : ConnectorStorageConfiguration {
     data object Kafka : StorageBackend() {
         override fun validateConfig(config: DebeziumConfigurationProperties) {

@@ -11,8 +11,7 @@ data class PostgresConnector(
     override val client: DatabaseClient,
     override val tableConfigurations: List<TableConfiguration>,
     private val storageConfig: DebeziumConfigurationProperties,
-    private val kafkaBootstrapServers: String
-) : DatabaseMonitoringConnector(storageConfig, kafkaBootstrapServers) {
+) : DatabaseMonitoringConnector(storageConfig) {
     override fun buildTableList(): String {
         return tableConfigurations
             .filter { it.isEnabled }.joinToString(",") { "${it.namespace}.${it.tableName}" }

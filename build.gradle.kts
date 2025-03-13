@@ -1,13 +1,13 @@
 import com.google.protobuf.gradle.id
 
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.spring") version "2.0.0"
     id("org.springframework.boot") version "3.4.2"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.google.protobuf") version "0.9.4"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
-    kotlin("plugin.jpa") version "1.9.25"
+    kotlin("plugin.jpa") version "2.0.0"
 }
 
 group = "paladin"
@@ -31,6 +31,7 @@ repositories {
 
 extra["snippetsDir"] = file("build/generated-snippets")
 extra["springGrpcVersion"] = "0.3.0"
+val springCloudVersion by extra("2024.0.0")
 
 
 dependencies {
@@ -45,6 +46,9 @@ dependencies {
     implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.cloud:spring-cloud-stream")
+    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
+    testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 
@@ -82,7 +86,6 @@ dependencies {
 
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.0") // Updated to latest
-    implementation("ch.qos.logback:logback-classic:1.5.11") // Explicit Logback
     implementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency.
 
 
@@ -98,14 +101,13 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("io.debezium:debezium-testing-testcontainers:3.0.7.Final")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("ch.qos.logback:logback-classic:1.5.11") // Explicit Logback in test scope
     testImplementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency in test scope.
 }
 
 dependencyManagement {
     imports {
         mavenBom("org.springframework.grpc:spring-grpc-dependencies:${property("springGrpcVersion")}")
-
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
 

@@ -1,6 +1,22 @@
 spring:
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
-    consumer:
-      group-id: event-discovery
-      auto-offset-reset: earliest
+  cloud:
+    function:
+      definition:
+    stream:
+      binders:
+        kafka:
+          type: kafka
+          environment:
+            spring:
+              kafka:
+                bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        rabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: ${RABBIT_HOST:localhost}
+                port: ${RABBIT_PORT:5672}
+                username: ${RABBIT_USERNAME:guest}
+                password: ${RABBIT_PASSWORD:guest}
+      default-binder: ${DEFAULT_BINDER:kafka}
