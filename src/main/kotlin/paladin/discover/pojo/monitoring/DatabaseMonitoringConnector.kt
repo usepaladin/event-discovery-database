@@ -1,18 +1,14 @@
 package paladin.discover.pojo.monitoring
 
-import io.debezium.storage.file.history.FileSchemaHistory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.apache.kafka.connect.storage.FileOffsetBackingStore
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
-import paladin.discover.util.monitor.ConnectorStorageConfiguration
 import java.util.*
 
 abstract class DatabaseMonitoringConnector(
-    private val storageConfig: DebeziumConfigurationProperties,
-    private val kafkaBootstrapServers: String
+    private val storageConfig: DebeziumConfigurationProperties
 ) {
     protected abstract val client: DatabaseClient
     protected abstract val tableConfigurations: List<TableConfiguration>
@@ -24,30 +20,23 @@ abstract class DatabaseMonitoringConnector(
         _connectionState.value = newState
     }
 
+    fun validateStorageBackend() {
+        storageConfig.storageBackend.validateConfig(storageConfig)
+    }
+
+
     protected fun commonProps(): Properties {
         val props: Properties = Properties().apply {
-            put("offset.storage", FileOffsetBackingStore::class.java.name)
-            put(
-                "offset.storage.file.filename",
-                "${storageConfig.offsetStorageDir}/${client.id}.${storageConfig.offsetStorageFileName}"
-            )
-            // Schema history
-            put("schema.history.internal", FileSchemaHistory::class.java.name)
-            put(
-                "schema.history.internal.file.filename",
-                "${storageConfig.historyDir}/${client.id}.${storageConfig.historyFileName}"
-            )
             put("offset.flush.interval.ms", "10000")
             put("offset.flush.timeout.ms", "5000")
             put("offset.flush.size", "10000")
             put("offset.flush.count", "10000")
-//            put("database.history.kafka.bootstrap.servers", kafkaBootstrapServers)
-//            put("database.history.kafka.topic", "dbhistory.${client.config.connectionName}")
             put("database.history.kafka.recovery.poll.interval.ms", "500")
             put("include.schema.changes", "true")
         }
 
-        
+        // Apply storage backend specific properties (ie. Either File or Kafka based)
+        storageConfig.storageBackend.applyProperties(props, storageConfig)
         return props
     }
 
@@ -64,37 +53,6 @@ abstract class DatabaseMonitoringConnector(
     abstract fun buildTableColumnList(): String
     abstract fun getConnectorProps(): Properties
 
-    sealed class StorageBackend : ConnectorStorageConfiguration {
-        data object Kafka : StorageBackend() {
-            override fun validateConfig() {
-                TODO("Not yet implemented")
-            }
-
-            override fun applyProperties(props: Properties) {
-                TODO("Not yet implemented")
-            }
-        }
-
-        data object File : StorageBackend() {
-            override fun validateConfig() {
-                TODO("Not yet implemented")
-            }
-
-            override fun applyProperties(props: Properties) {
-                TODO("Not yet implemented")
-            }
-        }
-
-        data object Database : StorageBackend() {
-            override fun applyProperties(props: Properties) {
-                TODO("Not yet implemented")
-            }
-
-            override fun validateConfig() {
-                TODO("Not yet implemented")
-            }
-        }
-    }
 
     sealed class MonitoringConnectionState {
         data object Disconnected : MonitoringConnectionState()

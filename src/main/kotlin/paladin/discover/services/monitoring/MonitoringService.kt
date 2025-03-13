@@ -57,11 +57,8 @@ class MonitoringService(
 
         logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Starting Monitoring Engine" }
         try {
-            // Add this before initializing the Debezium engine
-            val offsetDir = File(debeziumConfigurationProperties.offsetStorageDir)
-            if (!offsetDir.exists()) {
-                offsetDir.mkdirs()
-            }
+            // Will validate current storage backend configuration and make changes if required, otherwise will throw an exception if it cannot be fixed
+            monitoringConnector.validateStorageBackend()
 
             /**
              * ChangeEvent v RecordChangeEvent

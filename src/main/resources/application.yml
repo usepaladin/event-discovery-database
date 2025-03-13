@@ -35,7 +35,10 @@ management:
       exposure:
         include: "health,info,metrics"
 debezium:
+  storage-backend: file
   offset-storage-dir: /tmp/debezium/offsets
   offset-storage-file-name: debezium-offsets.dat
   history-dir: /tmp/debezium/history
   history-file-name: debezium-history.dat
+
+

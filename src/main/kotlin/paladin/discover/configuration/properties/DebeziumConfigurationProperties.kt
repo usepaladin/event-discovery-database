@@ -1,11 +1,11 @@
 package paladin.discover.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
+import paladin.discover.pojo.monitoring.StorageBackend
 
 @ConfigurationProperties(prefix = "debezium")
 data class DebeziumConfigurationProperties(
-    val storageBackend: DatabaseMonitoringConnector.StorageBackend,
+    val storageBackend: StorageBackend,
 
     // File Based Storage
     val offsetStorageFileName: String?,
@@ -21,13 +21,4 @@ data class DebeziumConfigurationProperties(
     val schemaHistoryTopic: String?,
     val schemaHistoryPartition: Int?,
     val schemaHistoryReplication: Short?,
-
-    // Database Storage
-    val databaseStorageHostname: String?,
-    val databaseStoragePort: Int?,
-    val databaseStorageUser: String?,
-    val databaseStoragePassword: String?,
-    val databaseStorageDatabase: String?,
-    val databaseStorageTable: String?,
-
-    )
+)
