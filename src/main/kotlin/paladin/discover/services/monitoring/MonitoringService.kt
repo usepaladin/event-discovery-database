@@ -1,8 +1,8 @@
 package paladin.discover.services.monitoring
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
-import io.debezium.engine.format.Json
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Service
@@ -61,6 +61,7 @@ class MonitoringService(
             monitoringConnector.validateStorageBackend()
 
             /**
+             *
              * ChangeEvent v RecordChangeEvent
              * The RecordChangeEvent interface in Debezium is used in specific scenarios
              * when you need a higher-level abstraction for change events
@@ -72,12 +73,9 @@ class MonitoringService(
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connecting)
             val engine: DebeziumEngine<ChangeEvent<String, String>> =
                 //todo: Incorporate Preferences (ie. Schema type)
-                DebeziumEngine.create(Json::class.java)
-                    .using(monitoringConnector.getConnectorProps())
-                    .notifying { record -> handleObservation(record) }
-                    .build()
 
-            monitoringEngines[client.id] = engine
+
+                monitoringEngines[client.id] = engine
             executor.execute(engine)
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connected)
             logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Monitoring Engine Instantiated and Started" }
@@ -153,12 +151,15 @@ class MonitoringService(
     /**
      * Notification handler upon observation of a Database record alteration
      */
-    private fun handleObservation(record: ChangeEvent<String, String>) {
+    private fun <T> handleObservation(record: ChangeEvent<T, T>) {
         logger.info { "CDC Monitoring Service => Database Id: ${record.key()} => Record Observed" }
         println(record)
+
         // Default topic naming schema: <schema>.<table>.<operation>
         // todo: Allow custom naming for the topic schemas
-//        val topic: String = "${record.key().schema()}.${record.key().table()}.${record.value().operation()}"
+        val keyValue: T = record.key()
+        val recordValue: V = record.value()
+        val jsonNode = ObjectMapper().readTree(recordValue)
     }
 
     @PreDestroy

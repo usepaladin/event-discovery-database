@@ -1,0 +1,14 @@
+{
+    "type": "struct",
+    "fields": [
+        {
+            "type": "int32",
+            "optional": false,
+            "default": 0,
+            "field": "user_id"
+        }
+    ],
+    "optional": false,
+    "name": "postgres_test_1.public.users.Key",
+    "payload": { "user_id": 11 }
+}

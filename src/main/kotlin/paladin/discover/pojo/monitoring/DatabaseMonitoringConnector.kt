@@ -13,7 +13,7 @@ abstract class DatabaseMonitoringConnector(
     protected abstract val client: DatabaseClient
     protected abstract val tableConfigurations: List<TableConfiguration>
 
-    protected val storageBackend: StorageBackend = configureStorageBackend()
+    protected val storageBackend: StorageBackend = configureStorageBackend(storageConfig.storageBackend)
     protected val _connectionState = MutableStateFlow<MonitoringConnectionState>(MonitoringConnectionState.Disconnected)
     val connectionState: StateFlow<MonitoringConnectionState> = _connectionState
 
@@ -73,8 +73,8 @@ abstract class DatabaseMonitoringConnector(
         data class Error(val exception: Throwable) : MonitoringConnectionState()
     }
 
-    private fun configureStorageBackend(): StorageBackend {
-        return when (storageConfig.storageBackend) {
+    private fun configureStorageBackend(type: StorageBackendType): StorageBackend {
+        return when (type) {
             StorageBackendType.KAFKA -> StorageBackend.Kafka
             StorageBackendType.FILE -> StorageBackend.File
         }

@@ -3,6 +3,7 @@ package paladin.discover.entities.connection
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
+import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.models.common.DatabaseType
 import java.time.ZonedDateTime
 import java.util.*
@@ -38,6 +39,10 @@ data class DatabaseConnectionEntity(
 
     @Column(name = "connection_name", nullable = false, unique = true)
     var connectionName: String,
+
+    @Column(name = "monitoring_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var databaseMonitoringHandlerType: ChangeEventHandlerType,
 
     @Column(name = "database_type", nullable = false)
     @Enumerated(EnumType.STRING)
