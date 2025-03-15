@@ -72,8 +72,15 @@ class JsonChangeEventHandler(
         return objectMapper.readTree(value)
     }
 
+    /**
+     * Determine the type of event being observed
+     * This can contain relevant information that needs to be logged/observed externally, such as:
+     *    - Heartbeat events
+     * */
+    private fun parseEventType(key: JsonNode) {}
+
     private fun parseOperationType(value: JsonNode): ChangeEventOperation {
-        val operation: String = value["payload"]["op"].asText()
+        val operation: String? = value.get("payload")?.get("op")?.asText()
 
         return when (operation) {
             "c" -> ChangeEventOperation.CREATE
@@ -95,5 +102,6 @@ class JsonChangeEventHandler(
         }
 
         val changeEvent: ChangeEventData = decodeValue(valueNode, operation)
+        println(changeEvent)
     }
 }

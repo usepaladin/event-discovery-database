@@ -62,6 +62,7 @@ data class PostgresConnector(
             )
         }
 
+        
         includedSchemas.takeIf { it.isNotBlank() }?.let {
             props.apply {
                 put("schema.include.list", includedSchemas)

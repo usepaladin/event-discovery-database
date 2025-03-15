@@ -77,6 +77,12 @@ class MySQLConnector(
                 )
             )
         }
+        
+        storageBackend.applySchemaHistory(
+            props = props,
+            config = storageConfig,
+            clientId = client.id
+        )
 
         includedDatabases.takeIf { it.isNotEmpty() }?.let {
             props.apply {

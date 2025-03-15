@@ -40,7 +40,7 @@ data class DatabaseConnectionEntity(
     @Column(name = "connection_name", nullable = false, unique = true)
     var connectionName: String,
 
-    @Column(name = "monitoring_type", nullable = false)
+    @Column(name = "event_handler_type", nullable = false)
     @Enumerated(EnumType.STRING)
     var databaseMonitoringHandlerType: ChangeEventHandlerType,
 

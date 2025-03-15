@@ -76,7 +76,7 @@ class MonitoringService(
                 connector = monitoringConnector
             )
 
-            val engine: DebeziumEngine<out ChangeEvent<out Any, out Any>> = changeEventHandler.createEngine()
+            val engine = changeEventHandler.createEngine()
             // Store the engine under the client's connection name, easier to retrieve from the event
             monitoringEngines[client.config.connectionName] = engine
             executor.execute(engine)

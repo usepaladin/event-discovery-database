@@ -27,7 +27,7 @@ abstract class DatabaseMonitoringConnector(
     }
 
     fun validateStorageBackend() {
-        storageBackend.validateConfig(storageConfig)
+        storageBackend.validateConfig(storageConfig, client)
     }
 
     fun getDatabaseChangeEventHandler(): ChangeEventHandlerType {
@@ -42,10 +42,16 @@ abstract class DatabaseMonitoringConnector(
             put("offset.flush.count", "10000")
             put("database.history.kafka.recovery.poll.interval.ms", "500")
             put("include.schema.changes", "true")
+            // Todo: test and validate this configuration
+            put("errors.max.retires", "10")
         }
 
         // Apply storage backend specific properties (ie. Either File or Kafka based)
-        storageBackend.applyProperties(props, storageConfig)
+        storageBackend.applyOffsetStorage(
+            props = props,
+            config = storageConfig,
+            clientId = client.id
+        )
         return props
     }
 

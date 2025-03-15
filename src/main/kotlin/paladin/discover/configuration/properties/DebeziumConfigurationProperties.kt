@@ -12,8 +12,8 @@ data class DebeziumConfigurationProperties(
     // File Based Storage
     val offsetStorageFileName: String?,
     val offsetStorageDir: String?,
-    val historyFileName: String?,
-    val historyDir: String?,
+    val schemaHistoryFileName: String?,
+    val schemaHistoryDir: String?,
 
     // Kafka Storage
     val kafkaBootstrapServers: String?,
@@ -21,6 +21,4 @@ data class DebeziumConfigurationProperties(
     val offsetStoragePartition: Int?,
     val offsetStorageReplication: Short?,
     val schemaHistoryTopic: String?,
-    val schemaHistoryPartition: Int?,
-    val schemaHistoryReplication: Short?,
 )
