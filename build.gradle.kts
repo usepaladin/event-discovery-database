@@ -27,6 +27,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven("https://packages.confluent.io/maven/")
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
@@ -76,6 +77,7 @@ dependencies {
     implementation("org.mongodb:mongodb-driver-legacy:4.11.0")
     implementation("org.mongodb:mongodb-driver-reactivestreams:4.11.0")
     implementation("io.confluent:kafka-avro-serializer:7.9.0")
+
     //Postgres
     implementation("com.zaxxer:HikariCP:6.2.1")
     implementation("org.postgresql:postgresql:42.7.4")

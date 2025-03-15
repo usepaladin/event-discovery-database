@@ -3,6 +3,7 @@ package paladin.discover.pojo.monitoring
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
+import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import java.util.*
@@ -25,6 +26,9 @@ abstract class DatabaseMonitoringConnector(
         storageBackend.validateConfig(storageConfig)
     }
 
+    fun getDatabaseChangeEventHandler(): ChangeEventHandlerType {
+        return client.config.monitoringEventHandler
+    }
 
     protected fun commonProps(): Properties {
         val props: Properties = Properties().apply {

@@ -1,6 +1,5 @@
 package paladin.discover.services.monitoring
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
 import io.github.oshai.kotlinlogging.KLogger
@@ -12,10 +11,10 @@ import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.models.monitoring.MySQLConnector
 import paladin.discover.models.monitoring.PostgresConnector
 import paladin.discover.pojo.client.DatabaseClient
+import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.configuration.TableConfigurationService
 import paladin.discover.services.connection.ConnectionService
-import paladin.discover.services.producer.ProducerService
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -35,13 +34,12 @@ class MonitoringService(
     private val debeziumConfigurationProperties: DebeziumConfigurationProperties,
     private val connectionService: ConnectionService,
     private val configurationService: TableConfigurationService,
-    private val producerService: ProducerService,
+    private val changeEventHandlerFactory: ChangeEventHandlerFactory,
     private val logger: KLogger,
-
-    ) {
+) {
 
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
-    private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<ChangeEvent<String, String>>>()
+    private val monitoringEngines = ConcurrentHashMap<String, DebeziumEngine<out ChangeEvent<out Any, out Any>>>()
 
     fun startMonitoring() {
         val clients: List<DatabaseClient> = connectionService.getAllClients()
@@ -71,11 +69,17 @@ class MonitoringService(
              */
 
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connecting)
-            val engine: DebeziumEngine<ChangeEvent<String, String>> =
-                //todo: Incorporate Preferences (ie. Schema type)
+            // Gets the user specified format for how the Engine handles record observations and changes (ie. Json, Avro, Protobuf, etc)
 
 
-                monitoringEngines[client.id] = engine
+            val changeEventHandler: ChangeEventFormatHandler<*, *> = changeEventHandlerFactory.createChangeEventHandler(
+                type = client.config.monitoringEventHandler,
+                config = monitoringConnector.getConnectorProps()
+            )
+
+            val engine: DebeziumEngine<out ChangeEvent<out Any, out Any>> = changeEventHandler.createEngine()
+            // Store the engine under the client's connection name, easier to retrieve from the event
+            monitoringEngines[client.config.connectionName] = engine
             executor.execute(engine)
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connected)
             logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Monitoring Engine Instantiated and Started" }
@@ -125,12 +129,12 @@ class MonitoringService(
 
     fun updateMonitoringConfiguration() {}
 
-    fun stopMonitoringEngine(databaseId: UUID) {
-        val engine = monitoringEngines.remove(databaseId)
+    fun stopMonitoringEngine(client: DatabaseClient) {
+        val engine = monitoringEngines.remove(client.config.connectionName)
 
         if (engine == null) {
             logger.info {
-                "CDC Monitoring Service => Database Id: $databaseId => No monitoring engine found =>" +
+                "CDC Monitoring Service => Database Id: ${client.id} => Database Connection Name: ${client.config.connectionName} => No monitoring engine found =>" +
                         "An engine potentially does not exist with the given Id, or has already been stopped by a previous request"
             }
             return
@@ -138,28 +142,14 @@ class MonitoringService(
 
         try {
             engine.close()
-            logger.info { "CDC Monitoring Service => Database Id: $databaseId => Monitoring Engine Stopped Successfully" }
+            logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Database Connection Name: ${client.config.connectionName} => Monitoring Engine Stopped Successfully" }
         } catch (e: IOException) {
             // Log the *specific* exception (IOException here) for better diagnostics.
-            logger.error(e) { "CDC Monitoring Service => Database Id: $databaseId => Failed to close engine: ${e.message}" }
+            logger.error(e) { "CDC Monitoring Service => Database Id: ${client.id} => Database Connection Name: ${client.config.connectionName} => Failed to close engine: ${e.message}" }
             // Consider re-throwing, or wrapping in a custom exception, *if* higher levels need to handle this failure.
         } catch (e: Exception) {
-            logger.error(e) { "CDC Monitoring Service => Database Id: $databaseId => Unexpected error while stopping engine: ${e.message}" }
+            logger.error(e) { "CDC Monitoring Service => Database Id: ${client.id} => Database Connection Name: ${client.config.connectionName} => Unexpected error while stopping engine: ${e.message}" }
         }
-    }
-
-    /**
-     * Notification handler upon observation of a Database record alteration
-     */
-    private fun <T> handleObservation(record: ChangeEvent<T, T>) {
-        logger.info { "CDC Monitoring Service => Database Id: ${record.key()} => Record Observed" }
-        println(record)
-
-        // Default topic naming schema: <schema>.<table>.<operation>
-        // todo: Allow custom naming for the topic schemas
-        val keyValue: T = record.key()
-        val recordValue: V = record.value()
-        val jsonNode = ObjectMapper().readTree(recordValue)
     }
 
     @PreDestroy
