@@ -73,8 +73,7 @@ class MonitoringService(
 
 
             val changeEventHandler: ChangeEventFormatHandler<*, *> = changeEventHandlerFactory.createChangeEventHandler(
-                type = client.config.monitoringEventHandler,
-                config = monitoringConnector.getConnectorProps()
+                connector = monitoringConnector
             )
 
             val engine: DebeziumEngine<out ChangeEvent<out Any, out Any>> = changeEventHandler.createEngine()

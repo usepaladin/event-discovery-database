@@ -4,14 +4,15 @@ import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
 import io.debezium.engine.format.Protobuf
 import io.github.oshai.kotlinlogging.KLogger
+import paladin.discover.enums.monitoring.ChangeEventOperation
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
-//todo: Implement Protobuf Support for Change Events + Database Monitoring
 class ProtobufChangeEventHandler(
     override val connectorProperties: Properties,
+    override val clientId: UUID,
     override val producerService: ProducerService,
     override val logger: KLogger
 ) : ChangeEventFormatHandler<ByteArray, ByteArray>() {
@@ -22,15 +23,15 @@ class ProtobufChangeEventHandler(
             .build()
     }
 
-    override fun deserializeEvent(event: ChangeEvent<ByteArray, ByteArray>): Map<String, Any> {
+    override fun decodeValue(rawValue: ByteArray): ChangeEventData {
         TODO("Not yet implemented")
     }
 
-    override fun decodeKey(rawKey: String): ByteArray {
+    override fun decodeKey(rawKey: ByteArray): ByteArray {
         TODO("Not yet implemented")
     }
 
-    override fun decodeValue(rawValue: String): ChangeEventData {
+    override fun decodeValue(rawValue: ByteArray, operationType: ChangeEventOperation): ChangeEventData {
         TODO("Not yet implemented")
     }
 

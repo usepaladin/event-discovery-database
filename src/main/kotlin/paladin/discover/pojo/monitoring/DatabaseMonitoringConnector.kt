@@ -22,6 +22,10 @@ abstract class DatabaseMonitoringConnector(
         _connectionState.value = newState
     }
 
+    fun getDatabaseClientId(): UUID {
+        return client.id
+    }
+
     fun validateStorageBackend() {
         storageBackend.validateConfig(storageConfig)
     }

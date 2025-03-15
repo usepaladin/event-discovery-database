@@ -7,6 +7,7 @@ import paladin.discover.models.monitoring.changeEvent.AvroChangeEventHandler
 import paladin.discover.models.monitoring.changeEvent.JsonChangeEventHandler
 import paladin.discover.models.monitoring.changeEvent.ProtobufChangeEventHandler
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
+import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
@@ -15,11 +16,14 @@ class ChangeEventHandlerFactory(
     private val producerService: ProducerService,
     private val logger: KLogger
 ) {
-    fun createChangeEventHandler(type: ChangeEventHandlerType, config: Properties): ChangeEventFormatHandler<*, *> {
+    fun createChangeEventHandler(connector: DatabaseMonitoringConnector): ChangeEventFormatHandler<*, *> {
+        val config: Properties = connector.getConnectorProps()
+        val type: ChangeEventHandlerType = connector.getDatabaseChangeEventHandler()
+        val clientId: UUID = connector.getDatabaseClientId()
         return when (type) {
-            ChangeEventHandlerType.AVRO -> AvroChangeEventHandler(config, producerService, logger)
-            ChangeEventHandlerType.JSON -> JsonChangeEventHandler(config, producerService, logger)
-            ChangeEventHandlerType.PROTOBUF -> ProtobufChangeEventHandler(config, producerService, logger)
+            ChangeEventHandlerType.JSON -> JsonChangeEventHandler(config, clientId, producerService, logger)
+            ChangeEventHandlerType.AVRO -> AvroChangeEventHandler(config, clientId, producerService, logger)
+            ChangeEventHandlerType.PROTOBUF -> ProtobufChangeEventHandler(config, clientId, producerService, logger)
         }
     }
 }
