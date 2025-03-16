@@ -87,7 +87,7 @@ sealed class StorageBackend : ConnectorStorageConfiguration {
 
                 put("schema.history.internal", FileSchemaHistory::class.java.name)
                 put(
-                    "schema.history.storage.file.filename",
+                    "schema.history.internal.file.filename",
                     "${config.schemaHistoryDir}/${clientId}.${config.schemaHistoryFileName}"
                 )
             }

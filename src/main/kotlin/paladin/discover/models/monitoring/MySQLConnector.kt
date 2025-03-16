@@ -67,7 +67,7 @@ class MySQLConnector(
                     "max.batch.size" to "2048",
                     "max.queue.size" to "8192",
                     "poll.interval.ms" to "100",
-                    "heartbeat.interval.ms" to "5000",
+                    "heartbeat.interval.ms" to "15000",
 
                     // MySQL-Specific Settings
                     "database.serverTimezone" to "UTC",
@@ -77,7 +77,7 @@ class MySQLConnector(
                 )
             )
         }
-        
+
         storageBackend.applySchemaHistory(
             props = props,
             config = storageConfig,

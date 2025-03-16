@@ -5,5 +5,5 @@ enum class ChangeEventOperation {
     UPDATE,
     DELETE,
     SNAPSHOT,
-    UNKNOWN
+    OTHER
 }

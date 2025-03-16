@@ -8,6 +8,7 @@ import org.apache.avro.generic.GenericRecord
 import paladin.discover.enums.monitoring.ChangeEventOperation
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
+import paladin.discover.services.monitoring.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
@@ -15,6 +16,7 @@ class AvroChangeEventHandler(
     override val connectorProperties: Properties,
     override val clientId: UUID,
     override val producerService: ProducerService,
+    override val monitoringMetricsService: MonitoringMetricsService,
     override val logger: KLogger
 ) : ChangeEventFormatHandler<ByteArray, GenericRecord>() {
     override fun createEngine(): DebeziumEngine<ChangeEvent<ByteArray, ByteArray>> {
@@ -39,5 +41,13 @@ class AvroChangeEventHandler(
     override fun handleObservation(event: ChangeEvent<ByteArray, ByteArray>) {
         TODO("Not yet implemented")
 
+    }
+
+    override fun handleMetadataEvent(value: GenericRecord) {
+        TODO("Not yet implemented")
+    }
+
+    override fun handleRecordChangeEvent(operation: ChangeEventOperation, value: GenericRecord) {
+        TODO("Not yet implemented")
     }
 }

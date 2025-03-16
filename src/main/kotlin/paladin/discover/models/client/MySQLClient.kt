@@ -12,6 +12,7 @@ import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.util.configuration.HikariTableConfigurationBuilder
 import paladin.discover.util.connection.HikariConnectionConfigBuilder
+import java.sql.Connection
 import java.sql.DatabaseMetaData
 import java.util.*
 import javax.sql.DataSource
@@ -61,13 +62,15 @@ data class MySQLClient(
 
     override fun isConnected(): Boolean {
 
+        var connection: Connection? = null
         try {
-            return datasource?.connection?.isValid(1000) ?: false
+            connection = datasource?.connection
+            return connection?.isValid(4000) ?: false
         } catch (e: Exception) {
-            logger.error(e) {
-                "MySQL Database => ${this.config.connectionName} => $id => Failed to check connection status => Message: ${e.message}"
-            }
+            logger.error(e) { "Postgres Database => ${this.config.connectionName} => $id => Failed to check connection status => Message: ${e.message}" }
             return false
+        } finally {
+            connection?.close()  // Return connection to pool
         }
 
     }

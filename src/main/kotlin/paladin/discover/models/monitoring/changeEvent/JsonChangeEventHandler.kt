@@ -10,6 +10,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import paladin.discover.enums.monitoring.ChangeEventOperation
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
+import paladin.discover.services.monitoring.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
@@ -17,6 +18,7 @@ class JsonChangeEventHandler(
     override val connectorProperties: Properties,
     override val clientId: UUID,
     override val producerService: ProducerService,
+    override val monitoringMetricsService: MonitoringMetricsService,
     override val logger: KLogger
 ) : ChangeEventFormatHandler<String, JsonNode>() {
 
@@ -72,12 +74,11 @@ class JsonChangeEventHandler(
         return objectMapper.readTree(value)
     }
 
-    /**
-     * Determine the type of event being observed
-     * This can contain relevant information that needs to be logged/observed externally, such as:
-     *    - Heartbeat events
-     * */
-    private fun parseEventType(key: JsonNode) {}
+
+    private fun filterMetadataEvents(event: JsonNode) {
+        val eventName: String = event.get("schema")?.get("name")?.asText() ?: "Unknown"
+        println(eventName)
+    }
 
     private fun parseOperationType(value: JsonNode): ChangeEventOperation {
         val operation: String? = value.get("payload")?.get("op")?.asText()
@@ -87,21 +88,45 @@ class JsonChangeEventHandler(
             "u" -> ChangeEventOperation.UPDATE
             "d" -> ChangeEventOperation.DELETE
             "r" -> ChangeEventOperation.SNAPSHOT
-            else -> ChangeEventOperation.UNKNOWN
+            else -> ChangeEventOperation.OTHER
         }
     }
 
-    override fun handleObservation(event: ChangeEvent<String, String>): Unit {
+    override fun handleRecordChangeEvent(operation: ChangeEventOperation, value: JsonNode) {
+        val changeEventData: ChangeEventData = decodeValue(value, operation)
+        println(changeEventData)
+    }
+
+    /**
+     * Parse the event to locate any generated events that contribute useful metadata. This would include:
+     * Ensuring that we can route these to separate Brokers for Web client consumption
+     *    - Heartbeat events
+     *    - Transaction events (ie. BEGIN, COMMIT, ROLLBACK)
+     *    - Manual Debezium Signal Events (https://debezium.io/documentation/reference/stable/configuration/signalling.html)
+     * */
+    override fun handleMetadataEvent(value: JsonNode) {
+        filterMetadataEvents(value)
+    }
+
+    override fun handleObservation(event: ChangeEvent<String, String>) {
         logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Record Observed" }
-        // Filter out unwanted events  (ie. Unknown/Snapshot events)
-        val valueNode: JsonNode = generateJsonNode(event.value())
-        val operation: ChangeEventOperation = parseOperationType(valueNode)
-        if (operation == ChangeEventOperation.SNAPSHOT || operation == ChangeEventOperation.UNKNOWN) {
-            logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Ignoring Snapshot/Unknown Event" }
+
+        // Handle nullable events
+        if (event.value() == null) {
+            logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Record Ignored/Not published => Event Value was null" }
             return
         }
 
-        val changeEvent: ChangeEventData = decodeValue(valueNode, operation)
-        println(changeEvent)
+        val valueNode: JsonNode = generateJsonNode(event.value())
+        val operation: ChangeEventOperation = parseOperationType(valueNode)
+
+        if (this.isRecordChangeEvent(operation)) {
+            logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Record Change Event Observed => Operation Type: $operation" }
+            handleRecordChangeEvent(operation, valueNode)
+            return
+        }
+
+        logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Processing Engine Metadata" }
+        handleMetadataEvent(valueNode)
     }
 }

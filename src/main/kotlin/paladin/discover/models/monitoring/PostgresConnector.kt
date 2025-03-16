@@ -57,11 +57,16 @@ data class PostgresConnector(
                     "max.queue.size" to "8192", // Increase queue size
                     "poll.interval.ms" to "100", // More frequent polling
                     // Heartbeat for connection monitoring
-                    "heartbeat.interval.ms" to "5000", // Send heartbeat every 5 seconds
+                    "heartbeat.interval.ms" to "15000", // Send heartbeat every 15 seconds
                 )
             )
         }
 
+        this.storageBackend.applySchemaHistory(
+            props = props,
+            config = storageConfig,
+            clientId = client.id
+        )
         
         includedSchemas.takeIf { it.isNotBlank() }?.let {
             props.apply {

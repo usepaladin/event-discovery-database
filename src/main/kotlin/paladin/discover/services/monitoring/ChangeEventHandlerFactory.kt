@@ -14,6 +14,7 @@ import java.util.*
 @Service
 class ChangeEventHandlerFactory(
     private val producerService: ProducerService,
+    private val monitoringMetricsService: MonitoringMetricsService,
     private val logger: KLogger
 ) {
     fun createChangeEventHandler(connector: DatabaseMonitoringConnector): ChangeEventFormatHandler<*, *> {
@@ -21,9 +22,29 @@ class ChangeEventHandlerFactory(
         val type: ChangeEventHandlerType = connector.getDatabaseChangeEventHandler()
         val clientId: UUID = connector.getDatabaseClientId()
         return when (type) {
-            ChangeEventHandlerType.JSON -> JsonChangeEventHandler(config, clientId, producerService, logger)
-            ChangeEventHandlerType.AVRO -> AvroChangeEventHandler(config, clientId, producerService, logger)
-            ChangeEventHandlerType.PROTOBUF -> ProtobufChangeEventHandler(config, clientId, producerService, logger)
+            ChangeEventHandlerType.JSON -> JsonChangeEventHandler(
+                config,
+                clientId,
+                producerService,
+                monitoringMetricsService,
+                logger
+            )
+
+            ChangeEventHandlerType.AVRO -> AvroChangeEventHandler(
+                config,
+                clientId,
+                producerService,
+                monitoringMetricsService,
+                logger
+            )
+
+            ChangeEventHandlerType.PROTOBUF -> ProtobufChangeEventHandler(
+                config,
+                clientId,
+                producerService,
+                monitoringMetricsService,
+                logger
+            )
         }
     }
 }
