@@ -5,6 +5,7 @@ import io.debezium.engine.DebeziumEngine
 import io.debezium.engine.format.Protobuf
 import io.github.oshai.kotlinlogging.KLogger
 import paladin.discover.enums.monitoring.ChangeEventOperation
+import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.services.monitoring.MonitoringMetricsService
@@ -13,7 +14,7 @@ import java.util.*
 
 class ProtobufChangeEventHandler(
     override val connectorProperties: Properties,
-    override val clientId: UUID,
+    override val client: DatabaseClient,
     override val producerService: ProducerService,
     override val monitoringMetricsService: MonitoringMetricsService,
     override val logger: KLogger

@@ -45,7 +45,6 @@ class MySQLConnector(
     }
 
     override fun getConnectorProps(): Properties {
-        val includedDatabases: String = buildDatabaseList()
         val includedTables: String = buildTableList()
         val includedColumns: String = buildTableColumnList()
 
@@ -84,11 +83,6 @@ class MySQLConnector(
             clientId = client.id
         )
 
-        includedDatabases.takeIf { it.isNotEmpty() }?.let {
-            props.apply {
-                put("database.include.list", includedDatabases)
-            }
-        }
 
         includedTables.takeIf { it.isNotEmpty() }?.let {
             props.apply {

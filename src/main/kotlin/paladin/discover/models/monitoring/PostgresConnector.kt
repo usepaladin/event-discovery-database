@@ -1,5 +1,6 @@
 package paladin.discover.models.monitoring
 
+
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
@@ -56,18 +57,11 @@ data class PostgresConnector(
                     "max.batch.size" to "2048", // Increase batch size for better throughput
                     "max.queue.size" to "8192", // Increase queue size
                     "poll.interval.ms" to "100", // More frequent polling
-                    // Heartbeat for connection monitoring
                     "heartbeat.interval.ms" to "15000", // Send heartbeat every 15 seconds
                 )
             )
         }
 
-        this.storageBackend.applySchemaHistory(
-            props = props,
-            config = storageConfig,
-            clientId = client.id
-        )
-        
         includedSchemas.takeIf { it.isNotBlank() }?.let {
             props.apply {
                 put("schema.include.list", includedSchemas)

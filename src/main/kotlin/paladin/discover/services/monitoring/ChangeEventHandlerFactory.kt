@@ -6,6 +6,7 @@ import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.models.monitoring.changeEvent.AvroChangeEventHandler
 import paladin.discover.models.monitoring.changeEvent.JsonChangeEventHandler
 import paladin.discover.models.monitoring.changeEvent.ProtobufChangeEventHandler
+import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.producer.ProducerService
@@ -20,11 +21,11 @@ class ChangeEventHandlerFactory(
     fun createChangeEventHandler(connector: DatabaseMonitoringConnector): ChangeEventFormatHandler<*, *> {
         val config: Properties = connector.getConnectorProps()
         val type: ChangeEventHandlerType = connector.getDatabaseChangeEventHandler()
-        val clientId: UUID = connector.getDatabaseClientId()
+        val client: DatabaseClient = connector.client
         return when (type) {
             ChangeEventHandlerType.JSON -> JsonChangeEventHandler(
                 config,
-                clientId,
+                client,
                 producerService,
                 monitoringMetricsService,
                 logger
@@ -32,7 +33,7 @@ class ChangeEventHandlerFactory(
 
             ChangeEventHandlerType.AVRO -> AvroChangeEventHandler(
                 config,
-                clientId,
+                client,
                 producerService,
                 monitoringMetricsService,
                 logger
@@ -40,7 +41,7 @@ class ChangeEventHandlerFactory(
 
             ChangeEventHandlerType.PROTOBUF -> ProtobufChangeEventHandler(
                 config,
-                clientId,
+                client,
                 producerService,
                 monitoringMetricsService,
                 logger

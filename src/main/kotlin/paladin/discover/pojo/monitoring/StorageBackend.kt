@@ -61,14 +61,14 @@ sealed class StorageBackend : ConnectorStorageConfiguration {
                 offsetDir.mkdirs()
             }
 
-            if (client.config.databaseType == DatabaseType.MYSQL) {
-                require(config.schemaHistoryFileName != null) { "Schema history file name must be provided" }
-                require(config.schemaHistoryDir != null) { "Schema history directory must be provided" }
-                val schemaHistoryDir = File(config.schemaHistoryDir)
-                if (!schemaHistoryDir.exists()) {
-                    schemaHistoryDir.mkdirs()
-                }
+
+            require(config.schemaHistoryFileName != null) { "Schema history file name must be provided" }
+            require(config.schemaHistoryDir != null) { "Schema history directory must be provided" }
+            val schemaHistoryDir = File(config.schemaHistoryDir)
+            if (!schemaHistoryDir.exists()) {
+                schemaHistoryDir.mkdirs()
             }
+
 
         }
 

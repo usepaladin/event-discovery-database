@@ -11,7 +11,7 @@ import java.util.*
 abstract class DatabaseMonitoringConnector(
     private val storageConfig: DebeziumConfigurationProperties
 ) {
-    protected abstract val client: DatabaseClient
+    abstract val client: DatabaseClient
     protected abstract val tableConfigurations: List<TableConfiguration>
 
     protected val storageBackend: StorageBackend = configureStorageBackend(storageConfig.storageBackend)
@@ -21,11 +21,7 @@ abstract class DatabaseMonitoringConnector(
     fun updateConnectionState(newState: MonitoringConnectionState) {
         _connectionState.value = newState
     }
-
-    fun getDatabaseClientId(): UUID {
-        return client.id
-    }
-
+    
     fun validateStorageBackend() {
         storageBackend.validateConfig(storageConfig, client)
     }

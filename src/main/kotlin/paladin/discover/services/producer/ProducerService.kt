@@ -1,23 +1,41 @@
 package paladin.discover.services.producer
 
 import io.github.oshai.kotlinlogging.KLogger
+import jakarta.annotation.Nullable
 import org.springframework.cloud.stream.function.StreamBridge
+import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class ProducerService(private val streamBridge: StreamBridge, private val logger: KLogger) {
 
-    fun <V, T> sendMessage(topic: String, key: V, payload: T) {
+    // In the current moment for simplicity I am going to keep the Key as a UUID,
+    // Ill add configurability for the key in the future for additional flexibility and Kafka partitioning purposes
+    // Plus it works well with Avro Schemas
+    // Todo: Add configurability for the key
+    fun <T : Any> sendMessage(topic: String, payload: T, @Nullable headers: List<String>) {
         try {
-            logger.info { "Message Producer Service => Sending message to topic: $topic => Message Key: ${key.toString()}" }
-            val messageSent = streamBridge.send(topic, payload)
-            if (messageSent) {
-                logger.info { "Message Producer Service => Message sent to topic: $topic => Message Key: ${key.toString()}" }
-            } else {
-                logger.error { "Message Producer Service => Failed to send message to topic: $topic => Message Key: ${key.toString()}" }
-            }
+            val key: UUID = UUID.randomUUID()
+            logger.info { "Message Producer Service => Sending message to topic: $topic => Message Key: $key" }
+            val message = MessageBuilder // Create a message with the payload and key
+                .withPayload(payload)
+                .setHeader("key", key.toString())
+
+            headers.forEach { header -> message.setHeader(header, header) }
+
+//            val messageSent = streamBridge.send(topic, binder, message)
+//
+//            if (messageSent) {
+//                logger.info { "Message Producer Service => Message sent to topic: $topic => Message Key: $key" }
+//            } else {
+//                logger.error { "Message Producer Service => Failed to send message to topic: $topic => Message Key: $key" }
+//            }
+
+
         } catch (e: Exception) {
-            logger.error(e) { "Message Producer Service => Exception occurred sending message via StreamBridge: $topic => Message Key: ${key.toString()}" }
+//            logger.error(e) { "Message Producer Service => Exception occurred sending message via StreamBridge: $topic => Message Key: ${key.toString()}" }
         }
     }
+
 }

@@ -4,7 +4,13 @@ spring:
       definition:
     stream:
       binders:
-        kafka:
+        kafka-internal:
+          type: kafka
+          environment:
+            spring:
+              kafka:
+                bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        kafka-external:
           type: kafka
           environment:
             spring:
@@ -19,4 +25,4 @@ spring:
                 port: ${RABBIT_PORT:5672}
                 username: ${RABBIT_USERNAME:guest}
                 password: ${RABBIT_PASSWORD:guest}
-      default-binder: ${DEFAULT_BINDER:kafka}
+      default-binder: ${DEFAULT_BINDER:kafka-internal}

@@ -8,7 +8,9 @@ import io.debezium.engine.DebeziumEngine
 import io.debezium.engine.format.Json
 import io.github.oshai.kotlinlogging.KLogger
 import paladin.discover.enums.monitoring.ChangeEventOperation
+import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventData
+import paladin.discover.pojo.monitoring.ChangeEventDataKey
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.services.monitoring.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
@@ -16,7 +18,7 @@ import java.util.*
 
 class JsonChangeEventHandler(
     override val connectorProperties: Properties,
-    override val clientId: UUID,
+    override val client: DatabaseClient,
     override val producerService: ProducerService,
     override val monitoringMetricsService: MonitoringMetricsService,
     override val logger: KLogger
@@ -94,7 +96,24 @@ class JsonChangeEventHandler(
 
     override fun handleRecordChangeEvent(operation: ChangeEventOperation, value: JsonNode) {
         val changeEventData: ChangeEventData = decodeValue(value, operation)
-        println(changeEventData)
+
+        if (changeEventData.table.isNullOrEmpty()) {
+            throw IllegalArgumentException("Table name not found in ChangeEventData")
+        }
+
+        val changeEventKey = ChangeEventDataKey(
+            database = client.config.databaseType,
+            namespace = client.config.database,
+            table = changeEventData.table,
+            operation = operation
+        )
+
+        // todo: Allow customisable operation topic names
+        // Current Strategy: <databaseType>.<schema>.<table>.<operation>
+        val topicName: String =
+            "${changeEventKey.database}.${changeEventKey.namespace}.${changeEventKey.table}.${changeEventKey.operation}"
+
+//        producerService.sendMessage(topicName, changeEventKey, changeEventData)
     }
 
     /**
@@ -109,24 +128,30 @@ class JsonChangeEventHandler(
     }
 
     override fun handleObservation(event: ChangeEvent<String, String>) {
-        logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Record Observed" }
+        try {
 
-        // Handle nullable events
-        if (event.value() == null) {
-            logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Record Ignored/Not published => Event Value was null" }
-            return
+
+            logger.info { "Monitoring Service => JSON Event Handler => Database Id: ${client.id} => Record Observed" }
+
+            // Handle nullable events
+            if (event.value() == null) {
+                logger.info { "Monitoring Service => JSON Event Handler => Database Id: ${client.id} => Record Ignored/Not published => Event Value was null" }
+                return
+            }
+
+            val valueNode: JsonNode = generateJsonNode(event.value())
+            val operation: ChangeEventOperation = parseOperationType(valueNode)
+
+            if (this.isRecordChangeEvent(operation)) {
+                logger.info { "Monitoring Service => JSON Event Handler => Database Id: ${client.id} => Record Change Event Observed => Operation Type: $operation" }
+                handleRecordChangeEvent(operation, valueNode)
+                return
+            }
+
+            logger.info { "Monitoring Service => JSON Event Handler => Database Id: ${client.id} => Processing Engine Metadata" }
+            handleMetadataEvent(valueNode)
+        } catch (e: Exception) {
+            logger.error(e) { "Monitoring Service => JSON Event Handler => Database Id: ${client.id} => Failed to process event" }
         }
-
-        val valueNode: JsonNode = generateJsonNode(event.value())
-        val operation: ChangeEventOperation = parseOperationType(valueNode)
-
-        if (this.isRecordChangeEvent(operation)) {
-            logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Record Change Event Observed => Operation Type: $operation" }
-            handleRecordChangeEvent(operation, valueNode)
-            return
-        }
-
-        logger.info { "Monitoring Service => JSON Event Handler => Database Id: $clientId => Processing Engine Metadata" }
-        handleMetadataEvent(valueNode)
     }
 }
