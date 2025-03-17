@@ -1,4 +1,15 @@
 spring:
+  kafka:
+    admin:
+      properties:
+        retry.backoff.ms: 1000
+        reconnect.backoff.max.ms: 10000
+        reconnect.backoff.ms: 1000
+        request.timeout.ms: 30000
+        connections.max.idle.ms: 600000
+    properties:
+      # Limits the total time for all connection attempts
+      delivery.timeout.ms: 120000
   cloud:
     function:
       definition:
@@ -7,18 +18,21 @@ spring:
         kafka-internal:
           type: kafka
           environment:
+            type: internal
             spring:
               kafka:
                 bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
         kafka-external:
           type: kafka
           environment:
+            type: external
             spring:
               kafka:
                 bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
         rabbit:
           type: rabbit
           environment:
+            type: external
             spring:
               rabbitmq:
                 host: ${RABBIT_HOST:localhost}
@@ -26,3 +40,20 @@ spring:
                 username: ${RABBIT_USERNAME:guest}
                 password: ${RABBIT_PASSWORD:guest}
       default-binder: ${DEFAULT_BINDER:kafka-internal}
+      bindings:
+        database-monitoring-metadata-in-0:
+          destination: database-monitoring-metadata
+          group: database-monitoring-metadata
+          binder: kafka-internal
+          consumer:
+            concurrency: 1
+            max-attempts: 5
+            back-off-initial-interval: 1000
+            back-off-max-interval: 10000
+            back-off-multiplier: 2
+
+        database-monitoring-record-change-event-in-0:
+          destination: database-monitoring-record-change-event
+          group: database-monitoring-record-change-event
+          binder: kafka-internal
+

@@ -108,12 +108,12 @@ class JsonChangeEventHandler(
             operation = operation
         )
 
-        // todo: Allow customisable operation topic names
+        // todo: Allow customisable operation topic names when sending to Client Producer
         // Current Strategy: <databaseType>.<schema>.<table>.<operation>
-        val topicName: String =
+        val externalTopicName: String =
             "${changeEventKey.database}.${changeEventKey.namespace}.${changeEventKey.table}.${changeEventKey.operation}"
 
-//        producerService.sendMessage(topicName, changeEventKey, changeEventData)
+        producerService.sendMessage("database-monitoring-record-change-event-in-0", changeEventData)
     }
 
     /**
@@ -125,6 +125,7 @@ class JsonChangeEventHandler(
      * */
     override fun handleMetadataEvent(value: JsonNode) {
         filterMetadataEvents(value)
+        producerService.sendMessage("database-monitoring-metadata-in-0", value)
     }
 
     override fun handleObservation(event: ChangeEvent<String, String>) {
