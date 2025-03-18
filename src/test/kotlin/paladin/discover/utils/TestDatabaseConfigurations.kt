@@ -1,5 +1,6 @@
 package paladin.discover.utils
 
+import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.models.common.DatabaseType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.connection.ConnectionAdditionalProperties
@@ -17,6 +18,7 @@ object TestDatabaseConfigurations {
         password = "test_password",
         isEnabled = true,
         instanceId = UUID.randomUUID(),
+        monitoringEventHandler = ChangeEventHandlerType.JSON,
         additionalProperties = null
 
     )
@@ -32,6 +34,7 @@ object TestDatabaseConfigurations {
         password = "test_password",
         isEnabled = true,
         instanceId = UUID.randomUUID(),
+        monitoringEventHandler = ChangeEventHandlerType.JSON,
         additionalProperties = null
     )
 
@@ -48,7 +51,9 @@ object TestDatabaseConfigurations {
         instanceId = UUID.randomUUID(),
         additionalProperties = ConnectionAdditionalProperties(
             authSource = "admin"
-        )
+        ),
+        monitoringEventHandler = ChangeEventHandlerType.JSON
+
     )
 
     fun createCassandraConfig() = DatabaseConnectionConfiguration(
@@ -64,6 +69,7 @@ object TestDatabaseConfigurations {
         instanceId = UUID.randomUUID(),
         additionalProperties = ConnectionAdditionalProperties(
             dataCenter = "datacenter1"
-        )
+        ),
+        monitoringEventHandler = ChangeEventHandlerType.JSON
     )
 } 

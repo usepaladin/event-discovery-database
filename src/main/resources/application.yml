@@ -15,8 +15,8 @@ spring:
     import:
       - classpath:/exclude.yml
       - classpath:/datasource.yml
-      - classpath:/kafka.yml
       - classpath:/logging.yml
+      - classpath:/kafka.yml
 encryption:
   key: ${TEMP_ENCRYPTION_KEY}
 management:

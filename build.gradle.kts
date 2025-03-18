@@ -71,11 +71,10 @@ dependencies {
     // MongoDB
     // KEEP DRIVERS AT 4.11
     // Debezium supports MongoDB drivers at 4.11, waiting on further support to migrate to v5 lol
-    implementation("org.mongodb:mongodb-driver-sync:4.11.0")
-    implementation("org.mongodb:mongodb-driver-core:4.11.0")
-    implementation("org.mongodb:bson:4.11.0")
-    implementation("org.mongodb:mongodb-driver-legacy:4.11.0")
-    implementation("org.mongodb:mongodb-driver-reactivestreams:4.11.0")
+//    implementation("org.mongodb:mongodb-driver-sync:4.11.0")
+//    implementation("org.mongodb:mongodb-driver-core:4.11.0")
+//    implementation("org.mongodb:bson:4.11.0")
+//    implementation("org.mongodb:mongodb-driver-legacy:4.11.0")
     implementation("io.confluent:kafka-avro-serializer:7.9.0")
 
     //Postgres
