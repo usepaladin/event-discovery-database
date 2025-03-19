@@ -9,6 +9,9 @@ logging:
     io.debezium.connector: INFO
     io.debezium.connector.postgresql: INFO
     root: INFO
+    org.springframework.kafka: INFO
+    org.springframework.cloud.stream: INFO
+    org.apache.kafka: WARN
     org:
       springframework:
         web: INFO

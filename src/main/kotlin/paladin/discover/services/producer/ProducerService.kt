@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.Nullable
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.kafka.support.KafkaHeaders
+
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
@@ -27,13 +28,14 @@ class ProducerService(
             logger.info { "Message Producer Service => Sending message to Message binding: $binding => Message Key: $key" }
             val messageBuilder: MessageBuilder<T> = MessageBuilder // Create a message with the payload and key
                 .withPayload(payload)
-                .setHeader(KafkaHeaders.KEY, key)
+                .setHeader(KafkaHeaders.KEY, key.toString())
             val message: Message<T> = messageBuilder.build()
 
             val messageSent = streamBridge.send(
                 binding,
                 message
             )
+
 
             if (messageSent) {
                 logger.info { "Message Producer Service => Message sent to Message binding: $binding => Message Key: $key" }
@@ -43,7 +45,7 @@ class ProducerService(
 
 
         } catch (e: Exception) {
-//            logger.error(e) { "Message Producer Service => Exception occurred sending message via StreamBridge: $topic => Message Key: ${key.toString()}" }
+            logger.error(e) { "Message Producer Service => Exception occurred sending message via StreamBridge: $binding" }
         }
     }
 
