@@ -58,7 +58,7 @@ spring:
                         fetch.max.wait.ms: 500
                         isolation.level: read_committed
                         spring.json.trusted.packages: "*"
-
+      default-binder: kafka-internal
   # Kafka health indicator
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
