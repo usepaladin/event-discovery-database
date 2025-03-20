@@ -113,7 +113,7 @@ class JsonChangeEventHandler(
         val externalTopicName: String =
             "${changeEventKey.database}.${changeEventKey.namespace}.${changeEventKey.table}.${changeEventKey.operation}"
 
-        producerService.sendMessage("database-monitoring-record-change-event-out-0", changeEventData)
+        producerService.sendMessage("database-monitoring-record-change-event-out-0", UUID.randomUUID(), changeEventData)
     }
 
     /**
@@ -125,7 +125,7 @@ class JsonChangeEventHandler(
      * */
     override fun handleMetadataEvent(value: JsonNode) {
         filterMetadataEvents(value)
-        producerService.sendMessage("database-monitoring-metadata-out-0", value)
+        producerService.sendMessage("database-monitoring-metadata-out-0", UUID.randomUUID(), value)
     }
 
     override fun handleObservation(event: ChangeEvent<String, String>) {

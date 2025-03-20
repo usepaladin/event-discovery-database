@@ -39,7 +39,7 @@ class MonitoringService(
 ) {
 
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
-    private val monitoringEngines = ConcurrentHashMap<String, DebeziumEngine<out ChangeEvent<out Any, out Any>>>()
+    private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<out ChangeEvent<out Any, out Any>>>()
 
     fun startMonitoring() {
         val clients: List<DatabaseClient> = connectionService.getAllClients()
@@ -78,7 +78,7 @@ class MonitoringService(
 
             val engine = changeEventHandler.createEngine()
             // Store the engine under the client's connection name, easier to retrieve from the event
-            monitoringEngines[client.config.connectionName] = engine
+            monitoringEngines[client.id] = engine
             executor.execute(engine)
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connected)
             logger.info { "CDC Monitoring Service => Database Id: ${client.id} => Monitoring Engine Instantiated and Started" }
@@ -129,7 +129,7 @@ class MonitoringService(
     fun updateMonitoringConfiguration() {}
 
     fun stopMonitoringEngine(client: DatabaseClient) {
-        val engine = monitoringEngines.remove(client.config.connectionName)
+        val engine = monitoringEngines.remove(client.id)
 
         if (engine == null) {
             logger.info {
