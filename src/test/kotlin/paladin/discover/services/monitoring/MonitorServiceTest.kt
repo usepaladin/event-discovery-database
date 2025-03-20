@@ -8,6 +8,7 @@ import io.debezium.engine.format.Json
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mockk.*
+import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.slf4j.LoggerFactory
@@ -16,10 +17,10 @@ import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
-import paladin.discover.pojo.monitoring.StorageBackendType
 import paladin.discover.services.configuration.TableConfigurationService
 import paladin.discover.services.connection.ConnectionService
 import paladin.discover.utils.TestColumnConfigurations
+import paladin.discover.utils.TestConnectionConfig
 import paladin.discover.utils.TestDatabaseConfigurations
 import paladin.discover.utils.TestLogAppender
 import java.io.IOException
@@ -32,24 +33,35 @@ import kotlin.test.assertTrue
 class MonitoringServiceTest {
 
 
-    // Mock dependencies
+    @MockK
     private lateinit var debeziumConfigProperties: DebeziumConfigurationProperties
+
+    @MockK
     private lateinit var connectionService: ConnectionService
+
+    @MockK
     private lateinit var configurationService: TableConfigurationService
+
+    @MockK
     private lateinit var monitoringService: MonitoringService
+
+    @MockK
     private lateinit var changeEventHandlerFactory: ChangeEventHandlerFactory
 
+    @MockK
     private lateinit var mockEngine: DebeziumEngine<ChangeEvent<String, String>>
-    private lateinit var mockExecutor: ExecutorService
-    private lateinit var testAppender: TestLogAppender
 
+    @MockK
+    private lateinit var mockExecutor: ExecutorService
+
+    private lateinit var testAppender: TestLogAppender
     private val logger: KLogger = KotlinLogging.logger {}
     private lateinit var logbackLogger: Logger
 
     @BeforeEach
     fun setup() {
         // Initialize mocks
-        debeziumConfigProperties = mockk<DebeziumConfigurationProperties>()
+        debeziumConfigProperties = TestConnectionConfig.mockFileBackendStorage()
         connectionService = mockk<ConnectionService>()
         configurationService = mockk<TableConfigurationService>()
         mockEngine = mockk<DebeziumEngine<ChangeEvent<String, String>>>()
@@ -63,14 +75,6 @@ class MonitoringServiceTest {
             changeEventHandlerFactory,
             logger
         )
-
-        // Configure debezium properties
-        every { debeziumConfigProperties.storageBackend } returns StorageBackendType.FILE
-        every { debeziumConfigProperties.offsetStorageDir } returns "/tmp/debezium/offsets"
-        every { debeziumConfigProperties.offsetStorageFileName } returns "debezium-offsets.dat"
-        every { debeziumConfigProperties.schemaHistoryDir } returns "/tmp/debezium/history"
-        every { debeziumConfigProperties.schemaHistoryFileName } returns "debezium-history.dat"
-
         // Mock internal executor service
         val executorField = MonitoringService::class.java.getDeclaredField("executor")
         executorField.isAccessible = true
