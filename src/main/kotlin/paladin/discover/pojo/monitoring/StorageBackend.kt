@@ -34,7 +34,6 @@ sealed class StorageBackend : ConnectorStorageConfiguration {
                 put("offset.storage", KafkaOffsetBackingStore::class.java.name)
                 put("offset.storage.kafka.bootstrap.servers", config.kafkaBootstrapServers)
                 put("offset.storage.topic", config.offsetStorageTopic)
-
             }
 
             config.offsetStoragePartition?.let { props.put("offset.storage.partitions", it.toString()) }
@@ -43,6 +42,7 @@ sealed class StorageBackend : ConnectorStorageConfiguration {
 
         override fun applySchemaHistory(props: Properties, config: DebeziumConfigurationProperties, clientId: UUID) {
             props.apply {
+                put("schema.history.internal", KafkaOffsetBackingStore::class.java.name)
                 put("schema.history.kafka.bootstrap.servers", config.kafkaBootstrapServers)
                 put("schema.history.kafka.topic", config.schemaHistoryTopic)
             }

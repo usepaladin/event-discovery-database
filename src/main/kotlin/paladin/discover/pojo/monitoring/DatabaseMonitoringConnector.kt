@@ -21,7 +21,7 @@ abstract class DatabaseMonitoringConnector(
     fun updateConnectionState(newState: MonitoringConnectionState) {
         _connectionState.value = newState
     }
-    
+
     fun validateStorageBackend() {
         storageBackend.validateConfig(storageConfig, client)
     }
@@ -39,7 +39,7 @@ abstract class DatabaseMonitoringConnector(
             put("database.history.kafka.recovery.poll.interval.ms", "500")
             put("include.schema.changes", "true")
             // Todo: test and validate this configuration
-            put("errors.max.retires", "10")
+            put("errors.max.retries", "10")
         }
 
         // Apply storage backend specific properties (ie. Either File or Kafka based)

@@ -67,7 +67,7 @@ data class MySQLClient(
             connection = datasource?.connection
             return connection?.isValid(4000) ?: false
         } catch (e: Exception) {
-            logger.error(e) { "Postgres Database => ${this.config.connectionName} => $id => Failed to check connection status => Message: ${e.message}" }
+            logger.error(e) { "MySQL Database => ${this.config.connectionName} => $id => Failed to check connection status => Message: ${e.message}" }
             return false
         } finally {
             connection?.close()  // Return connection to pool

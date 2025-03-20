@@ -126,7 +126,9 @@ class MonitoringService(
         }
     }
 
-    fun updateMonitoringConfiguration() {}
+    fun updateMonitoringConfiguration() {
+        TODO("Not yet implemented")
+    }
 
     fun stopMonitoringEngine(client: DatabaseClient) {
         val engine = monitoringEngines.remove(client.id)

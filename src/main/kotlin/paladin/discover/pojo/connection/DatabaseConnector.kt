@@ -10,15 +10,20 @@ interface DatabaseConnector {
     fun connect(): Any
 
     /**
-     * Disconnect from the database
+     * Disconnect from the database, removing any active connections
      */
     fun disconnect()
 
     /**
-     * Get the connection status
+     * Fetching the connection status of the database
      */
     fun isConnected(): Boolean
 
+    /**
+     * Ensure the current configuration associated with a Connector is valid and relevant to the type of database
+     * that the connector is connecting to. This is to help avoid any potential connection failures and exceptions
+     * purely due to incorrect configuration.
+     */
     fun validateConfig()
     fun configure()
 }
