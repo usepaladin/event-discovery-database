@@ -146,7 +146,7 @@ class StorageBackendTest {
 
         // Verify
         assertEquals(
-            "org.apache.kafka.connect.storage.KafkaOffsetBackingStore",
+            "io.debezium.storage.kafka.history.KafkaSchemaHistory",
             properties.getProperty("schema.history.internal")
         )
         assertEquals("localhost:9092", properties.getProperty("schema.history.kafka.bootstrap.servers"))

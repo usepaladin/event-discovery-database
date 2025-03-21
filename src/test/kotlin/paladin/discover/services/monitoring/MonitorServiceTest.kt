@@ -42,8 +42,6 @@ class MonitoringServiceTest {
     @MockK
     private lateinit var configurationService: TableConfigurationService
 
-    @MockK
-    private lateinit var monitoringService: MonitoringService
 
     @MockK
     private lateinit var changeEventHandlerFactory: ChangeEventHandlerFactory
@@ -54,6 +52,7 @@ class MonitoringServiceTest {
     @MockK
     private lateinit var mockExecutor: ExecutorService
 
+    private lateinit var monitoringService: MonitoringService
     private lateinit var testAppender: TestLogAppender
     private val logger: KLogger = KotlinLogging.logger {}
     private lateinit var logbackLogger: Logger
