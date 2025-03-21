@@ -10,7 +10,6 @@ import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.producer.ProducerService
-import java.util.*
 
 @Service
 class ChangeEventHandlerFactory(
@@ -19,12 +18,10 @@ class ChangeEventHandlerFactory(
     private val logger: KLogger
 ) {
     fun createChangeEventHandler(connector: DatabaseMonitoringConnector): ChangeEventFormatHandler<*, *> {
-        val config: Properties = connector.getConnectorProps()
-        val type: ChangeEventHandlerType = connector.getDatabaseChangeEventHandler()
         val client: DatabaseClient = connector.client
-        return when (type) {
+        return when (connector.getDatabaseChangeEventHandler()) {
             ChangeEventHandlerType.JSON -> JsonChangeEventHandler(
-                config,
+                connector,
                 client,
                 producerService,
                 monitoringMetricsService,
@@ -32,7 +29,7 @@ class ChangeEventHandlerFactory(
             )
 
             ChangeEventHandlerType.AVRO -> AvroChangeEventHandler(
-                config,
+                connector,
                 client,
                 producerService,
                 monitoringMetricsService,
@@ -40,7 +37,7 @@ class ChangeEventHandlerFactory(
             )
 
             ChangeEventHandlerType.PROTOBUF -> ProtobufChangeEventHandler(
-                config,
+                connector,
                 client,
                 producerService,
                 monitoringMetricsService,

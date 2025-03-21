@@ -12,12 +12,13 @@ import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventDataKey
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
+import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.monitoring.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
 class JsonChangeEventHandler(
-    override val connectorProperties: Properties,
+    override val connector: DatabaseMonitoringConnector,
     override val client: DatabaseClient,
     override val producerService: ProducerService,
     override val monitoringMetricsService: MonitoringMetricsService,
@@ -28,7 +29,7 @@ class JsonChangeEventHandler(
 
     override fun createEngine(): DebeziumEngine<ChangeEvent<String, String>> {
         return DebeziumEngine.create(Json::class.java)
-            .using(connectorProperties)
+            .using(connector.getConnectorProps())
             .notifying { event -> handleObservation(event) }
             .build()
     }
@@ -73,7 +74,11 @@ class JsonChangeEventHandler(
     }
 
     private fun generateJsonNode(value: String): JsonNode {
-        return objectMapper.readTree(value)
+        try {
+            return objectMapper.readTree(value)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Value was of an incorrect format => ${e.message}")
+        }
     }
 
 
@@ -139,6 +144,12 @@ class JsonChangeEventHandler(
             }
 
             val valueNode: JsonNode = generateJsonNode(event.value())
+
+            // Assert value is not null/empty JSON object
+            if (valueNode.isNull || valueNode.isEmpty) {
+                throw IllegalArgumentException("Decoded Value was empty or null")
+            }
+
             val operation: ChangeEventOperation = parseOperationType(valueNode)
 
             if (this.isRecordChangeEvent(operation)) {

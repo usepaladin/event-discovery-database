@@ -1,6 +1,7 @@
 package paladin.discover.pojo.monitoring
 
 import io.debezium.storage.file.history.FileSchemaHistory
+import io.debezium.storage.kafka.history.KafkaSchemaHistory
 import org.apache.kafka.connect.storage.FileOffsetBackingStore
 import org.apache.kafka.connect.storage.KafkaOffsetBackingStore
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
@@ -42,7 +43,7 @@ sealed class StorageBackend : ConnectorStorageConfiguration {
 
         override fun applySchemaHistory(props: Properties, config: DebeziumConfigurationProperties, clientId: UUID) {
             props.apply {
-                put("schema.history.internal", KafkaOffsetBackingStore::class.java.name)
+                put("schema.history.internal", KafkaSchemaHistory::class.java.name)
                 put("schema.history.kafka.bootstrap.servers", config.kafkaBootstrapServers)
                 put("schema.history.kafka.topic", config.schemaHistoryTopic)
             }

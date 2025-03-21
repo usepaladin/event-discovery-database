@@ -8,12 +8,12 @@ import paladin.discover.enums.monitoring.ChangeEventOperation
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
+import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.monitoring.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
-import java.util.*
 
 class ProtobufChangeEventHandler(
-    override val connectorProperties: Properties,
+    override val connector: DatabaseMonitoringConnector,
     override val client: DatabaseClient,
     override val producerService: ProducerService,
     override val monitoringMetricsService: MonitoringMetricsService,
@@ -21,7 +21,7 @@ class ProtobufChangeEventHandler(
 ) : ChangeEventFormatHandler<ByteArray, ByteArray>() {
     override fun createEngine(): DebeziumEngine<ChangeEvent<ByteArray, ByteArray>> {
         return DebeziumEngine.create(Protobuf::class.java)
-            .using(connectorProperties)
+            .using(connector.getConnectorProps())
             .notifying { event -> handleObservation(event) }
             .build()
     }
