@@ -77,7 +77,7 @@ class JsonChangeEventHandler(
         try {
             return objectMapper.readTree(value)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Value was of an incorrect format => ${e.message}")
+            throw IllegalArgumentException("Value was of an incorrect format => ${e.message}", e)
         }
     }
 
