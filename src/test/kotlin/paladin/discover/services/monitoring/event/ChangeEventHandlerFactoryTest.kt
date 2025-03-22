@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
-import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.models.monitoring.changeEvent.AvroChangeEventHandler
 import paladin.discover.models.monitoring.changeEvent.JsonChangeEventHandler
@@ -41,7 +40,7 @@ class ChangeEventHandlerFactoryTest {
 
     @MockK
     private lateinit var client: DatabaseClient
-    
+
     private lateinit var factory: ChangeEventHandlerFactory
     private lateinit var testAppender: TestLogAppender
     private val logger: KLogger = KotlinLogging.logger {}

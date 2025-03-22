@@ -8,6 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.client.DatabaseClient.ClientConnectionState
@@ -28,7 +31,9 @@ import paladin.discover.utils.TestLogAppender
 import java.util.*
 
 @ExperimentalCoroutinesApi
+@ExtendWith(MockKExtension::class)
 class ConnectionMonitoringServiceTest {
+    @MockK
     private lateinit var connectionService: ConnectionService
     private lateinit var monitoringService: ConnectionMonitoringService
     private lateinit var testLogAppender: TestLogAppender
@@ -41,7 +46,6 @@ class ConnectionMonitoringServiceTest {
 
     @BeforeEach
     fun setup() {
-        connectionService = mockk<ConnectionService>()
         logbackLogger = LoggerFactory.getLogger(logger.name) as Logger
         testLogAppender = TestLogAppender.factory(logbackLogger, Level.DEBUG)
         monitoringService = ConnectionMonitoringService(connectionService, logger, testDispatcher)

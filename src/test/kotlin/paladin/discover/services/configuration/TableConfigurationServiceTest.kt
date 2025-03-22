@@ -1,13 +1,23 @@
 package paladin.discover.services.configuration
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import io.github.oshai.kotlinlogging.KLogger
-import io.mockk.*
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.LoggerFactory
 import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
 import paladin.discover.models.configuration.Column
 import paladin.discover.models.configuration.DatabaseTable
@@ -16,21 +26,30 @@ import paladin.discover.models.configuration.PrimaryKey
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.repositories.configuration.TableConfigurationRepository
 import paladin.discover.utils.TestDatabaseConfigurations
+import paladin.discover.utils.TestLogAppender
 import java.util.*
 
 @ExperimentalCoroutinesApi
+@ExtendWith(MockKExtension::class)
 class TableConfigurationServiceTest {
     private lateinit var tableConfigService: TableConfigurationService
-    private lateinit var mockTableConfigRepository: TableConfigurationRepository
-    private lateinit var mockClient: DatabaseClient
-    private lateinit var logger: KLogger
+
+    @MockK
+    private lateinit var tableConfigRepository: TableConfigurationRepository
+
+    @MockK
+    private lateinit var client: DatabaseClient
+
+    private lateinit var testAppender: TestLogAppender
+    private var logger: KLogger = KotlinLogging.logger {}
+    private lateinit var logbackLogger: Logger
 
     @BeforeEach
     fun setup() {
-        mockTableConfigRepository = mockk<TableConfigurationRepository>()
-        mockClient = mockk<DatabaseClient>()
-        logger = mockk<KLogger>(relaxed = true)
-        tableConfigService = TableConfigurationService(mockTableConfigRepository, logger)
+        // Configure logger
+        logbackLogger = LoggerFactory.getLogger(logger.name) as Logger
+        testAppender = TestLogAppender.factory(logbackLogger, Level.DEBUG)
+        tableConfigService = TableConfigurationService(tableConfigRepository, logger)
     }
 
     @Test
@@ -56,15 +75,15 @@ class TableConfigurationServiceTest {
             )
         )
 
-        every { mockClient.id } returns config.id
-        every { mockClient.config } returns config
-        every { mockClient.getDatabaseProperties() } returns mockTables
-        every { mockTableConfigRepository.findAllByDatabaseConnectionId(any()) } returns emptyList()
-        every { mockTableConfigRepository.save(any()) } returnsArgument 0
+        every { client.id } returns config.id
+        every { client.config } returns config
+        every { client.getDatabaseProperties() } returns mockTables
+        every { tableConfigRepository.findAllByDatabaseConnectionId(any()) } returns emptyList()
+        every { tableConfigRepository.save(any()) } returnsArgument 0
 
-        tableConfigService.scanDatabaseTableConfiguration(mockClient)
+        tableConfigService.scanDatabaseTableConfiguration(client)
 
-        every { mockTableConfigRepository.save(any()) }
+        every { tableConfigRepository.save(any()) }
     }
 
     @Test
@@ -89,18 +108,18 @@ class TableConfigurationServiceTest {
             )
         )
 
-        every { mockClient.id } returns config.id
-        every { mockClient.config } returns config
-        every { mockTableConfigRepository.findAllByDatabaseConnectionId(any()) } returns listOf(existingTable)
-        every { mockTableConfigRepository.save(any()) } returnsArgument 0
+        every { client.id } returns config.id
+        every { client.config } returns config
+        every { tableConfigRepository.findAllByDatabaseConnectionId(any()) } returns listOf(existingTable)
+        every { tableConfigRepository.save(any()) } returnsArgument 0
 
         tableConfigService.handleTableConfigurationComparison(
             listOf(scannedTable),
             listOf(existingTable),
-            mockClient
+            client
         )
 
-        verify { mockTableConfigRepository.save(any()) }
+        verify { tableConfigRepository.save(any()) }
     }
 
     @Test
@@ -116,9 +135,9 @@ class TableConfigurationServiceTest {
         )
 
 
-        every { mockClient.id } returns config.id
-        every { mockClient.config } returns config
-        coEvery { mockTableConfigRepository.save(any()) } answers {
+        every { client.id } returns config.id
+        every { client.config } returns config
+        coEvery { tableConfigRepository.save(any()) } answers {
             // The repository is responsible for the generation of an Entity UUID, so we need to mock this
             val savedEntity = firstArg<TableMonitoringConfigurationEntity>().copy(
                 id = UUID.randomUUID()
@@ -126,12 +145,12 @@ class TableConfigurationServiceTest {
             savedEntity
         }
 
-        val result = tableConfigService.createTableConfiguration(mockClient, newTable)
+        val result = tableConfigService.createTableConfiguration(client, newTable)
 
         assertNotNull(result)
         assertEquals(newTable.tableName, result.tableName)
         assertEquals(newTable.schema, result.namespace)
-        coVerify { mockTableConfigRepository.save(any()) }
+        coVerify { tableConfigRepository.save(any()) }
     }
 
     /**todo: Further Implement Change recognition during Database scans

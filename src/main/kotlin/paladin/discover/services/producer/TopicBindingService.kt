@@ -1,5 +1,6 @@
 package paladin.discover.services.producer
 
+import org.springframework.cloud.stream.binder.ProducerProperties
 import org.springframework.cloud.stream.binding.BindingService
 import org.springframework.cloud.stream.config.BindingProperties
 import org.springframework.cloud.stream.config.BindingServiceProperties
@@ -20,6 +21,7 @@ class TopicBindingService(
                 destination = topicBindingProperties.topicName
                 binder = topicBindingProperties.binder
                 contentType = getTopicContentType(topicBindingProperties.contentType)
+                producer = ProducerProperties()
             }
         }
 

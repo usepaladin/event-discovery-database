@@ -9,8 +9,10 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.models.configuration.TableConfiguration
@@ -30,10 +32,9 @@ import java.util.function.Consumer
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@ExtendWith(MockKExtension::class)
 class MonitoringServiceTest {
 
-
-    @MockK
     private lateinit var debeziumConfigProperties: DebeziumConfigurationProperties
 
     @MockK
@@ -61,10 +62,6 @@ class MonitoringServiceTest {
     fun setup() {
         // Initialize mocks
         debeziumConfigProperties = TestConnectionConfig.mockFileBackendStorage()
-        connectionService = mockk<ConnectionService>()
-        configurationService = mockk<TableConfigurationService>()
-        mockEngine = mockk<DebeziumEngine<ChangeEvent<String, String>>>()
-        changeEventHandlerFactory = mockk<ChangeEventHandlerFactory>()
 
         // Initialize service
         monitoringService = MonitoringService(
