@@ -1,0 +1,76 @@
+package paladin.discover.models.connection
+
+import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
+import paladin.discover.entities.connection.DatabaseConnectionEntity
+import paladin.discover.enums.monitoring.ChangeEventHandlerType
+import paladin.discover.models.common.DatabaseType
+import paladin.discover.pojo.connection.ConnectionAdditionalProperties
+import paladin.discover.pojo.connection.ConnectionPropertyConverter
+import java.util.*
+
+data class DatabaseConnectionConfiguration(
+    val id: UUID,
+    val instanceId: UUID,
+    val connectionName: String,
+    val databaseType: DatabaseType,
+    val monitoringEventHandler: ChangeEventHandlerType,
+    var hostName: String,
+    var port: String,
+    var database: String,
+    var user: String,
+    var password: String?,
+    var additionalProperties: ConnectionAdditionalProperties? = null,
+    val isEnabled: Boolean,
+    val tableConfigurations: List<TableMonitoringConfigurationEntity> = mutableListOf()
+) {
+    companion object Factory {
+        /**
+         * Converts a Database Connection Entity fetched from storage to a Database Connection Configuration
+         * In the event that the entity is not encrypted, we can safely pass through most of the fields,
+         * but would need to object map the JSON Additional properties string.
+         *
+         * For encrypted entities, they will be left blank for the calling service to decrypt and apply the
+         * associated values
+         */
+        fun fromEntity(
+            entity: DatabaseConnectionEntity,
+            requireEncryption: Boolean = true
+        ): DatabaseConnectionConfiguration {
+            if (requireEncryption) {
+                return DatabaseConnectionConfiguration(
+                    id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
+                    instanceId = entity.instanceId,
+                    connectionName = entity.connectionName,
+                    databaseType = entity.databaseType,
+                    monitoringEventHandler = entity.databaseMonitoringHandlerType,
+                    hostName = "[ENCRYPTED]",
+                    port = "[ENCRYPTED]",
+                    database = "[ENCRYPTED]",
+                    user = "[ENCRYPTED]",
+                    password = "",
+                    additionalProperties = null,
+                    isEnabled = false,
+                    tableConfigurations = entity.tableMonitoringConfigurations
+                )
+            }
+            val propertyConverter = ConnectionPropertyConverter()
+
+            return DatabaseConnectionConfiguration(
+                id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
+                instanceId = entity.instanceId,
+                connectionName = entity.connectionName,
+                databaseType = entity.databaseType,
+                monitoringEventHandler = entity.databaseMonitoringHandlerType,
+                hostName = entity.hostName,
+                port = entity.port,
+                database = entity.databaseName,
+                user = entity.user,
+                password = entity.password,
+                additionalProperties = propertyConverter.convertToEntityAttribute(entity.additionalPropertiesText),
+                isEnabled = entity.isEnabled,
+                tableConfigurations = entity.tableMonitoringConfigurations
+            )
+
+        }
+    }
+}

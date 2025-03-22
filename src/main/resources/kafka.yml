@@ -1,6 +1,74 @@
 spring:
+  cloud:
+    stream:
+      default:
+        content-type: application/json
+      # Consumer bindings
+      bindings:
+        # Producer bindings
+        database-monitoring-metadata-out-0:
+          destination: database-monitoring-metadata
+          binder: kafka-internal
+          producer:
+            error-channel-enabled: true
+        database-monitoring-record-change-event-out-0:
+          destination: database-monitoring-record-change-event
+          binder: kafka-internal
+          producer:
+            error-channel-enabled: true
+
+      # Kafka binder configuration
+      binders:
+        kafka-internal:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: ${KAFKA_BROKERS:localhost:9092}
+                      required-acks: all
+                      auto-create-topics: false
+                      auto-add-partitions: false
+                      min-partition-count: 3
+                      replication-factor: 3
+                      producer-properties:
+                        key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                        value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+                        acks: all
+                        retries: 5
+                        retry.backoff.ms: 500
+                        max.block.ms: 60000
+                        delivery.timeout.ms: 120000
+                        linger.ms: 10
+                        batch.size: 16384
+                        compression.type: lz4
+                        enable.idempotence: true
+                        max.in.flight.requests.per.connection: 5
+                      consumer-properties:
+                        key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                        value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+                        auto.offset.reset: earliest
+                        max.poll.records: 500
+                        max.poll.interval.ms: 300000
+                        session.timeout.ms: 60000
+                        heartbeat.interval.ms: 20000
+                        fetch.min.bytes: 1
+                        fetch.max.wait.ms: 500
+                        isolation.level: read_committed
+                        spring.json.trusted.packages: "*"
+      default-binder: kafka-internal
+  # Kafka health indicator
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092}
+    bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
     consumer:
-      group-id: event-discovery
+      group-id: ${spring.application.name}
       auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

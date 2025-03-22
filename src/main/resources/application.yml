@@ -15,8 +15,8 @@ spring:
     import:
       - classpath:/exclude.yml
       - classpath:/datasource.yml
-      - classpath:/kafka.yml
       - classpath:/logging.yml
+      - classpath:/kafka.yml
 encryption:
   key: ${TEMP_ENCRYPTION_KEY}
 management:
@@ -35,7 +35,10 @@ management:
       exposure:
         include: "health,info,metrics"
 debezium:
+  storage-backend: file
   offset-storage-dir: /tmp/debezium/offsets
   offset-storage-file-name: debezium-offsets.dat
-  history-dir: /tmp/debezium/history
-  history-file-name: debezium-history.dat
+  schema-history-dir: /tmp/debezium/schemas
+  schema-history-file-name: debezium-schemas.dat
+
+
