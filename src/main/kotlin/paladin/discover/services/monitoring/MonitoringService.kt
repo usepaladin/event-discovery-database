@@ -7,7 +7,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Service
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
-import paladin.discover.models.common.DatabaseType
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.models.configuration.TableConfiguration
 import paladin.discover.models.monitoring.MySQLConnector
 import paladin.discover.models.monitoring.PostgresConnector

@@ -5,7 +5,7 @@ import io.debezium.storage.kafka.history.KafkaSchemaHistory
 import org.apache.kafka.connect.storage.FileOffsetBackingStore
 import org.apache.kafka.connect.storage.KafkaOffsetBackingStore
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
-import paladin.discover.models.common.DatabaseType
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.util.monitor.ConnectorStorageConfiguration
 import java.io.File

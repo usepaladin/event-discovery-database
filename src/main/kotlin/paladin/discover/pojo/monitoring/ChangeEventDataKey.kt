@@ -1,7 +1,7 @@
 package paladin.discover.pojo.monitoring
 
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.enums.monitoring.ChangeEventOperation
-import paladin.discover.models.common.DatabaseType
 
 data class ChangeEventDataKey(
     val database: DatabaseType,

@@ -2,8 +2,7 @@ package paladin.discover.models.connection
 
 import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
 import paladin.discover.entities.connection.DatabaseConnectionEntity
-import paladin.discover.enums.monitoring.ChangeEventHandlerType
-import paladin.discover.models.common.DatabaseType
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.pojo.connection.ConnectionAdditionalProperties
 import paladin.discover.pojo.connection.ConnectionPropertyConverter
 import java.util.*
@@ -13,7 +12,6 @@ data class DatabaseConnectionConfiguration(
     val instanceId: UUID,
     val connectionName: String,
     val databaseType: DatabaseType,
-    val monitoringEventHandler: ChangeEventHandlerType,
     var hostName: String,
     var port: String,
     var database: String,
@@ -42,7 +40,6 @@ data class DatabaseConnectionConfiguration(
                     instanceId = entity.instanceId,
                     connectionName = entity.connectionName,
                     databaseType = entity.databaseType,
-                    monitoringEventHandler = entity.databaseMonitoringHandlerType,
                     hostName = "[ENCRYPTED]",
                     port = "[ENCRYPTED]",
                     database = "[ENCRYPTED]",
@@ -60,7 +57,6 @@ data class DatabaseConnectionConfiguration(
                 instanceId = entity.instanceId,
                 connectionName = entity.connectionName,
                 databaseType = entity.databaseType,
-                monitoringEventHandler = entity.databaseMonitoringHandlerType,
                 hostName = entity.hostName,
                 port = entity.port,
                 database = entity.databaseName,

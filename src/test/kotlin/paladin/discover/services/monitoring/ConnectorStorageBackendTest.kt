@@ -9,7 +9,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
-import paladin.discover.models.common.DatabaseType
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.StorageBackend

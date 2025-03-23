@@ -16,8 +16,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.enums.monitoring.ChangeEventOperation
-import paladin.discover.models.common.DatabaseType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.models.monitoring.changeEvent.JsonChangeEventHandler
 import paladin.discover.pojo.client.DatabaseClient

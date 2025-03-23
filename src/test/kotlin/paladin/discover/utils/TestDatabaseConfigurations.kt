@@ -1,7 +1,7 @@
 package paladin.discover.utils
 
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.enums.monitoring.ChangeEventHandlerType
-import paladin.discover.models.common.DatabaseType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.connection.ConnectionAdditionalProperties
 import java.util.*

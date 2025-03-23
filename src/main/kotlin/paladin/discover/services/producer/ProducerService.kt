@@ -1,20 +1,27 @@
 package paladin.discover.services.producer
 
 import io.github.oshai.kotlinlogging.KLogger
+import org.springframework.cloud.stream.binder.BinderConfiguration
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
-import paladin.discover.configuration.CloudBinderConfiguration
 import paladin.discover.pojo.producer.DynamicBindingProperties
 
 @Service
 class ProducerService(
     private val streamBridge: StreamBridge,
-    private val cloudBinderConfiguration: CloudBinderConfiguration,
     private val topicBindingService: TopicBindingService,
     private val logger: KLogger
 ) {
+
+    fun <T, V> sendToUserBroker(binding: String, binder: BinderConfiguration, key: V, payload: T) {
+
+    }
+
+    fun <T, V> sendToInternalBroker(binding: String, key: V, payload: T) {
+
+    }
 
     fun <T : Any, V> sendMessage(binding: String, key: V, payload: T) {
         try {

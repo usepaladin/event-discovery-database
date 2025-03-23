@@ -1,6 +1,6 @@
 package paladin.discover.util.connection
 
-import paladin.discover.models.common.DatabaseType
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 
 data class ConnectionBuilder(val connection: DatabaseConnectionConfiguration) {
@@ -28,7 +28,7 @@ data class ConnectionBuilder(val connection: DatabaseConnectionConfiguration) {
             else -> ""
         }
         val baseUrl = "mongodb://$authCredentials${connection.hostName}:${connection.port}"
-        val db = connection.database?.let { "/$it" } ?: ""
+        val db = connection.database.let { "/$it" }
 
         // Properly format query parameters
         val queryParams = mutableListOf<String>()

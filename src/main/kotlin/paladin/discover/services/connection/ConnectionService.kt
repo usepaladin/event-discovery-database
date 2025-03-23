@@ -5,13 +5,13 @@ import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.exceptions.ConnectionJobNotFound
 import paladin.discover.exceptions.DatabaseConnectionNotFound
 import paladin.discover.models.client.CassandraClient
 import paladin.discover.models.client.MongoClient
 import paladin.discover.models.client.MySQLClient
 import paladin.discover.models.client.PostgresClient
-import paladin.discover.models.common.DatabaseType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import java.util.*
