@@ -46,12 +46,12 @@ data class TableMonitoringConfigurationEntity(
     )
     val databaseConnection: DatabaseConnectionEntity? = null,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
         name = "message_broker_id",
         referencedColumnName = "message_broker_id",
         insertable = false,
-        updatable = false
+        updatable = false,
     )
     val messageBroker: MessageBrokerConfigurationEntity? = null,
 
