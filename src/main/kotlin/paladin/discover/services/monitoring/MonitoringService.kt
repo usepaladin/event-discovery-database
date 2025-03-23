@@ -1,5 +1,6 @@
 package paladin.discover.services.monitoring
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
 import io.github.oshai.kotlinlogging.KLogger
@@ -39,7 +40,7 @@ class MonitoringService(
 ) {
 
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
-    private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<out ChangeEvent<out Any, out Any>>>()
+    private val monitoringEngines = ConcurrentHashMap<UUID, DebeziumEngine<ChangeEvent<String, String>>>()
 
     fun startMonitoring() {
         val clients: List<DatabaseClient> = connectionService.getAllClients()
@@ -63,18 +64,13 @@ class MonitoringService(
              * ChangeEvent v RecordChangeEvent
              * The RecordChangeEvent interface in Debezium is used in specific scenarios
              * when you need a higher-level abstraction for change events
-             *
-             * Currently we are using ChangeEvent<String, String> which is a generic implementation of RecordChangeEvent
-             * which provides access to the raw change event data for the pure focus of Pushing events to Kafka
              */
 
             monitoringConnector.updateConnectionState(DatabaseMonitoringConnector.MonitoringConnectionState.Connecting)
-            // Gets the user specified format for how the Engine handles record observations and changes (ie. Json, Avro, Protobuf, etc)
-
-
-            val changeEventHandler: ChangeEventFormatHandler<*, *> = changeEventHandlerFactory.createChangeEventHandler(
-                connector = monitoringConnector
-            )
+            val changeEventHandler: ChangeEventFormatHandler<String, JsonNode> =
+                changeEventHandlerFactory.createChangeEventHandler(
+                    connector = monitoringConnector
+                )
 
             val engine = changeEventHandler.createEngine()
             // Store the engine under the client's connection name, easier to retrieve from the event

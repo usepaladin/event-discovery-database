@@ -5,6 +5,5 @@ import paladin.discover.pojo.monitoring.ChangeEventData
 
 interface ChangeEventDecoder<T, V> {
     fun decodeKey(rawKey: T): V
-    fun decodeValue(rawValue: T): ChangeEventData
     fun decodeValue(rawValue: V, operationType: ChangeEventOperation): ChangeEventData
 }

@@ -17,7 +17,7 @@ import paladin.discover.services.monitoring.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
-class JsonChangeEventHandler(
+class ChangeEventHandler(
     override val connector: DatabaseMonitoringConnector,
     override val client: DatabaseClient,
     override val producerService: ProducerService,
@@ -37,11 +37,7 @@ class JsonChangeEventHandler(
     override fun decodeKey(rawKey: String): JsonNode {
         return generateJsonNode(rawKey)
     }
-
-    override fun decodeValue(rawValue: String): ChangeEventData {
-        TODO()
-    }
-
+    
     /**
      * */
     override fun decodeValue(rawValue: JsonNode, operationType: ChangeEventOperation): ChangeEventData {
