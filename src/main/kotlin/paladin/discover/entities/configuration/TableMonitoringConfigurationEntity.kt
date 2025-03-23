@@ -3,6 +3,7 @@ package paladin.discover.entities.configuration
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
+import paladin.discover.entities.brokers.MessageBrokerConfigurationEntity
 import paladin.discover.entities.connection.DatabaseConnectionEntity
 import paladin.discover.pojo.configuration.TableColumnConfiguration
 import paladin.discover.pojo.configuration.TableMetadataConfiguration
@@ -44,6 +45,15 @@ data class TableMonitoringConfigurationEntity(
         updatable = false
     )
     val databaseConnection: DatabaseConnectionEntity? = null,
+
+    @ManyToOne
+    @JoinColumn(
+        name = "message_broker_id",
+        referencedColumnName = "message_broker_id",
+        insertable = false,
+        updatable = false
+    )
+    val messageBroker: MessageBrokerConfigurationEntity? = null,
 
     @Column(name = "namespace")
     val namespace: String? = null,
