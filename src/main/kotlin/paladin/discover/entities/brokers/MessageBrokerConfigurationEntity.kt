@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
+import paladin.discover.enums.configuration.BrokerFormat
 import paladin.discover.enums.configuration.BrokerType
 import java.time.ZonedDateTime
 import java.util.*
@@ -51,7 +52,7 @@ data class MessageBrokerConfigurationEntity(
 
     @Column(name = "broker_format", nullable = false)
     @Enumerated(EnumType.STRING)
-    val brokerFormat: BrokerType,
+    val brokerFormat: BrokerFormat,
 
     @Column(name = "enc_broker_config", nullable = false)
     var brokerConfigEncrypted: String,
