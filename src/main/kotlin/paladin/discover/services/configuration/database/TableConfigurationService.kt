@@ -1,15 +1,15 @@
-package paladin.discover.services.configuration
+package paladin.discover.services.configuration.database
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.*
 import org.springframework.stereotype.Service
 import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
-import paladin.discover.models.configuration.DatabaseTable
-import paladin.discover.models.configuration.TableConfiguration
+import paladin.discover.models.configuration.database.DatabaseTable
+import paladin.discover.models.configuration.database.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
-import paladin.discover.pojo.configuration.TableColumnConfiguration
-import paladin.discover.pojo.configuration.TableMetadataConfiguration
+import paladin.discover.pojo.configuration.database.TableColumnConfiguration
+import paladin.discover.pojo.configuration.database.TableMetadataConfiguration
 import paladin.discover.repositories.configuration.TableConfigurationRepository
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

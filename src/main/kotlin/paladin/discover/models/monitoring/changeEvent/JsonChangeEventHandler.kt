@@ -13,7 +13,7 @@ import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventDataKey
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
-import paladin.discover.services.monitoring.MonitoringMetricsService
+import paladin.discover.services.metrics.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import java.util.*
 
@@ -37,7 +37,7 @@ class ChangeEventHandler(
     override fun decodeKey(rawKey: String): JsonNode {
         return generateJsonNode(rawKey)
     }
-    
+
     /**
      * */
     override fun decodeValue(rawValue: JsonNode, operationType: ChangeEventOperation): ChangeEventData {

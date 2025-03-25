@@ -1,8 +1,8 @@
-package paladin.discover.models.configuration
+package paladin.discover.models.configuration.database
 
 import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
-import paladin.discover.pojo.configuration.TableColumnConfiguration
-import paladin.discover.pojo.configuration.TableMetadataConfiguration
+import paladin.discover.pojo.configuration.database.TableColumnConfiguration
+import paladin.discover.pojo.configuration.database.TableMetadataConfiguration
 import java.time.ZonedDateTime
 import java.util.*
 

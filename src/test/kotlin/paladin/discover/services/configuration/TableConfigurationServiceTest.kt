@@ -19,12 +19,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
 import paladin.discover.entities.configuration.TableMonitoringConfigurationEntity
-import paladin.discover.models.configuration.Column
-import paladin.discover.models.configuration.DatabaseTable
-import paladin.discover.models.configuration.ForeignKey
-import paladin.discover.models.configuration.PrimaryKey
+import paladin.discover.models.configuration.database.Column
+import paladin.discover.models.configuration.database.DatabaseTable
+import paladin.discover.models.configuration.database.ForeignKey
+import paladin.discover.models.configuration.database.PrimaryKey
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.repositories.configuration.TableConfigurationRepository
+import paladin.discover.services.configuration.database.TableConfigurationService
 import paladin.discover.utils.TestDatabaseConfigurations
 import paladin.discover.utils.TestLogAppender
 import java.util.*

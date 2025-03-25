@@ -5,8 +5,8 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import paladin.discover.entities.brokers.MessageBrokerConfigurationEntity
 import paladin.discover.entities.connection.DatabaseConnectionEntity
-import paladin.discover.pojo.configuration.TableColumnConfiguration
-import paladin.discover.pojo.configuration.TableMetadataConfiguration
+import paladin.discover.pojo.configuration.database.TableColumnConfiguration
+import paladin.discover.pojo.configuration.database.TableMetadataConfiguration
 import java.time.ZonedDateTime
 import java.util.*
 

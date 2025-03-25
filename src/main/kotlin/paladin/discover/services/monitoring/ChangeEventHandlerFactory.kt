@@ -7,6 +7,7 @@ import paladin.discover.models.monitoring.changeEvent.ChangeEventHandler
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
+import paladin.discover.services.metrics.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 
 @Service

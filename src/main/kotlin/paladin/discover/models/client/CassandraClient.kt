@@ -12,9 +12,9 @@ import com.datastax.oss.driver.api.core.type.UserDefinedType
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 import paladin.discover.exceptions.NoActiveConnectionFound
-import paladin.discover.models.configuration.Column
-import paladin.discover.models.configuration.DatabaseTable
-import paladin.discover.models.configuration.PrimaryKey
+import paladin.discover.models.configuration.database.Column
+import paladin.discover.models.configuration.database.DatabaseTable
+import paladin.discover.models.configuration.database.PrimaryKey
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import java.net.InetSocketAddress

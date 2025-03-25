@@ -15,11 +15,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
-import paladin.discover.models.configuration.TableConfiguration
+import paladin.discover.models.configuration.database.TableConfiguration
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
-import paladin.discover.services.configuration.TableConfigurationService
+import paladin.discover.services.configuration.database.TableConfigurationService
 import paladin.discover.services.connection.ConnectionService
 import paladin.discover.utils.TestColumnConfigurations
 import paladin.discover.utils.TestConnectionConfig

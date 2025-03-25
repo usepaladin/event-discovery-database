@@ -20,7 +20,7 @@ import paladin.discover.models.monitoring.changeEvent.ProtobufChangeEventHandler
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import paladin.discover.services.monitoring.ChangeEventHandlerFactory
-import paladin.discover.services.monitoring.MonitoringMetricsService
+import paladin.discover.services.metrics.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import paladin.discover.utils.TestLogAppender
 import java.util.*

@@ -1,4 +1,4 @@
-package paladin.discover.models.brokers
+package paladin.discover.models.configuration.brokers
 
 import paladin.discover.entities.brokers.BrokerTopicConfigurationEntity
 import paladin.discover.enums.configuration.BrokerType

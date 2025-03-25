@@ -1,9 +1,9 @@
 package paladin.discover.utils
 
-import paladin.discover.models.configuration.PrimaryKey
-import paladin.discover.models.configuration.TableConfiguration
-import paladin.discover.pojo.configuration.TableColumnConfiguration
-import paladin.discover.pojo.configuration.TableMetadataConfiguration
+import paladin.discover.models.configuration.database.PrimaryKey
+import paladin.discover.models.configuration.database.TableConfiguration
+import paladin.discover.pojo.configuration.database.TableColumnConfiguration
+import paladin.discover.pojo.configuration.database.TableMetadataConfiguration
 import java.time.ZonedDateTime
 import java.util.*
 

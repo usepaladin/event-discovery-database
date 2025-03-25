@@ -1,4 +1,4 @@
-package paladin.discover.services.configuration
+package paladin.discover.services.configuration.database
 
 import org.springframework.stereotype.Service
 import paladin.discover.configuration.properties.CoreConfigurationProperties

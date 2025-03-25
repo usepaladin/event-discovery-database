@@ -8,9 +8,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.Document
 import org.bson.types.ObjectId
 import paladin.discover.exceptions.NoActiveConnectionFound
-import paladin.discover.models.configuration.Column
-import paladin.discover.models.configuration.DatabaseTable
-import paladin.discover.models.configuration.PrimaryKey
+import paladin.discover.models.configuration.database.Column
+import paladin.discover.models.configuration.database.DatabaseTable
+import paladin.discover.models.configuration.database.PrimaryKey
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.util.connection.ConnectionBuilder

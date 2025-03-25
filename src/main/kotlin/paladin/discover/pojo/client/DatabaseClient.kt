@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.pojo.connection.DatabaseConnector
-import paladin.discover.util.configuration.TableConfigurationBuilder
+import paladin.discover.util.configuration.database.TableConfigurationBuilder
 import java.util.*
 
 /**

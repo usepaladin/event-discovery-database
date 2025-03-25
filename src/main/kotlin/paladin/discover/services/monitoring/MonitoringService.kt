@@ -8,13 +8,13 @@ import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Service
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
 import paladin.discover.enums.configuration.DatabaseType
-import paladin.discover.models.configuration.TableConfiguration
+import paladin.discover.models.configuration.database.TableConfiguration
 import paladin.discover.models.monitoring.MySQLConnector
 import paladin.discover.models.monitoring.PostgresConnector
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventFormatHandler
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
-import paladin.discover.services.configuration.TableConfigurationService
+import paladin.discover.services.configuration.database.TableConfigurationService
 import paladin.discover.services.connection.ConnectionService
 import java.io.IOException
 import java.util.*

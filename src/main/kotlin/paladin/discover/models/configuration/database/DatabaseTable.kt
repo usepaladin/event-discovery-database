@@ -1,6 +1,6 @@
-package paladin.discover.models.configuration
+package paladin.discover.models.configuration.database
 
-import paladin.discover.pojo.configuration.BaseColumn
+import paladin.discover.pojo.configuration.database.BaseColumn
 
 data class DatabaseTable(
     val tableName: String,

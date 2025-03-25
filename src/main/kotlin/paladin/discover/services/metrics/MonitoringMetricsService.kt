@@ -1,4 +1,4 @@
-package paladin.discover.services.monitoring
+package paladin.discover.services.metrics
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service

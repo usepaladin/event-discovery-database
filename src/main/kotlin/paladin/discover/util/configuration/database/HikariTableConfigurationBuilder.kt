@@ -1,9 +1,9 @@
-package paladin.discover.util.configuration
+package paladin.discover.util.configuration.database
 
-import paladin.discover.models.configuration.Column
-import paladin.discover.models.configuration.DatabaseTable
-import paladin.discover.models.configuration.ForeignKey
-import paladin.discover.models.configuration.PrimaryKey
+import paladin.discover.models.configuration.database.Column
+import paladin.discover.models.configuration.database.DatabaseTable
+import paladin.discover.models.configuration.database.ForeignKey
+import paladin.discover.models.configuration.database.PrimaryKey
 import java.sql.DatabaseMetaData
 
 interface HikariTableConfigurationBuilder {

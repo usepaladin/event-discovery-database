@@ -3,7 +3,7 @@ package paladin.discover.pojo.monitoring
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
-import paladin.discover.models.configuration.TableConfiguration
+import paladin.discover.models.configuration.database.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import java.util.*
 

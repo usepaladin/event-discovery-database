@@ -59,7 +59,6 @@ data class MessageBrokerConfigurationEntity(
 
     @Type(JsonBinaryType::class)
     @Column(name = "broker_config", nullable = false, columnDefinition = "JSONB")
-    //todo: type it
     var brokerConfig: Map<String, Any>,
 
     @Column(name = "default_broker")

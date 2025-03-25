@@ -1,4 +1,4 @@
-package paladin.discover.pojo.configuration
+package paladin.discover.pojo.configuration.database
 
 data class TableColumnConfiguration(
     override var name: String? = null,

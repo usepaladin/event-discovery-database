@@ -5,7 +5,7 @@ import io.debezium.engine.DebeziumEngine
 import io.github.oshai.kotlinlogging.KLogger
 import paladin.discover.enums.monitoring.ChangeEventOperation
 import paladin.discover.pojo.client.DatabaseClient
-import paladin.discover.services.monitoring.MonitoringMetricsService
+import paladin.discover.services.metrics.MonitoringMetricsService
 import paladin.discover.services.producer.ProducerService
 import paladin.discover.util.monitor.ChangeEventDecoder
 

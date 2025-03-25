@@ -2,7 +2,7 @@ package paladin.discover.models.monitoring
 
 
 import paladin.discover.configuration.properties.DebeziumConfigurationProperties
-import paladin.discover.models.configuration.TableConfiguration
+import paladin.discover.models.configuration.database.TableConfiguration
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.DatabaseMonitoringConnector
 import java.util.*

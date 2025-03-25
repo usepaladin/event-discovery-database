@@ -9,8 +9,8 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
-import paladin.discover.services.configuration.DatabaseConfigurationService
-import paladin.discover.services.configuration.TableConfigurationService
+import paladin.discover.services.configuration.database.DatabaseConfigurationService
+import paladin.discover.services.configuration.database.TableConfigurationService
 import paladin.discover.services.connection.ConnectionMonitoringService
 import paladin.discover.services.connection.ConnectionService
 import paladin.discover.services.monitoring.MonitoringService
