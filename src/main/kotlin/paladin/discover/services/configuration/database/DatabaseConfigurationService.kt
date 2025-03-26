@@ -5,7 +5,6 @@ import paladin.discover.configuration.properties.CoreConfigurationProperties
 import paladin.discover.entities.connection.DatabaseConnectionEntity
 import paladin.discover.exceptions.DatabaseConnectionNotFound
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
-import paladin.discover.pojo.connection.ConnectionAdditionalProperties
 import paladin.discover.repositories.connection.DatabaseConnectionConfigurationRepository
 import paladin.discover.services.encryption.EncryptionService
 import java.util.*
@@ -89,35 +88,21 @@ class DatabaseConfigurationService(
     }
 
     private fun decryptDatabaseConfiguration(configuration: DatabaseConnectionEntity): DatabaseConnectionConfiguration {
-        val databaseConfiguration =
-            DatabaseConnectionConfiguration.fromEntity(configuration, serverConfig.requireDataEncryption)
-
-        if (!serverConfig.requireDataEncryption) return databaseConfiguration
-
-        // Decrypt Encrypted Fields
-        return databaseConfiguration.apply {
-            hostName =
-                encryptionService.decrypt(configuration.hostName) ?: throw Exception("Failed to decrypt hostname")
-            port = encryptionService.decrypt(configuration.port) ?: throw Exception("Failed to decrypt port")
-
-            configuration.databaseName.let { encDatabase ->
-                database = encryptionService.decrypt(encDatabase) ?: throw Exception("Failed to decrypt database")
-            }
-
-            configuration.user?.let { encUser ->
-                user = encryptionService.decrypt(encUser) ?: throw Exception("Failed to decrypt user")
-            }
-
-            configuration.password?.let { encPassword ->
-                password = encryptionService.decrypt(encPassword) ?: throw Exception("Failed to decrypt password")
-            }
-
-            configuration.additionalPropertiesText?.let { encProperties ->
-                additionalProperties =
-                    encryptionService.decryptObject(encProperties, ConnectionAdditionalProperties::class.java)
-                        ?: throw Exception("Failed to decrypt additional properties")
-            }
+        if (!serverConfig.requireDataEncryption) {
+            return DatabaseConnectionConfiguration.fromEntity(configuration)
         }
+
+        val hostName = encryptionService.decrypt(configuration.hostName)
+            ?: throw Exception("Failed to decrypt hostname")
+        val port = encryptionService.decrypt(configuration.port)
+            ?: throw Exception("Failed to decrypt port")
+        val database = encryptionService.decrypt(configuration.databaseName)
+            ?: throw Exception("Failed to decrypt database")
+        val user = encryptionService.decrypt(configuration.user)
+            ?: throw Exception("Failed to decrypt user")
+        val password = configuration.password?.let { encryptionService.decrypt(it) }
+
+        return DatabaseConnectionConfiguration.fromEntity(configuration, hostName, port, database, user, password)
     }
 
 }

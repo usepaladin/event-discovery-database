@@ -4,7 +4,6 @@ import paladin.discover.entities.configuration.TableMonitoringConfigurationEntit
 import paladin.discover.entities.connection.DatabaseConnectionEntity
 import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.pojo.connection.ConnectionAdditionalProperties
-import paladin.discover.pojo.connection.ConnectionPropertyConverter
 import java.util.*
 
 data class DatabaseConnectionConfiguration(
@@ -32,26 +31,31 @@ data class DatabaseConnectionConfiguration(
          */
         fun fromEntity(
             entity: DatabaseConnectionEntity,
-            requireEncryption: Boolean = true
+            hostName: String,
+            port: String,
+            database: String,
+            user: String,
+            password: String?,
         ): DatabaseConnectionConfiguration {
-            if (requireEncryption) {
-                return DatabaseConnectionConfiguration(
-                    id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
-                    instanceId = entity.instanceId,
-                    connectionName = entity.connectionName,
-                    databaseType = entity.databaseType,
-                    hostName = "[ENCRYPTED]",
-                    port = "[ENCRYPTED]",
-                    database = "[ENCRYPTED]",
-                    user = "[ENCRYPTED]",
-                    password = "",
-                    additionalProperties = null,
-                    isEnabled = false,
-                    tableConfigurations = entity.tableMonitoringConfigurations
-                )
-            }
-            val propertyConverter = ConnectionPropertyConverter()
+            return DatabaseConnectionConfiguration(
+                id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
+                instanceId = entity.instanceId,
+                connectionName = entity.connectionName,
+                databaseType = entity.databaseType,
+                hostName = hostName,
+                port = port,
+                database = database,
+                user = user,
+                password = password,
+                isEnabled = entity.isEnabled,
+                tableConfigurations = entity.tableMonitoringConfigurations
+            )
 
+        }
+
+        fun fromEntity(
+            entity: DatabaseConnectionEntity,
+        ): DatabaseConnectionConfiguration {
             return DatabaseConnectionConfiguration(
                 id = entity.id ?: throw IllegalArgumentException("Entity ID cannot be null"),
                 instanceId = entity.instanceId,
@@ -62,7 +66,6 @@ data class DatabaseConnectionConfiguration(
                 database = entity.databaseName,
                 user = entity.user,
                 password = entity.password,
-                additionalProperties = propertyConverter.convertToEntityAttribute(entity.additionalPropertiesText),
                 isEnabled = entity.isEnabled,
                 tableConfigurations = entity.tableMonitoringConfigurations
             )

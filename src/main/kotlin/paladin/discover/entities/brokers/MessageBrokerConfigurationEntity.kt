@@ -1,5 +1,6 @@
 package paladin.discover.entities.brokers
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
@@ -54,6 +55,7 @@ data class MessageBrokerConfigurationEntity(
     @Enumerated(EnumType.STRING)
     val brokerFormat: BrokerFormat,
 
+    @JsonIgnore
     @Column(name = "enc_broker_config", nullable = false)
     var brokerConfigEncrypted: String,
 
