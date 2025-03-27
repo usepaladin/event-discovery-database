@@ -18,6 +18,7 @@ import org.springframework.messaging.Message
 import paladin.discover.configuration.CloudBinderConfiguration
 import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.pojo.producer.DynamicBindingProperties
+import paladin.discover.services.configuration.broker.TopicBindingService
 import paladin.discover.utils.TestLogAppender
 
 @ExtendWith(MockKExtension::class)
@@ -111,5 +112,5 @@ class ProducerServiceTest {
         verify(exactly = 0) { topicBindingService.createDynamicTopicBinding(any(), any()) }
         verify { streamBridge.send(eq(binding), any<Message<*>>()) }
     }
-    
+
 }

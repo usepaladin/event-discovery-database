@@ -13,6 +13,7 @@ import org.springframework.cloud.stream.config.BindingProperties
 import org.springframework.cloud.stream.config.BindingServiceProperties
 import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.pojo.producer.DynamicBindingProperties
+import paladin.discover.services.configuration.broker.TopicBindingService
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue

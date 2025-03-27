@@ -1,14 +1,12 @@
 package paladin.discover.services
 
 import jakarta.annotation.PreDestroy
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.cloud.stream.config.BindingServiceProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
-import paladin.discover.models.connection.DatabaseConnectionConfiguration
 import paladin.discover.services.configuration.database.DatabaseConfigurationService
 import paladin.discover.services.configuration.database.TableConfigurationService
 import paladin.discover.services.connection.ConnectionMonitoringService
@@ -28,7 +26,8 @@ class DatabaseManagementService(
     private val connectionMonitoringService: ConnectionMonitoringService,
     private val tableConfigurationService: TableConfigurationService,
     private val monitoringService: MonitoringService,
-    private val applicationContext: ApplicationContext
+    private val applicationContext: ApplicationContext,
+    private val bindingServiceProperties: BindingServiceProperties,
 ) : ApplicationRunner {
     /**
      * This method is called after the bean has been constructed and the dependencies have been injected.
@@ -47,27 +46,29 @@ class DatabaseManagementService(
     }
 
     fun startDatabaseProcessing() {
-        // Retrieve the connection configuration of all databases we aim to connect to
-        val databaseConfig: List<DatabaseConnectionConfiguration> =
-            databaseConfigurationService.fetchAllEnabledDatabaseConnectionConfigurations()
+        println(bindingServiceProperties.binders)
 
-        // Attempt database connection and configuration
-        runBlocking {
-            databaseConfig.map {
-                async {
-                    val client = connectionService.createConnection(it)
-                    client?.let {
-                        it.connect()
-                        tableConfigurationService.scanDatabaseTableConfiguration(it)
-                    }
-                }
-            }.awaitAll()
-        }
-
-        // Set up background connection monitoring
-        connectionMonitoringService.monitorDatabaseConnections()
-        // Start monitoring engines
-        monitoringService.startMonitoring()
+//        // Retrieve the connection configuration of all databases we aim to connect to
+//        val databaseConfig: List<DatabaseConnectionConfiguration> =
+//            databaseConfigurationService.fetchAllEnabledDatabaseConnectionConfigurations()
+//
+//        // Attempt database connection and configuration
+//        runBlocking {
+//            databaseConfig.map {
+//                async {
+//                    val client = connectionService.createConnection(it)
+//                    client?.let {
+//                        it.connect()
+//                        tableConfigurationService.scanDatabaseTableConfiguration(it)
+//                    }
+//                }
+//            }.awaitAll()
+//        }
+//
+//        // Set up background connection monitoring
+//        connectionMonitoringService.monitorDatabaseConnections()
+//        // Start monitoring engines
+//        monitoringService.startMonitoring()
 
 //        // Fetch current database table configurations and update database if any changes have occurred
 //        destroy()

@@ -1,4 +1,4 @@
-package paladin.discover.services.producer
+package paladin.discover.services.configuration.broker
 
 import org.springframework.cloud.stream.binder.ProducerProperties
 import org.springframework.cloud.stream.binding.BindingService

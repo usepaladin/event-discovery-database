@@ -7,6 +7,7 @@ import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
 import paladin.discover.pojo.producer.DynamicBindingProperties
+import paladin.discover.services.configuration.broker.TopicBindingService
 
 @Service
 class ProducerService(
