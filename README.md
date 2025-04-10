@@ -28,7 +28,7 @@ enabling simplistic automated event generation and streaming for building reacti
         - **(Support for more databases will be added in future releases)**
 
 - **Standardized Event Generation:** Transforms detected changes into structured events with a consistent schema
-  (compatible with Avro, Protobuf, or other serialization formats).
+  (compatible with standard String, Json or Avro Serialization formats).
 - **Event Publishing to Event Bus:** Efficiently publishes generated events to a specified Kafka broker for downstream
   consumption by other services.
     - Will support seamless integrate with our proposed Event Bus Core service.

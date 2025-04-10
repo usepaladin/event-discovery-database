@@ -2,6 +2,7 @@ package paladin.discover.services.monitoring
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.fasterxml.jackson.databind.JsonNode
 import io.debezium.engine.ChangeEvent
 import io.debezium.engine.DebeziumEngine
 import io.debezium.engine.format.Json
@@ -125,8 +126,8 @@ class MonitoringServiceTest {
         )
 
         // Mock engine creation with explicit type parameters
-        val mockEngine: DebeziumEngine<ChangeEvent<*, *>> = mockk()
-        val mockEventHandler: ChangeEventFormatHandler<*, *> = mockk()
+        val mockEngine: DebeziumEngine<ChangeEvent<String, String>> = mockk()
+        val mockEventHandler: ChangeEventFormatHandler<String, JsonNode> = mockk()
         every {
             changeEventHandlerFactory.createChangeEventHandler(any())
         } returns mockEventHandler

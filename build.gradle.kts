@@ -1,11 +1,8 @@
-import com.google.protobuf.gradle.id
-
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.spring") version "2.0.0"
     id("org.springframework.boot") version "3.4.2"
     id("io.spring.dependency-management") version "1.1.7"
-    id("com.google.protobuf") version "0.9.4"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
     kotlin("plugin.jpa") version "2.0.0"
 }
@@ -119,26 +116,6 @@ kotlin {
     }
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc"
-    }
-    plugins {
-        id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java"
-        }
-    }
-    generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                id("grpc") {
-                    option("jakarta_omit")
-                    option("@generated=omit")
-                }
-            }
-        }
-    }
-}
 
 tasks.withType<Test> {
     useJUnitPlatform()

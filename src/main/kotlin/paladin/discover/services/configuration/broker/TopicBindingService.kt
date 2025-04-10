@@ -37,7 +37,6 @@ class TopicBindingService(
         return when (type) {
             ChangeEventHandlerType.JSON -> "application/json"
             ChangeEventHandlerType.AVRO -> "application/avro"
-            ChangeEventHandlerType.PROTOBUF -> "application/protobuf"
         }
     }
 }
