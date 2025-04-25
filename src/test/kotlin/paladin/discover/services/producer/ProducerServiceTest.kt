@@ -44,7 +44,7 @@ class ProducerServiceTest {
         // Configure logger
         logbackLogger = LoggerFactory.getLogger(logger.name) as ch.qos.logback.classic.Logger
         testAppender = TestLogAppender.factory(logbackLogger, Level.DEBUG)
-        producerService = ProducerService(streamBridge, cloudBinderConfiguration, topicBindingService, logger)
+        producerService = ProducerService(streamBridge, topicBindingService, logger)
     }
 
     @Test

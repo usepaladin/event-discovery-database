@@ -1,9 +1,7 @@
 package paladin.discover.utils
 
 import paladin.discover.enums.configuration.DatabaseType
-import paladin.discover.enums.monitoring.ChangeEventHandlerType
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
-import paladin.discover.pojo.connection.ConnectionAdditionalProperties
 import java.util.*
 
 object TestDatabaseConfigurations {
@@ -18,7 +16,6 @@ object TestDatabaseConfigurations {
         password = "test_password",
         isEnabled = true,
         instanceId = UUID.randomUUID(),
-        monitoringEventHandler = ChangeEventHandlerType.JSON,
         additionalProperties = null
 
     )
@@ -34,42 +31,6 @@ object TestDatabaseConfigurations {
         password = "test_password",
         isEnabled = true,
         instanceId = UUID.randomUUID(),
-        monitoringEventHandler = ChangeEventHandlerType.JSON,
         additionalProperties = null
-    )
-
-    fun createMongoConfig() = DatabaseConnectionConfiguration(
-        id = UUID.randomUUID(),
-        databaseType = DatabaseType.MONGO,
-        connectionName = "Test MongoDB",
-        hostName = "localhost",
-        port = "27017",
-        database = "test_db",
-        user = "test_user",
-        password = "test_password",
-        isEnabled = true,
-        instanceId = UUID.randomUUID(),
-        additionalProperties = ConnectionAdditionalProperties(
-            authSource = "admin"
-        ),
-        monitoringEventHandler = ChangeEventHandlerType.JSON
-
-    )
-
-    fun createCassandraConfig() = DatabaseConnectionConfiguration(
-        id = UUID.randomUUID(),
-        databaseType = DatabaseType.CASSANDRA,
-        connectionName = "Test Cassandra",
-        hostName = "localhost",
-        port = "9042",
-        database = "test_keyspace",
-        user = "test_user",
-        password = "test_password",
-        isEnabled = true,
-        instanceId = UUID.randomUUID(),
-        additionalProperties = ConnectionAdditionalProperties(
-            dataCenter = "datacenter1"
-        ),
-        monitoringEventHandler = ChangeEventHandlerType.JSON
     )
 } 

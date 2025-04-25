@@ -25,10 +25,17 @@ configurations {
 repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/usepaladin/avro-schemas")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("gpr.token") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
-extra["springGrpcVersion"] = "0.3.0"
 val springCloudVersion by extra("2024.0.0")
 
 
@@ -39,16 +46,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    implementation("io.grpc:grpc-services")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.grpc:spring-grpc-spring-boot-starter")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
     testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
+    
+    // Service Avro Models
+    implementation("paladin.avro:avro-models:0.0.8-SNAPSHOT")
 
     // Debezium
     implementation("io.debezium:debezium-core:3.0.7.Final")
@@ -64,14 +71,6 @@ dependencies {
 
 
     // Database Connections
-
-    // MongoDB
-    // KEEP DRIVERS AT 4.11
-    // Debezium supports MongoDB drivers at 4.11, waiting on further support to migrate to v5 lol
-//    implementation("org.mongodb:mongodb-driver-sync:4.11.0")
-//    implementation("org.mongodb:mongodb-driver-core:4.11.0")
-//    implementation("org.mongodb:bson:4.11.0")
-//    implementation("org.mongodb:mongodb-driver-legacy:4.11.0")
     implementation("io.confluent:kafka-avro-serializer:7.9.0")
 
     //Postgres
@@ -96,16 +95,12 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.13.17")
-    testImplementation("org.springframework.grpc:spring-grpc-test")
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("io.debezium:debezium-testing-testcontainers:3.0.7.Final")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.slf4j:slf4j-api:2.0.16") //Explicit slf4j dependency in test scope.
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.grpc:spring-grpc-dependencies:${property("springGrpcVersion")}")
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
@@ -116,17 +111,13 @@ kotlin {
     }
 }
 
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
 
 tasks.withType<Test> {
     useJUnitPlatform()
-
 }
 
-tasks.test {
-    outputs.dir(project.extra["snippetsDir"]!!)
-}
-
-tasks.asciidoctor {
-    inputs.dir(project.extra["snippetsDir"]!!)
-    dependsOn(tasks.test)
-}

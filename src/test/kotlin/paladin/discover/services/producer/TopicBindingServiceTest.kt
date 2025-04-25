@@ -114,18 +114,5 @@ class TopicBindingServiceTest {
         // Verify
         assertEquals("application/avro", result)
     }
-
-    @Test
-    fun `test getTopicContentType returns correct content type for PROTOBUF`() {
-        // Setup - using reflection to access private method
-        val method =
-            TopicBindingService::class.java.getDeclaredMethod("getTopicContentType", ChangeEventHandlerType::class.java)
-        method.isAccessible = true
-
-        // Execute
-        val result = method.invoke(topicBindingService, ChangeEventHandlerType.PROTOBUF)
-
-        // Verify
-        assertEquals("application/protobuf", result)
-    }
+    
 }

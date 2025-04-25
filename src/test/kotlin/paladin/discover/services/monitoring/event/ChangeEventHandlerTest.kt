@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 import paladin.discover.enums.configuration.DatabaseType
 import paladin.discover.enums.monitoring.ChangeEventOperation
 import paladin.discover.models.connection.DatabaseConnectionConfiguration
-import paladin.discover.models.monitoring.changeEvent.JsonChangeEventHandler
+import paladin.discover.models.monitoring.changeEvent.ChangeEventHandler
 import paladin.discover.pojo.client.DatabaseClient
 import paladin.discover.pojo.monitoring.ChangeEventData
 import paladin.discover.pojo.monitoring.ChangeEventDataKey
@@ -34,7 +34,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @ExtendWith(MockKExtension::class)
-class JsonChangeEventHandlerTest {
+class ChangeEventHandlerTest {
 
     @MockK
     private lateinit var connector: DatabaseMonitoringConnector
@@ -55,7 +55,7 @@ class JsonChangeEventHandlerTest {
     private lateinit var engine: DebeziumEngine<ChangeEvent<String, String>>
 
     private lateinit var objectMapper: ObjectMapper
-    private lateinit var handler: JsonChangeEventHandler
+    private lateinit var handler: ChangeEventHandler
 
     private lateinit var testLogAppender: TestLogAppender
     private val logger: KLogger = KotlinLogging.logger {}
@@ -69,7 +69,7 @@ class JsonChangeEventHandlerTest {
         every { client.id } returns UUID.randomUUID()
         every { connectionConfig.databaseType } returns DatabaseType.POSTGRES
         every { connector.getConnectorProps() } returns mockk()
-        handler = JsonChangeEventHandler(
+        handler = ChangeEventHandler(
             connector,
             client,
             producerService,
